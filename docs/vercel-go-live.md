@@ -23,12 +23,13 @@ Na tela de configuração (aba *Environment Variables*), você deve informar 5 c
 * [ ] Certifique-se nas Configurações do Projeto de que a linguagem raiz do Node.js está em "20.x". Next.js puxará nativamente os comandos `npm run build`.
 
 ## 4. O Famoso "Smoke Test"
-Após a Vercel finalizar e gerar luz verde, abra a URL oficial do app e bata nessas 4 rotas-chefe:
+Após a Vercel finalizar e gerar luz verde, abra a URL oficial do app e bata nessas 5 rotas-chefe:
 
 * [ ] `/api/health`: Deve retornar *OK* escrito numa tela preta limpa.
-* [ ] `/no-ponto` (Aprovar GPS do Browser): O select de pontos *deve carregar pontos nomeados* ou o alerta amarelinho de nenhum ponto (caso o banco esteja zerado de seeds). *Não pode craxar.*
-* [ ] `/painel`: Abas interativas de Linhas e Visão Geral devem redimensionar e não apagar a tela (Testando se a Anon Key logou ao DB para RLS).
-* [ ] `/admin?t=SEUTOKEN`: A URL deve limpar pro `/admin` automaticamente, gerar o cookie no seu browser e exibir o Dashboard Administrativo c/ as ferramentas (Testando a integridade Middleware + EnvVars).
+* [ ] `/no-ponto` (Aprovar GPS do Browser): O select de pontos *deve carregar pontos nomeados* ou o alerta amarelinho de nenhum ponto.
+* [ ] `/painel`: Abas interativas de Linhas e Visão Geral devem redimensionar e carregar dados.
+* [ ] `/admin?t=SEUTOKEN`: A URL deve transmutar para `/admin`, gerar cookie e exibir o Dashboard Administrativo Central.
+* [ ] `/admin/status`: O **System Status Dashboard** deve carregar com badges verdes (ou amarelos) indicando que CRONs, banco e API de Vagas estão respondendo (Testando `system_runs` RLS).
 
 ## 5. Automação Diária e CI/CD (GitHub Actions)
 

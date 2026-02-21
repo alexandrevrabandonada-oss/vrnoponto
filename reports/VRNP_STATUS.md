@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T22:18:49.266Z
+Gerado em: 2026-02-21T23:04:58.670Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: ab3a095
+- Git Commit: a490a94
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
+* a490a94 - chore: automate supabase migrations via github actions
 * ab3a095 - feat: partner funnel analytics
 * e67f5ba - feat: 10s onboarding
 * 941c3e1 - feat: partner onboarding funnel
 * ca72f8c - feat: editorial kit (captions + copy buttons)
-* 52fdfb7 - fix: final lint corrections for partner kit
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -24,6 +24,7 @@ Gerado em: 2026-02-21T22:18:49.266Z
 - /admin/oficial
 - /admin/parceiros
 - /admin/pontos
+- /admin/status
 - /boletim
 - /como-usar
 - /linha/[id]
@@ -43,6 +44,7 @@ Gerado em: 2026-02-21T22:18:49.266Z
 - /api/admin/qr/generate
 - /api/admin/run-alerts
 - /api/admin/sync-official
+- /api/admin/system-status
 - /api/admin/upload-pdf
 - /api/alerts
 - /api/bulletin
@@ -87,6 +89,7 @@ Gerado em: 2026-02-21T22:18:49.266Z
 - 0019_partner_requests.sql
 - 0020_telemetry_counts.sql
 - 0021_partner_funnel_views.sql
+- 0022_system_runs.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { createClient } from '@supabase/supabase-js';
+import { recordOneShot } from '@/lib/systemRuns';
 
 export const runtime = 'edge';
 
@@ -52,6 +53,8 @@ export async function GET(req: Request) {
             .maybeSingle();
 
         const periodText = `Últimos ${days} dias (${thresholdDate.toLocaleDateString('pt-BR')} - ${new Date().toLocaleDateString('pt-BR')})`;
+
+        recordOneShot('bulletin_card', 'OK', { format, days }).catch(() => { });
 
         return new ImageResponse(
             (
@@ -157,6 +160,7 @@ export async function GET(req: Request) {
             }
         );
     } catch {
+        recordOneShot('bulletin_card', 'FAIL', {}).catch(() => { });
         return new Response('Error generating card', { status: 500 });
     }
 }

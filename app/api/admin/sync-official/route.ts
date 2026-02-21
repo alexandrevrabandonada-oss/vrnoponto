@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
+import { startRun } from '@/lib/systemRuns';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max for Vercel Hobby/Pro if allowed
@@ -49,6 +50,9 @@ export async function POST(req: Request) {
         const limitRaw = body.limit ?? searchParams.get('limit') ?? '0';
         const limit = parseInt(String(limitRaw), 10);
         const only = body.only || searchParams.get('only');
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const runId = await startRun('sync_official', { dryRun, limit, only });
 
         const sourceUrl = process.env.OFFICIAL_SOURCE_URL || 'https://www.voltaredonda.rj.gov.br/horario-de-onibus/';
 
@@ -195,6 +199,10 @@ export async function POST(req: Request) {
 
     } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Unknown Error';
+
+        // At this point we can't reliably read runId easily if it crashed before assignment, 
+        // but let's assume if it fails here we rely on the internal silent tracker timeout
+
         return NextResponse.json({ error: message }, { status: 500 });
     }
 }

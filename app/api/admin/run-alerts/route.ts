@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { startRun, finishRun } from '@/lib/systemRuns';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,8 @@ export async function POST(req: Request) {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+        const runId = await startRun('run_alerts', {});
 
         const now = new Date();
         const currentWeekStart = new Date(now);
@@ -118,6 +121,9 @@ export async function POST(req: Request) {
                 }
             }
         }
+
+        const runStatus = results.errors.length > 0 ? 'WARN' : 'OK';
+        await finishRun(runId, runStatus, results);
 
         return NextResponse.json(results);
     } catch (err: unknown) {
