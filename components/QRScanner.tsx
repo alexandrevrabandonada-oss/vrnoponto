@@ -33,7 +33,7 @@ export function QRScanner({ onClose }: { onClose: () => void }) {
                     onClose();
                 }
             }).catch(err => console.error("Error clearing scanner", err));
-        }, (errorMessage) => {
+        }, () => {
             // handle failure (scanning)
             // console.warn(errorMessage);
         });

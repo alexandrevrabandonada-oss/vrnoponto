@@ -92,7 +92,7 @@ export async function GET(req: Request) {
             ),
             { width: 600, height: 600 }
         );
-    } catch (_err) {
+    } catch {
         return new Response('Error', { status: 500 });
     }
 }

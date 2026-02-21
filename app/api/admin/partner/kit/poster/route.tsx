@@ -171,7 +171,7 @@ export async function GET(req: Request) {
             ),
             { width: 842, height: 1191 } // A4 roughly
         );
-    } catch (_err) {
+    } catch {
         return new Response('Error', { status: 500 });
     }
 }

@@ -19,21 +19,16 @@ L.Icon.Default.mergeOptions({
     shadowUrl,
 });
 
-// Criar ícones coloridos baseado no delay (p50)
-const createColoredIcon = (colorHex: string) => {
+// Criar ícones coloridos baseado no delay (p50) com possível borda de alerta
+function createColoredIcon(colorHex: string, hasAlert = false) {
+    const ring = hasAlert ? 'border: 4px solid #f59e0b; box-shadow: 0 0 10px #f59e0b;' : 'border: 3px solid white;';
     return L.divIcon({
         className: 'custom-div-icon',
-        html: `<div style='background-color:${colorHex}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);'></div>`,
+        html: `<div style='background-color:${colorHex}; width: 24px; height: 24px; border-radius: 50%; ${ring} box-shadow: 0 2px 5px rgba(0,0,0,0.3);'></div>`,
         iconSize: [24, 24],
         iconAnchor: [12, 12]
     });
-};
-
-const iconGray = createColoredIcon('#9ca3af'); // Sem dados
-const iconGreen = createColoredIcon('#10b981'); // 0-5 min
-const iconYellow = createColoredIcon('#f59e0b'); // 5-10 min
-const iconOrange = createColoredIcon('#f97316'); // 10-20 min
-const iconRed = createColoredIcon('#ef4444'); // > 20 min
+}
 
 const iconPartner = L.divIcon({
     className: 'custom-div-icon',
@@ -42,12 +37,12 @@ const iconPartner = L.divIcon({
     iconAnchor: [14, 14]
 });
 
-function getIconForP50(p50: number | null) {
-    if (p50 === null) return iconGray;
-    if (p50 <= 5) return iconGreen;
-    if (p50 <= 10) return iconYellow;
-    if (p50 <= 20) return iconOrange;
-    return iconRed;
+function getIconForP50(p50: number | null, hasAlert = false) {
+    if (p50 === null) return createColoredIcon('#9ca3af', hasAlert);
+    if (p50 <= 5) return createColoredIcon('#10b981', hasAlert);
+    if (p50 <= 10) return createColoredIcon('#f59e0b', hasAlert);
+    if (p50 <= 20) return createColoredIcon('#f97316', hasAlert);
+    return createColoredIcon('#ef4444', hasAlert);
 }
 
 function getColorBlockForP50(p50: number | null) {
@@ -69,6 +64,10 @@ export type StopMapItem = {
         p50_wait_min: number;
         p90_wait_min: number;
         samples: number;
+        alert?: {
+            severity: 'WARN' | 'CRIT';
+            delta_pct: number;
+        } | null;
     } | null;
 };
 
@@ -113,7 +112,7 @@ export default function DelayMapComponent({
                     <Marker
                         key={stop.id}
                         position={[stop.location!.lat, stop.location!.lng]}
-                        icon={getIconForP50(stop.metrics?.p50_wait_min ?? null)}
+                        icon={getIconForP50(stop.metrics?.p50_wait_min ?? null, !!stop.metrics?.alert)}
                     >
                         <Popup className="vrnp-popup">
                             <div className="font-sans w-56">
@@ -121,6 +120,12 @@ export default function DelayMapComponent({
                                     <MapPin size={16} className="mt-0.5 text-gray-400 flex-shrink-0" />
                                     <span>{stop.name}</span>
                                 </div>
+
+                                {stop.metrics?.alert && (
+                                    <div className="mb-3 p-2 bg-amber-50 border border-amber-200 rounded text-[10px] font-bold text-amber-700">
+                                        ⚠️ ALERTA: Deterioração de tempo (+{stop.metrics.alert.delta_pct}%) detectada nesta semana.
+                                    </div>
+                                )}
 
                                 {stop.metrics ? (
                                     <div className="space-y-2 mb-3">

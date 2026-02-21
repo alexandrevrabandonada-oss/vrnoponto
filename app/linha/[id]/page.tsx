@@ -1,8 +1,33 @@
 import { createClient } from '@/lib/supabase/server';
+import { Sparkline } from '@/components/metrics/Sparkline';
+import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { EditorialCard } from '@/components/editorial/EditorialCard';
+import { generateLineCaption } from '@/lib/editorial/templates';
 
-export default async function LinhaDetails({ params }: { params: { id: string } }) {
+type WeeklyHeadway = {
+    week_start: string;
+    p50_headway_min: number;
+    p90_headway_min: number;
+    samples: number;
+};
+
+type Alert = {
+    id: string;
+    alert_type: string;
+    target_id: string;
+    week_start: string;
+    metric_p50: number;
+    prev_metric_p50: number;
+    delta_pct: number;
+    severity: 'INFO' | 'WARN' | 'CRIT';
+    created_at: string;
+};
+
+export default async function LinhaDetails({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
+    const params = await paramsPromise;
     const supabase = await createClient();
     const lineId = params.id;
+    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000';
 
     // Busca detalhes da linha
     const { data: line } = await supabase
@@ -14,6 +39,22 @@ export default async function LinhaDetails({ params }: { params: { id: string } 
     if (!line) {
         return <div className="p-8 text-center text-red-500 font-bold">Linha não encontrada.</div>;
     }
+
+    // Busca dados semanais e alertas
+    const [weeklyRes, alertsRes] = await Promise.all([
+        fetch(`${baseUrl}/api/timeseries/line?line_id=${lineId}&weeks=8`, { cache: 'no-store' }),
+        fetch(`${baseUrl}/api/alerts?days=30`, { cache: 'no-store' })
+    ]);
+
+    const weekly: WeeklyHeadway[] = await weeklyRes.json().catch(() => []);
+    const allAlerts: Alert[] = await alertsRes.json().catch(() => []);
+    const alerts = allAlerts.filter(a => a.target_id === lineId && a.alert_type === 'LINE_HEADWAY');
+
+    const lastWeekly = weekly[weekly.length - 1];
+    const prevWeekly = weekly[weekly.length - 2];
+    const hasTrend = !!(lastWeekly && prevWeekly);
+    const delta = hasTrend ? Math.round(((lastWeekly.p50_headway_min - prevWeekly.p50_headway_min) / prevWeekly.p50_headway_min) * 100) : null;
+    const isWorsening = delta !== null && delta > 0;
 
     // Busca variantes pra podermos linkar a tabela
     const { data: variants } = await supabase
@@ -59,6 +100,84 @@ export default async function LinhaDetails({ params }: { params: { id: string } 
                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${line.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                 {line.is_active ? 'Em Operação' : 'Desativada'}
                             </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Alerts Section */}
+                {alerts.length > 0 && (
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                            <AlertCircle size={20} />
+                            <h2 className="text-lg font-black uppercase tracking-tight">Alertas de Confiabilidade</h2>
+                        </div>
+                        <div className="space-y-3">
+                            {alerts.map(alert => (
+                                <div key={alert.id} className={`p-4 rounded-xl border-l-4 ${alert.severity === 'CRIT' ? 'bg-red-50 dark:bg-red-950/20 border-red-600 text-red-900 dark:text-red-400' : 'bg-amber-50 dark:bg-amber-950/20 border-amber-600 text-amber-900 dark:text-amber-400'}`}>
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="font-bold text-sm">Aumento no intervalo médio (Headway)</p>
+                                            <p className="text-xs opacity-80 mt-1">
+                                                Intervalo subiu <span className="font-black">{alert.delta_pct}%</span> nesta semana ({alert.metric_p50}m) vs anterior ({alert.prev_metric_p50}m).
+                                            </p>
+                                        </div>
+                                        <div className={`px-2 py-0.5 rounded text-[10px] font-black ${alert.severity === 'CRIT' ? 'bg-red-600 text-white' : 'bg-amber-600 text-white'}`}>
+                                            {alert.severity}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Editorial Kit */}
+                <EditorialCard
+                    data={{ line, metrics: lastWeekly }}
+                    generator={(d, t) => generateLineCaption(d.line, d.metrics, t)}
+                    title="Kit Editorial: Denúncia desta Linha"
+                />
+
+                {/* Weekly Trends / Sparkline */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                        <div className="space-y-1">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Tendência de Intervalo (Headway)</h2>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Mediana de minutos entre ônibus nas últimas 8 semanas</p>
+                        </div>
+                        {weekly.length >= 2 && (
+                            <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <Sparkline
+                                    data={weekly.map(w => ({ week_start: w.week_start, value: w.p50_headway_min, p90: w.p90_headway_min }))}
+                                    width={260}
+                                    height={50}
+                                    color={isWorsening ? '#ef4444' : '#10b981'}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Último p50</p>
+                            <p className="text-2xl font-black text-gray-900 dark:text-white">{lastWeekly?.p50_headway_min || '--'}m</p>
+                        </div>
+                        <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Amostras Semana</p>
+                            <p className="text-2xl font-black text-gray-900 dark:text-white">{lastWeekly?.samples || 0}</p>
+                        </div>
+                        <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 col-span-2">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Variação 7d</p>
+                            <div className={`flex items-center gap-1 text-xl font-black ${delta === null ? 'text-gray-400' : isWorsening ? 'text-red-600' : 'text-emerald-600'}`}>
+                                {delta !== null ? (
+                                    <>
+                                        {isWorsening ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
+                                        <span>{isWorsening ? `+${delta}%` : `${delta}%`}</span>
+                                    </>
+                                ) : (
+                                    <span className="text-sm font-normal italic">N/A</span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

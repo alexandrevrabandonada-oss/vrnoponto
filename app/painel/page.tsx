@@ -45,6 +45,11 @@ export default async function Painel({
         .order('median_wait_time', { ascending: false })
         .limit(10);
 
+    // 5. Fetch Alertas Ativos (30 dias)
+    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000';
+    const alertsRes = await fetch(`${baseUrl}/api/alerts?days=30`, { cache: 'no-store' });
+    const alerts = await alertsRes.json().catch(() => []);
+
     return (
         <main className="flex min-h-screen flex-col items-center p-8 bg-gray-50 dark:bg-gray-900">
             <div className="w-full max-w-5xl">
@@ -86,6 +91,41 @@ export default async function Painel({
                         </div>
                     </form>
                 </div>
+
+                {/* Alertas Summary (New) */}
+                {alerts.length > 0 && (
+                    <div className="mb-8 p-6 bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-500/50 rounded-2xl">
+                        <div className="flex items-center gap-2 mb-4 text-amber-700 dark:text-amber-400">
+                            <AlertTriangle size={24} />
+                            <h2 className="text-xl font-black uppercase">Alertas (últimos 30 dias)</h2>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {alerts.slice(0, 6).map((alert: { id: string, alert_type: string, severity: string, delta_pct: number }) => (
+                                <div key={alert.id} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-amber-100 dark:border-amber-900/50">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900 text-amber-900 dark:text-amber-300">
+                                            {alert.alert_type === 'STOP_WAIT' ? 'PONTO' : 'LINHA'}
+                                        </span>
+                                        <span className={`text-[10px] font-black ${alert.severity === 'CRIT' ? 'text-red-600' : 'text-amber-600'}`}>
+                                            {alert.severity}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm font-bold truncate text-gray-900 dark:text-white">
+                                        {alert.alert_type === 'STOP_WAIT' ? 'Atraso no Ponto' : 'Piora no Intervalo'}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Piora de <span className="font-black">+{alert.delta_pct}%</span>
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                        {alerts.length > 6 && (
+                            <p className="text-center text-xs text-amber-600 dark:text-amber-500 mt-4 font-bold">
+                                + {alerts.length - 6} alertas adicionais ocultos
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 {/* KPIs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

@@ -35,3 +35,8 @@ A lógica de negócio foi movida do cliente direto (Supabase Client-Side Insert)
 - O servidor insere o evento como `L1`.
 - O servidor busca eventos parecidos nos mesmos 8 mins de outros devices.
 - Se houver outros devices, atualiza o `trust_level` do evento antigo (e do novo) para `L2`, e gera a confirmação.
+
+## Transparência de Dados
+- **Auditoria Popular**: Todos os dados de tempo real vêm de relatos anônimos mas validados por geofencing.
+- **Linha do Tempo**: O histórico de 8 semanas permite ver se uma linha está melhorando ou piorando.
+- **Alertas Automatizados**: O sistema detecta autonomamente degradações críticas (>30%) e as destaca para a comunidade.

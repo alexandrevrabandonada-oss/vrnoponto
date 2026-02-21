@@ -1,4 +1,6 @@
 import { Calendar, Download, Share2, Info, ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
+import { EditorialCard } from '@/components/editorial/EditorialCard';
+import { generateMonthlyCaption } from '@/lib/editorial/templates';
 
 export const dynamic = 'force-dynamic';
 
@@ -139,6 +141,15 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                             )}
                         </div>
                     </div>
+                )}
+
+                {/* Editorial Kit */}
+                {!errorMsg && data && (
+                    <EditorialCard
+                        data={{ ...data, month: formatMonthLabel(currentMonth) }}
+                        generator={generateMonthlyCaption}
+                        title="Kit Editorial: Resumo Mensal"
+                    />
                 )}
 
                 {/* Tabelas de Ranking */}

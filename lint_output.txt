@@ -1,74 +1,17 @@
 
-C:\Projetos\vrnoponto\app\api\point\detail\route.ts
-  33:39  warning  'metricsError' is assigned a value but never used  @typescript-eslint/no-unused-vars
-  40:37  warning  'linesError' is assigned a value but never used    @typescript-eslint/no-unused-vars
+> vrnoponto@0.1.0 lint
+> eslint
 
-C:\Projetos\vrnoponto\app\api\qr\validate\route.ts
-  39:34  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
-  43:23  warning  'proximity' is assigned a value but never used  @typescript-eslint/no-unused-vars
-  43:41  warning  'proxError' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\app\ponto\[id]\page.tsx
-  1:10  warning  'Suspense' is defined but never used  @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\api\bulletin\card\route.tsx
+  159:14  warning  '_err' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\app\qr\[token]\page.tsx
-   5:19  warning  'MapPin' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
-   5:27  warning  'CheckCircle2' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
-  13:11  warning  'router' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
-  23:9   error    Error: Cannot access variable before it is declared
+C:\Projetos\vrnoponto\app\boletim\page.tsx
+   9:5  warning  'Calendar' is defined but never used  @typescript-eslint/no-unused-vars
+  11:5  warning  'Bus' is defined but never used       @typescript-eslint/no-unused-vars
 
-`startValidation` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+C:\Projetos\vrnoponto\components\editorial\EditorialCard.tsx
+  3:20  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\app\qr\[token]\page.tsx:23:9
-  21 |         }
-  22 |
-> 23 |         startValidation(deviceId);
-     |         ^^^^^^^^^^^^^^^ `startValidation` accessed before it is declared
-  24 |     }, [params.token]);
-  25 |
-  26 |     async function startValidation(deviceId: string) {
-
-C:\Projetos\vrnoponto\app\qr\[token]\page.tsx:26:5
-  24 |     }, [params.token]);
-  25 |
-> 26 |     async function startValidation(deviceId: string) {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 27 |         setStatus('locating');
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 28 |
-     ÔÇª
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 45 |         );
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 46 |     }
-     | ^^^^^^ `startValidation` is declared here
-  47 |
-  48 |     async function validate(deviceId: string, lat: number, lng: number) {
-  49 |         setStatus('validating');  react-hooks/immutability
-  24:8   warning  React Hook useEffect has a missing dependency: 'startValidation'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-hooks/exhaustive-deps
-  40:14  warning  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
-  65:18  warning  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
-
-C:\Projetos\vrnoponto\components\QRScanner.tsx
-  10:12  warning  'scannerLoaded' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
-  34:14  warning  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
-  39:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
-
-Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
-* Update external systems with the latest state from React.
-* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
-
-Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
-
-C:\Projetos\vrnoponto\components\QRScanner.tsx:39:9
-  37 |         );
-  38 |
-> 39 |         setScannerLoaded(true);
-     |         ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
-  40 |
-  41 |         return () => {
-  42 |             scanner.clear().catch(err => console.error("Failed to clear scanner", err));  react-hooks/set-state-in-effect
-  44:8   warning  React Hook useEffect has missing dependencies: 'onClose' and 'router'. Either include them or remove the dependency array. If 'onClose' changes too often, find the parent component that defines it and wrap that definition in useCallback                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    react-hooks/exhaustive-deps
-
-Ô£û 17 problems (3 errors, 14 warnings)
+Ô£û 4 problems (0 errors, 4 warnings)
 

@@ -1,0 +1,32 @@
+name: Weekly Bulletin Generation
+
+on:
+  schedule:
+    - cron: '40 10 * * 1' # Monday 07:40 BRT (10:40 UTC)
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  generate-bulletin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Artifacts Directory
+        run: mkdir -p bulletin-assets
+
+      - name: Fetch Bulletin Data (JSON)
+        run: |
+          curl -s "https://vrnoponto.vercel.app/api/bulletin?days=7" -o bulletin-assets/bulletin.json
+
+      - name: Fetch Square Card (1:1)
+        run: |
+          curl -s "https://vrnoponto.vercel.app/api/bulletin/card?format=square&days=7" -o bulletin-assets/bulletin-square.png
+
+      - name: Fetch Story Card (9:16)
+        run: |
+          curl -s "https://vrnoponto.vercel.app/api/bulletin/card?format=story&days=7" -o bulletin-assets/bulletin-story.png
+
+      - name: Upload Bulletin Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-bulletin-${{ github.run_id }}
+          path: bulletin-assets/
+          retention-days: 14

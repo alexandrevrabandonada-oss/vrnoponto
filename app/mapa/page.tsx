@@ -17,6 +17,17 @@ async function fetchStops(baseUrl: string) {
     }
 }
 
+async function fetchAlerts(baseUrl: string) {
+    try {
+        const res = await fetch(`${baseUrl}/api/alerts?days=30`, { cache: 'no-store' });
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
+}
+
 function ListView({ stops }: { stops: StopMapItem[] }) {
     // Ordenar os pontos para que os piores fiquem em cima
     const sorted = [...stops].sort((a, b) => {
@@ -78,7 +89,19 @@ export default async function DelayMapPage(props: { searchParams: Promise<{ m?: 
     const searchParams = await props.searchParams;
     const listMode = searchParams.m === 'lista';
     const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000';
-    const stops = await fetchStops(baseUrl);
+
+    const [stopsRaw, alerts] = await Promise.all([
+        fetchStops(baseUrl),
+        fetchAlerts(baseUrl)
+    ]);
+
+    const stops = stopsRaw.map(s => {
+        const stopAlert = (alerts || []).find((a: { target_id: string, alert_type: string }) => a.target_id === s.id && a.alert_type === 'STOP_WAIT');
+        return {
+            ...s,
+            metrics: s.metrics ? { ...s.metrics, alert: stopAlert } : null
+        };
+    });
 
     return (
         <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">

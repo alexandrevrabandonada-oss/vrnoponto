@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Activity, MapPin, Bus, Handshake } from 'lucide-react';

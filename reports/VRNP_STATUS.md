@@ -17,6 +17,13 @@ Gerado em: 2026-02-21T19:54:50.849Z
 * 6f46dd1 - feat: mapa do atraso
 * ce6746f - feat: monthly public report + export
 
+## 📊 Monitoramento & Transparência
+- **Métricas Semanais**: 100% (Views, Alertas e Agendamento)
+- **Boletim Público**: 100% (API, UI e OG Images)
+- **Social Marketing**: 100% (Gerador de Cards 1:1 e 9:16)
+- **Automação de Ativos**: Operacional (Artifacts via GitHub Actions)
+- **Documentação**: [Metrics](./docs/metrics.md), [Trust](./docs/trust.md), [Bulletin](./docs/bulletin.md)
+
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
 - /admin

@@ -1,0 +1,15 @@
+name: Run Automated Alerts
+
+on:
+  schedule:
+    - cron: '25 10 * * *' # 07:25 BRT
+  workflow_dispatch:
+
+jobs:
+  run-alerts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Alert Calculation
+        run: |
+          curl -X POST "${{ secrets.VRNP_ALERTS_URL || 'https://vrnoponto.vercel.app/api/admin/run-alerts' }}?t=${{ secrets.VRNP_ADMIN_TOKEN }}" \
+            -H "Content-Type: application/json"
