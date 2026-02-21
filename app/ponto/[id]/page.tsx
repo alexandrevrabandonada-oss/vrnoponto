@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, Share2, TrendingDown, TrendingUp, Users, MapPin, ShieldAlert, BadgeAlert } from 'lucide-react';
 import Link from 'next/link';

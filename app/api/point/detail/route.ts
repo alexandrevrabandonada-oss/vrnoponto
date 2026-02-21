@@ -30,14 +30,14 @@ export async function GET(req: Request) {
         }
 
         // 2. Busca métricas gerais do ponto (30d + trend 7d)
-        const { data: metrics, error: metricsError } = await supabase
+        const { data: metrics } = await supabase
             .from('vw_point_detail_30d')
             .select('*')
             .eq('stop_id', stopId)
             .single();
 
         // 3. Busca métricas por linha no ponto
-        const { data: lines, error: linesError } = await supabase
+        const { data: lines } = await supabase
             .from('vw_point_lines_30d')
             .select('*')
             .eq('stop_id', stopId)

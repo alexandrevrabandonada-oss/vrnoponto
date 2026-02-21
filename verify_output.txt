@@ -1,0 +1,17 @@
+
+> vrnoponto@0.1.0 verify
+> eslint . && npm run build
+
+
+C:\Projetos\vrnoponto\app\registrar\page.tsx
+  120:65  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  120:72  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  120:88  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  120:94  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Projetos\vrnoponto\components\QRScanner.tsx
+   3:21  warning  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  33:14  warning  'error' is defined but never used     @typescript-eslint/no-unused-vars
+
+Ô£û 6 problems (4 errors, 2 warnings)
+

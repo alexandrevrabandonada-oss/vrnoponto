@@ -1,12 +1,13 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 // Rate limit params
 const RATE_LIMIT_MINS = 10;
 const TRUST_WINDOW_MINS = 8;
-const REQUIRED_DEVICES_FOR_L2 = 2; // Incluindo o próprio device
+const REQUIRED_DEVICES_FOR_L2 = 2;
+const REQUIRED_DEVICES_FOR_L3 = 3;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
         const { deviceId, stopId, lineId, eventType } = body;
@@ -20,7 +21,6 @@ export async function POST(req: Request) {
         // 1. Rate Limiting Check
         const tenMinsAgo = new Date(Date.now() - RATE_LIMIT_MINS * 60 * 1000).toISOString();
 
-        // Check if THIS device has reported THIS event for THIS line in the last 10 mins
         const { data: recentEvents, error: rlError } = await supabase
             .from('stop_events')
             .select('id')
@@ -39,7 +39,50 @@ export async function POST(req: Request) {
             );
         }
 
-        // 2. Insert Event as L1
+        // 2. Trajectory Logic (Boarding -> Alighted)
+        let trajectoryL3 = false;
+        let trajectoryMeta: Record<string, unknown> = {};
+
+        if (eventType === 'alighted') {
+            const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+            const { data: lastBoarding } = await supabase
+                .from('stop_events')
+                .select('id, stop_id, occurred_at')
+                .eq('device_id', deviceId)
+                .eq('event_type', 'boarding')
+                .neq('stop_id', stopId) // Must be a different stop
+                .gte('occurred_at', twoHoursAgo)
+                .order('occurred_at', { ascending: false })
+                .maybeSingle();
+
+            if (lastBoarding) {
+                const { data: distM } = await supabase.rpc('get_stops_distance', {
+                    stop_id_1: lastBoarding.stop_id,
+                    stop_id_2: stopId
+                });
+
+                const timeDiffMins = (Date.now() - new Date(lastBoarding.occurred_at).getTime()) / (60 * 1000);
+
+                // Regra: Diferente stop + tempo >= 5 min + distancia >= 800m
+                if (timeDiffMins >= 5 && (distM === null || distM >= 800)) {
+                    trajectoryL3 = true;
+                    trajectoryMeta = {
+                        boarding_event_id: lastBoarding.id,
+                        time_mins: Math.round(timeDiffMins),
+                        dist_m: distM ? Math.round(distM as number) : 0
+                    };
+                }
+            }
+        }
+
+        // 3. Insert Event
+        let initialTrust = 'L1';
+        let initialMethod = 'L1';
+        if (trajectoryL3) {
+            initialTrust = 'L3';
+            initialMethod = 'TRAJETO';
+        }
+
         const { data: newEvent, error: insertError } = await supabase
             .from('stop_events')
             .insert({
@@ -47,59 +90,91 @@ export async function POST(req: Request) {
                 stop_id: stopId,
                 line_id: lineId,
                 event_type: eventType,
-                trust_level: 'L1'
+                trust_level: initialTrust,
+                trust_method: initialMethod,
+                meta: trajectoryMeta
             })
             .select()
             .single();
 
         if (insertError) throw insertError;
 
-        // 3. Trust Level 2 (L2) Logic
-        const eightMinsAgo = new Date(Date.now() - TRUST_WINDOW_MINS * 60 * 1000).toISOString();
-
-        // Find SIMILAR events from OTHER devices in the last 8 mins
-        const { data: similarEvents, error: trustError } = await supabase
-            .from('stop_events')
-            .select('id, device_id')
-            .eq('stop_id', stopId)
-            .eq('line_id', lineId)
-            .eq('event_type', eventType)
-            .neq('device_id', deviceId)
-            .gte('occurred_at', eightMinsAgo);
-
-        if (trustError) throw trustError;
-
-        let finalTrustLevel = 'L1';
-
-        // Se achamos pelo menos (REQUIRED_DEVICES - 1) devices diferentes, atingimos L2
-        if (similarEvents && similarEvents.length >= (REQUIRED_DEVICES_FOR_L2 - 1)) {
-            finalTrustLevel = 'L2';
-
-            // Monta os IDs dos eventos que vão subir pra L2
-            const eventIdsToUpgrade = [newEvent.id, ...similarEvents.map(e => e.id)];
-
-            // Atualiza os eventos para L2
+        // If promoted via trajectory, also promote the boarding event
+        if (trajectoryL3 && trajectoryMeta.boarding_event_id) {
             await supabase
                 .from('stop_events')
-                .update({ trust_level: 'L2' })
-                .in('id', eventIdsToUpgrade);
+                .update({
+                    trust_level: 'L3',
+                    trust_method: 'TRAJETO',
+                    meta: { alighted_event_id: newEvent.id }
+                })
+                .eq('id', trajectoryMeta.boarding_event_id);
+        }
 
-            // Cria confirmações (quem confirmou quem)
-            // Para simplificar: dizemos que 'deviceId' confirmou o primeiro evento similar achado.
-            const targetEventId = similarEvents[0].id;
-            await supabase
-                .from('trust_confirmations')
-                .insert({
-                    event_id: targetEventId,
-                    device_id: deviceId,
-                    is_confirmed: true
-                });
+        // 4. Collective Trust Logic (L2/L3)
+        if (!trajectoryL3) {
+            const eightMinsAgo = new Date(Date.now() - TRUST_WINDOW_MINS * 60 * 1000).toISOString();
+
+            const { data: similarEvents, error: trustError } = await supabase
+                .from('stop_events')
+                .select('id, device_id, trust_level')
+                .eq('stop_id', stopId)
+                .eq('line_id', lineId)
+                .eq('event_type', eventType)
+                .neq('device_id', deviceId)
+                .gte('occurred_at', eightMinsAgo);
+
+            if (trustError) throw trustError;
+
+            let finalTrustLevel = 'L1';
+            let finalMethod = 'L1';
+
+            if (similarEvents && similarEvents.length > 0) {
+                const uniqueDevices = new Set(similarEvents.map(e => e.device_id));
+                const totalDevices = uniqueDevices.size + 1; // + current device
+
+                if (totalDevices >= REQUIRED_DEVICES_FOR_L3) {
+                    finalTrustLevel = 'L3';
+                    finalMethod = 'COLETIVO';
+                } else if (totalDevices >= REQUIRED_DEVICES_FOR_L2) {
+                    finalTrustLevel = 'L2';
+                    finalMethod = 'L2';
+                }
+
+                if (finalTrustLevel !== 'L1') {
+                    const eventIdsToUpgrade = [newEvent.id, ...similarEvents.map(e => e.id)];
+                    await supabase
+                        .from('stop_events')
+                        .update({
+                            trust_level: finalTrustLevel,
+                            trust_method: finalMethod,
+                            meta: { devices_count: totalDevices }
+                        })
+                        .in('id', eventIdsToUpgrade);
+
+                    // Confirmations
+                    const targetEventId = similarEvents[0].id;
+                    await supabase
+                        .from('trust_confirmations')
+                        .insert({
+                            event_id: targetEventId,
+                            device_id: deviceId,
+                            is_confirmed: true
+                        });
+
+                    return NextResponse.json({
+                        success: true,
+                        event: { ...newEvent, trust_level: finalTrustLevel, trust_method: finalMethod },
+                        message: `Event upgraded to ${finalTrustLevel} (${finalMethod})`
+                    }, { status: 201 });
+                }
+            }
         }
 
         return NextResponse.json({
             success: true,
-            event: { ...newEvent, trust_level: finalTrustLevel },
-            message: finalTrustLevel === 'L2' ? 'Event upgraded to L2' : 'Event recorded as L1'
+            event: newEvent,
+            message: trajectoryL3 ? 'Event promoted via Trajectory' : 'Event recorded'
         }, { status: 201 });
 
     } catch (error: unknown) {

@@ -4,6 +4,8 @@ import { useState } from 'react';
 // SUPABASE CLIENT DELETED
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { RatingModal } from '@/components/RatingModal';
+import { QRScanner } from '@/components/QRScanner';
+import { ShieldCheck, QrCode } from 'lucide-react';
 
 const MOCK_LINE_ID = '11111111-1111-1111-1111-111111111111';
 const MOCK_STOP_ID = '22222222-2222-2222-2222-222222222222';
@@ -12,14 +14,19 @@ export default function Registrar() {
     const deviceId = useDeviceId();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState('');
+    const [lastTrust, setLastTrust] = useState<string | null>(null);
+    const [lastMethod, setLastMethod] = useState<string | null>(null);
 
     const registerEvent = async (eventType: string) => {
         if (!deviceId) return alert('Device ID não pronto');
 
         setIsSubmitting(true);
         setMessage('');
+        setLastTrust(null);
+        setLastMethod(null);
 
         try {
             const res = await fetch('/api/events/record', {
@@ -38,13 +45,23 @@ export default function Registrar() {
                 throw new Error(data.error || 'Erro desconhecido');
             }
 
-            setMessage("Evento '" + eventType + "' salvo! Nível: " + (data.event?.trust_level || 'L1'));
+            const trust = data.event?.trust_level || 'L1';
+            const method = data.event?.trust_method || 'L1';
+            setLastTrust(trust);
+            setLastMethod(method);
+
+            let successMsg = "Relato enviado!";
+            if (trust === 'L2') successMsg = "Confirmado pela comunidade! (L2)";
+            if (trust === 'L3') successMsg = `Prova Forte ativada via ${method}! (L3)`;
+
+            setMessage(successMsg);
+
             if (eventType === 'boarding' || eventType === 'passed_by') {
                 setIsModalOpen(true);
             }
         } catch (err: unknown) {
             const errMessage = err instanceof Error ? err.message : 'Erro desconhecido';
-            setMessage('Erro ao registrar evento: ' + errMessage);
+            setMessage('Erro ao registrar: ' + errMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -59,43 +76,67 @@ export default function Registrar() {
                     Você está simulando o ponto <strong>Centro (PT-001)</strong>, linha <strong>P200 - Vila Rica</strong>.
                 </div>
 
-                <button
-                    onClick={() => registerEvent('passed_by')}
-                    disabled={isSubmitting || !deviceId}
-                    className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-bold py-4 px-4 rounded-xl shadow-md transition-all active:scale-95"
-                >
-                    🚌 Ônibus Passou Agora
-                </button>
+                <div className="grid grid-cols-1 gap-3">
+                    <button
+                        onClick={() => registerEvent('passed_by')}
+                        disabled={isSubmitting || !deviceId}
+                        className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-bold py-4 px-4 rounded-xl shadow-md transition-all active:scale-95"
+                    >
+                        🚌 Ônibus Passou Agora
+                    </button>
 
-                <button
-                    onClick={() => registerEvent('boarding')}
-                    disabled={isSubmitting || !deviceId}
-                    className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold py-4 px-4 rounded-xl shadow-md transition-all active:scale-95"
-                >
-                    ✅ Entrei (Embarquei)
-                </button>
+                    <button
+                        onClick={() => registerEvent('boarding')}
+                        disabled={isSubmitting || !deviceId}
+                        className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold py-4 px-4 rounded-xl shadow-md transition-all active:scale-95"
+                    >
+                        ✅ Entrei (Embarquei)
+                    </button>
 
-                <button
-                    onClick={() => {
-                        // Nota: Embora 'alighted' n seja uma role map em nosso BD, eu adicionei no prompt como 'Desci'. 
-                        // O tipo de event que a api aceita: arrived, boarding, passed_by, delayed.
-                        // Vou usar arrived apenas no outro app, e delayed aqui ou algo assim. 
-                        // Ops, nossa constraint check nao verifica os enumeraveis, eles apenas sāo varchar ali!
-                        // Entao vou usar 'alighted' que faz sentido semanticamente.
-                        registerEvent('alighted');
-                    }}
-                    disabled={isSubmitting || !deviceId}
-                    className="w-full bg-gray-500 hover:bg-gray-600 disabled:opacity-50 text-white font-bold py-4 px-4 rounded-xl shadow-md transition-all active:scale-95"
-                >
-                    🚶 Cancelar Espera (Desci / Desisti)
-                </button>
+                    <button
+                        onClick={() => registerEvent('alighted')}
+                        disabled={isSubmitting || !deviceId}
+                        className="w-full bg-gray-600 hover:bg-gray-700 disabled:opacity-50 text-white font-bold py-4 px-4 rounded-xl shadow-md transition-all active:scale-95"
+                    >
+                        🚶 Desci (Aqui ou em outro ponto)
+                    </button>
+                </div>
 
                 {message && (
-                    <div className={"mt-4 p-3 rounded-lg text-center font-medium " + (message.includes('Erro') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700')}>
-                        {message}
+                    <div className={"mt-4 p-4 rounded-xl text-center font-bold flex flex-col items-center justify-center gap-1 " + (message.includes('Erro') ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100')}>
+                        <div className="flex items-center gap-2">
+                            {lastTrust === 'L3' && <ShieldCheck className="text-emerald-600" size={20} />}
+                            {message}
+                        </div>
+                        {lastTrust === 'L3' && lastMethod === 'TRAJETO' && (
+                            <span className="text-[10px] uppercase tracking-tighter opacity-70">Sua jornada foi validada pelo sistema</span>
+                        )}
                     </div>
                 )}
+
+                <div className="pt-6 mt-2 border-t border-gray-100 dark:border-gray-700 space-y-4">
+                    <div className="bg-indigo-50/50 dark:bg-indigo-900/10 p-3 rounded-xl">
+                        <p className="text-[11px] text-indigo-800 dark:text-indigo-300 font-medium leading-relaxed">
+                            💡 <strong>Dica L3:</strong> Marque &quot;Entrei&quot; no embarque e &quot;Desci&quot; ao chegar no destino para ganhar Prova de Trajeto automaticamente.
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={() => setIsScannerOpen(true)}
+                        className="w-full flex items-center justify-center gap-2 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 font-bold py-3 px-4 rounded-xl transition-all active:scale-95 border-2 border-indigo-100 dark:border-indigo-900 hover:border-indigo-200"
+                    >
+                        <QrCode size={18} />
+                        Prova de Ponto Parceiro (QR)
+                    </button>
+                    <p className="text-[10px] text-gray-400 text-center uppercase font-bold tracking-widest">
+                        Scaneie materiais oficiais ou de parceiros locais
+                    </p>
+                </div>
             </div>
+
+            {isScannerOpen && (
+                <QRScanner onClose={() => setIsScannerOpen(false)} />
+            )}
 
             <RatingModal
                 isOpen={isModalOpen}

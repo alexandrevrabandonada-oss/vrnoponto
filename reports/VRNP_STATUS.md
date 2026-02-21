@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T19:27:17.276Z
+Gerado em: 2026-02-21T19:50:11.334Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: fd78df3
+- Git Commit: 7ff379b
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
+* 7ff379b - feat: point detail page + og share
 * fd78df3 - chore: harden diag + supabase check + lint reliability
 * 6f46dd1 - feat: mapa do atraso
 * ce6746f - feat: monthly public report + export
 * cac1dd9 - feat: daily sync via github actions
-* 55414c7 - ci: daily sync workflow
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -28,10 +28,12 @@ Gerado em: 2026-02-21T19:27:17.276Z
 - /no-ponto
 - /painel
 - /ponto/[id]
+- /qr/[token]
 - /registrar
 - /relatorio/mensal
 
 ## Rotas de Backend (app/api/)
+- /api/admin/qr/generate
 - /api/admin/sync-official
 - /api/admin/upload-pdf
 - /api/env-audit
@@ -39,6 +41,7 @@ Gerado em: 2026-02-21T19:27:17.276Z
 - /api/health
 - /api/map/stops
 - /api/point/detail
+- /api/qr/validate
 - /api/report/monthly
 - /api/report/monthly.csv
 - /api/stops/nearest
@@ -60,6 +63,9 @@ Gerado em: 2026-02-21T19:27:17.276Z
 - 0009_map_views.sql
 - 0010_fix_map_view.sql
 - 0011_point_detail_views.sql
+- 0012_qr_l3.sql
+- 0013_distance_rpc.sql
+- 0014_trust_methods.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

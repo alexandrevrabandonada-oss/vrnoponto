@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { QRGenerator } from '@/components/admin/QRGenerator';
 
 export default async function AdminPontos() {
     const supabase = await createClient();
@@ -69,6 +70,7 @@ export default async function AdminPontos() {
                             <th className="p-4 font-semibold text-gray-600">Código</th>
                             <th className="p-4 font-semibold text-gray-600">Nome</th>
                             <th className="p-4 font-semibold text-gray-600">Status</th>
+                            <th className="p-4 font-semibold text-gray-600">Ações</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -80,6 +82,9 @@ export default async function AdminPontos() {
                                     <span className={`px-2 py-1 rounded text-xs ${stop.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                         {stop.is_active ? 'Ativo' : 'Inativo'}
                                     </span>
+                                </td>
+                                <td className="p-4">
+                                    <QRGenerator stopId={stop.id} stopName={stop.name} />
                                 </td>
                             </tr>
                         ))}
