@@ -58,12 +58,21 @@ const envLocalExists = fs.existsSync(envLocalPath);
 const envLocalStatus = envLocalExists ? 'OK' : 'MISSING';
 
 let supabaseEnvStatus = 'MISSING';
+let supabaseRemoteStatus = { ref: 'MISSING', token: 'MISSING' };
+
 if (envLocalExists) {
     const envContent = fs.readFileSync(envLocalPath, 'utf8');
     const hasUrl = envContent.includes('NEXT_PUBLIC_SUPABASE_URL');
     const hasKey = envContent.includes('NEXT_PUBLIC_SUPABASE_ANON_KEY');
     if (hasUrl && hasKey) supabaseEnvStatus = 'OK';
+
+    if (envContent.includes('SUPABASE_PROJECT_REF')) supabaseRemoteStatus.ref = 'OK';
+    if (envContent.includes('SUPABASE_ACCESS_TOKEN')) supabaseRemoteStatus.token = 'OK';
 }
+
+// Fallback checking actual process.env for terminal-injected vars
+if (process.env.SUPABASE_PROJECT_REF) supabaseRemoteStatus.ref = 'OK';
+if (process.env.SUPABASE_ACCESS_TOKEN) supabaseRemoteStatus.token = 'OK';
 
 const migrationsDir = path.join(rootDir, 'supabase', 'migrations');
 const migrations = [];
@@ -118,6 +127,11 @@ ${routes.length > 0 ? routes.map(r => `- ${r}`).join('\n') : '- Nenhuma rota enc
 
 ## Supabase Migrations
 ${migrations.length > 0 ? migrations.map(m => `- ${m}`).join('\n') : '- Nenhuma migration encontrada'}
+
+## Supabase Remote (Status)
+- SUPABASE_PROJECT_REF: ${supabaseRemoteStatus.ref}
+- SUPABASE_ACCESS_TOKEN: ${supabaseRemoteStatus.token}
+*(Run \`npm run supabase:check\` to validate the token against the Supabase CLI)*
 
 ## Scripts
 - npm run lint: ${lintStatus}

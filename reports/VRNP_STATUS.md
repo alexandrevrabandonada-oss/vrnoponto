@@ -1,16 +1,27 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T15:34:08.052Z
+Gerado em: 2026-02-21T16:05:50.236Z
 
 ## Ambiente
 - Node Version: v22.19.0
 - Git Branch: master
-- Git Commit: 0b2a9aa
+- Git Commit: d8ebf38
 - .env.local: MISSING
 - Supabase Env Vars: MISSING
+- /api/health Local: FAIL
+
+## Últimos 5 Commits
+* d8ebf38 - feat: admin mvp + official pdf upload
+* cf92455 - chore: production pipeline + feedback pack
+* cecf539 - feat: implement analytics dashboard
+* 46b3d5c - feat: implement trust levels and rate limiting
+* 4df227b - feat: mvp anonymous event registration
 
 ## Rotas Detectadas (app/)
 - /
 - /admin
+- /admin/linhas
+- /admin/oficial
+- /admin/pontos
 - /linha/[id]
 - /no-ponto
 - /painel
@@ -26,6 +37,14 @@ Gerado em: 2026-02-21T15:34:08.052Z
 ## Supabase Migrations
 - 0001_init.sql
 - 0002_seed.sql
+- 0003_trust_levels.sql
+- 0004_analytics_views.sql
+- 0005_storage_buckets.sql
+
+## Supabase Remote (Status)
+- SUPABASE_PROJECT_REF: MISSING
+- SUPABASE_ACCESS_TOKEN: MISSING
+*(Run `npm run supabase:check` to validate the token against the Supabase CLI)*
 
 ## Scripts
 - npm run lint: SUCCESS
@@ -35,6 +54,21 @@ Gerado em: 2026-02-21T15:34:08.052Z
 ```text
 > vrnoponto@0.1.0 lint
 > eslint
+
+
+C:\Projetos\vrnoponto\app\linha\[id]\page.tsx
+  2:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\no-ponto\page.tsx
+  4:10  warning  'createClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\scripts\diag.mjs
+  101:10  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\scripts\supabase-check.mjs
+  44:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 4 problems (0 errors, 4 warnings)
 ```
 
 ### Resumo Build
@@ -45,27 +79,34 @@ Gerado em: 2026-02-21T15:34:08.052Z
 ▲ Next.js 16.1.6 (Turbopack)
 
   Creating an optimized production build ...
-✓ Compiled successfully in 2.2s
+✓ Compiled successfully in 2.0s
   Running TypeScript ...
   Collecting page data using 11 workers ...
-  Generating static pages using 11 workers (0/9) ...
-  Generating static pages using 11 workers (2/9) 
-  Generating static pages using 11 workers (4/9) 
-  Generating static pages using 11 workers (6/9) 
-✓ Generating static pages using 11 workers (9/9) in 312.2ms
+  Generating static pages using 11 workers (0/13) ...
+  Generating static pages using 11 workers (3/13) 
+  Generating static pages using 11 workers (6/13) 
+  Generating static pages using 11 workers (9/13) 
+✓ Generating static pages using 11 workers (13/13) in 227.6ms
   Finalizing page optimization ...
 
 Route (app)
 ┌ ƒ /
 ├ ○ /_not-found
 ├ ○ /admin
+├ ƒ /admin/linhas
+├ ○ /admin/oficial
+├ ƒ /admin/pontos
+├ ƒ /api/admin/upload-pdf
+├ ƒ /api/events/record
 ├ ƒ /api/health
 ├ ƒ /linha/[id]
 ├ ○ /no-ponto
-├ ○ /painel
+├ ƒ /painel
 ├ ƒ /ponto/[id]
 └ ○ /registrar
 
+
+ƒ Proxy (Middleware)
 
 ○  (Static)   prerendered as static content
 ƒ  (Dynamic)  server-rendered on demand

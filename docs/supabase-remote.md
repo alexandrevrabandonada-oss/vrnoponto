@@ -1,0 +1,42 @@
+# Manual de Supabase Remoto
+
+Quando trabalhamos no projeto local, costumamos usar os servicos Mock e não precisamos estar conectados ao banco de produção para as tarefas básicas de UI. Porém, quando formos alterar tabelas, criar views ou enviar novas policies (RLS), o Supabase CLI precisa saber *em qual banco aplicar*.
+
+Este documento mostra como conectar a sua base na nuvem do Supabase.
+
+## 1. Variáveis Necessárias
+Você precisa ter duas informações importantes guardadas ou expostas na máquina:
+1. \`SUPABASE_PROJECT_REF\`: Obtida olhando a URL da dashboard do Supabase. É uma string como \`rrbpirfqslybhfguxhmp\`.
+2. \`SUPABASE_ACCESS_TOKEN\`: Vá nas configurações da sua conta de usuário no painel do Supabase, menu `Access Tokens`. Escolha gerar um token e copie-o (só é exibido uma vez).
+
+## 2. Como fornecer essas variáveis (Modo Seguro)
+Como estamos rodando automatizações, evite colocar isso *hardcoded* dentro do código. 
+Temos duas opções simples:
+
+**Opção A: Arquivo \`.env.local\`**
+Crie na raiz do projeto o arquivo vazio \`.env.local\` (que já está garantido de não ir no git por padrão) e adicione as duas de forma pura sem aspas, junto com o \`ADMIN_TOKEN\` que usamos no Dashboard:
+
+\`\`\`env
+NEXT_PUBLIC_SUPABASE_URL=sua-url-do-banco-api
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anonima
+ADMIN_TOKEN=o-seu-token-de-admin
+
+# Chaves para Deploy/Migração (NUNCA COMMITE)
+SUPABASE_PROJECT_REF=rrbpirfqslybhfguxhmp
+SUPABASE_ACCESS_TOKEN=sbp_94389028049jfsdfdsf...
+\`\`\`
+
+**Opção B: Terminal Powershell**
+Se você desejar que essas variáveis fiquem efêmeras (só durante o uso do terminal Antigravity), rode diretamente:
+\`\`\`powershell
+$env:SUPABASE_PROJECT_REF="xyz..."
+$env:SUPABASE_ACCESS_TOKEN="sbp_123..."
+\`\`\`
+
+## 3. Comandos Úteis
+
+Após configurar, rode:
+1. \`npm run supabase:check\` -> Vai listar se suas variáveis foram encontradas com sucesso.
+2. \`npm run supabase:link\` -> Vai conectar a pasta \`supabase/\` local ao seu database online usando o token associado.
+3. \`npm run supabase:push\` -> Enviará todos os arquivos SQL da pasta \`supabase/migrations/\` para o seu database remoto.
+4. \`npm run supabase:seed\` -> Executará os arquivos de testes que dão \`INSERT\` na base, como as regras estressadas ou dados preliminares.
