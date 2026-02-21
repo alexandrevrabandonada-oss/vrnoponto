@@ -1,0 +1,15 @@
+
+C:\Projetos\vrnoponto\app\admin\linhas\page.tsx
+  66:53  error  Parsing error: Invalid character
+
+C:\Projetos\vrnoponto\app\admin\pontos\page.tsx
+  21:25  error  Parsing error: Invalid character
+
+C:\Projetos\vrnoponto\app\no-ponto\page.tsx
+  4:10  warning  'createClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\scripts\diag.mjs
+  92:10  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 4 problems (2 errors, 2 warnings)
+

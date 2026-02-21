@@ -1,16 +1,16 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T15:48:29.330Z
+Gerado em: 2026-02-21T15:59:02.266Z
 
 ## Ambiente
 - Node Version: v22.19.0
 - Git Branch: master
-- Git Commit: 8db5890
+- Git Commit: cf92455
 - .env.local: MISSING
 - Supabase Env Vars: MISSING
 - /api/health Local: FAIL
 
 ## Últimos 5 Commits
-* 8db5890 - chore: production pipeline + feedback pack
+* cf92455 - chore: production pipeline + feedback pack
 * cecf539 - feat: implement analytics dashboard
 * 46b3d5c - feat: implement trust levels and rate limiting
 * 4df227b - feat: mvp anonymous event registration
@@ -19,6 +19,9 @@ Gerado em: 2026-02-21T15:48:29.330Z
 ## Rotas Detectadas (app/)
 - /
 - /admin
+- /admin/linhas
+- /admin/oficial
+- /admin/pontos
 - /linha/[id]
 - /no-ponto
 - /painel
@@ -36,6 +39,7 @@ Gerado em: 2026-02-21T15:48:29.330Z
 - 0002_seed.sql
 - 0003_trust_levels.sql
 - 0004_analytics_views.sql
+- 0005_storage_buckets.sql
 
 ## Scripts
 - npm run lint: SUCCESS
@@ -47,13 +51,16 @@ Gerado em: 2026-02-21T15:48:29.330Z
 > eslint
 
 
+C:\Projetos\vrnoponto\app\linha\[id]\page.tsx
+  2:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
 C:\Projetos\vrnoponto\app\no-ponto\page.tsx
   4:10  warning  'createClient' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Projetos\vrnoponto\scripts\diag.mjs
   92:10  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
 
-✖ 2 problems (0 errors, 2 warnings)
+✖ 3 problems (0 errors, 3 warnings)
 ```
 
 ### Resumo Build
@@ -67,17 +74,21 @@ C:\Projetos\vrnoponto\scripts\diag.mjs
 ✓ Compiled successfully in 2.1s
   Running TypeScript ...
   Collecting page data using 11 workers ...
-  Generating static pages using 11 workers (0/9) ...
-  Generating static pages using 11 workers (2/9) 
-  Generating static pages using 11 workers (4/9) 
-  Generating static pages using 11 workers (6/9) 
-✓ Generating static pages using 11 workers (9/9) in 212.7ms
+  Generating static pages using 11 workers (0/13) ...
+  Generating static pages using 11 workers (3/13) 
+  Generating static pages using 11 workers (6/13) 
+  Generating static pages using 11 workers (9/13) 
+✓ Generating static pages using 11 workers (13/13) in 245.0ms
   Finalizing page optimization ...
 
 Route (app)
 ┌ ƒ /
 ├ ○ /_not-found
 ├ ○ /admin
+├ ƒ /admin/linhas
+├ ○ /admin/oficial
+├ ƒ /admin/pontos
+├ ƒ /api/admin/upload-pdf
 ├ ƒ /api/events/record
 ├ ƒ /api/health
 ├ ƒ /linha/[id]
@@ -86,6 +97,8 @@ Route (app)
 ├ ƒ /ponto/[id]
 └ ○ /registrar
 
+
+ƒ Proxy (Middleware)
 
 ○  (Static)   prerendered as static content
 ƒ  (Dynamic)  server-rendered on demand
