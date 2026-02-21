@@ -13,11 +13,15 @@ export default function NoPonto() {
 
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [gpsStatus, setGpsStatus] = useState<string>('Solicitando GPS...');
-    const [selectedStop, setSelectedStop] = useState(MOCK_STOP_ID);
-    const [selectedLine, setSelectedLine] = useState(MOCK_LINE_ID);
+    const [nearestStops, setNearestStops] = useState<{ id: string, name: string, distance_m: number }[]>([]);
+
+    const [selectedStop, setSelectedStop] = useState('');
+    const [selectedLine, setSelectedLine] = useState(MOCK_LINE_ID); // Manteremos a linha mockada pro MVP
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState('');
+    const [isLoadingStops, setIsLoadingStops] = useState(false);
 
+    // Efeito para GPS
     useEffect(() => {
         if ('geolocation' in navigator) {
             navigator.geolocation.getCurrentPosition(
@@ -37,10 +41,38 @@ export default function NoPonto() {
         }
     }, []);
 
+    // Efeito para buscar pontos quando o GPS atualizar
+    useEffect(() => {
+        async function fetchStops() {
+            if (!location) return;
+            setIsLoadingStops(true);
+            try {
+                const res = await fetch(`/api/stops/nearest?lat=${location.lat}&lng=${location.lng}&lim=3`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setNearestStops(data.stops || []);
+                    if (data.stops?.length > 0) {
+                        setSelectedStop(data.stops[0].id); // Auto-seleciona o mais próximo
+                    }
+                }
+            } catch (err) {
+                console.error("Erro ao buscar pontos:", err);
+            } finally {
+                setIsLoadingStops(false);
+            }
+        }
+        fetchStops();
+    }, [location]);
+
     const handleArrived = async () => {
         if (!deviceId) return alert('Aguarde a geração do Device ID');
         setIsSubmitting(true);
         setMessage('');
+
+        if (!selectedStop) {
+            setMessage('Selecione um ponto primeiro.');
+            return;
+        }
 
         try {
             const res = await fetch('/api/events/record', {
@@ -82,17 +114,37 @@ export default function NoPonto() {
                     )}
                 </div>
 
-                {/* Seleção Manual (MVP) */}
+                {/* Seleção de Parada Dinâmica */}
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1 dark:text-gray-200">Ponto Atual</label>
-                        <select
-                            value={selectedStop}
-                            onChange={(e) => setSelectedStop(e.target.value)}
-                            className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        >
-                            <option value={MOCK_STOP_ID}>Ponto Central (PT-001)</option>
-                        </select>
+                        <label className="block text-sm font-medium mb-1 dark:text-gray-200">
+                            Ponto Atual {isLoadingStops && <span className="text-xs text-indigo-500 animate-pulse">(Buscando...)</span>}
+                        </label>
+
+                        {nearestStops.length > 0 ? (
+                            <select
+                                value={selectedStop}
+                                onChange={(e) => setSelectedStop(e.target.value)}
+                                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            >
+                                {nearestStops.map((stop) => (
+                                    <option key={stop.id} value={stop.id}>
+                                        {stop.name} (aprox. {stop.distance_m}m)
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <div className="p-4 border rounded-md bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 text-sm text-center">
+                                {location ? (
+                                    <>
+                                        <p className="mb-2">Nenhum ponto de ônibus ativo localizado no seu perímetro atual.</p>
+                                        <a href="/admin/pontos" className="font-bold underline">Sugerir Ponto / Cadastrar</a>
+                                    </>
+                                ) : (
+                                    <p>Aguardando sua localização para listar pontos próximos.</p>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div>

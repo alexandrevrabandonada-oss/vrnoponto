@@ -73,6 +73,17 @@ Check-ins do usuário via QR Code no ponto físico.
 - `device_id`: VARCHAR
 - `created_at`: TIMESTAMPTZ
 
+### `vw_critical_stops`
+Mostra o TOP 10 de pontos com a pior média de espera, cruzando as estatísticas da `vw_wait_time_metrics` com os nomes reais formatados.
+
+## 6. Routines (RPCs)
+Funções executadas diretamente no backend do PostgreSQL para otimizar operações.
+
+### `rpc_nearest_stops(lat float, lng float, lim int)`
+Recebe as coordenadas espaciais via latitude e longitude numéricas puras e retorna os pontos de ônibus (`stops`) formatados por ordem de proximidade.
+- **Uso:** Em `/api/stops/nearest` para mostrar a tela inicial do *"Estou no Ponto"* baseada no GPS.
+- **Engine Espacial:** Usa `location <-> ST_MakePoint` (KNN distance) e `ST_Distance` para forçar alta otimização nos índices GIST do PostGIS. Retorna apenas pontos com `is_active = true`.
+
 ### `admin_flags`
 Sinalizações administrativas (ex: Ponto desativado temporariamente, via interditada).
 - `id`: UUID (PK)

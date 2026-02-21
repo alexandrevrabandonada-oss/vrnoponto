@@ -1,20 +1,20 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T15:59:02.266Z
+Gerado em: 2026-02-21T16:10:33.493Z
 
 ## Ambiente
 - Node Version: v22.19.0
 - Git Branch: master
-- Git Commit: cf92455
+- Git Commit: 3048392
 - .env.local: MISSING
 - Supabase Env Vars: MISSING
 - /api/health Local: FAIL
 
 ## Últimos 5 Commits
+* 3048392 - chore: supabase remote automations
+* d8ebf38 - feat: admin mvp + official pdf upload
 * cf92455 - chore: production pipeline + feedback pack
 * cecf539 - feat: implement analytics dashboard
 * 46b3d5c - feat: implement trust levels and rate limiting
-* 4df227b - feat: mvp anonymous event registration
-* 0b2a9aa - feat: init database schema
 
 ## Rotas Detectadas (app/)
 - /
@@ -40,6 +40,12 @@ Gerado em: 2026-02-21T15:59:02.266Z
 - 0003_trust_levels.sql
 - 0004_analytics_views.sql
 - 0005_storage_buckets.sql
+- 0006_nearest_stops.sql
+
+## Supabase Remote (Status)
+- SUPABASE_PROJECT_REF: MISSING
+- SUPABASE_ACCESS_TOKEN: MISSING
+*(Run `npm run supabase:check` to validate the token against the Supabase CLI)*
 
 ## Scripts
 - npm run lint: SUCCESS
@@ -55,12 +61,16 @@ C:\Projetos\vrnoponto\app\linha\[id]\page.tsx
   2:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Projetos\vrnoponto\app\no-ponto\page.tsx
-  4:10  warning  'createClient' is defined but never used  @typescript-eslint/no-unused-vars
+  4:10  warning  'createClient' is defined but never used           @typescript-eslint/no-unused-vars
+  9:7   warning  'MOCK_STOP_ID' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
 C:\Projetos\vrnoponto\scripts\diag.mjs
-  92:10  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  101:10  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
 
-✖ 3 problems (0 errors, 3 warnings)
+C:\Projetos\vrnoponto\scripts\supabase-check.mjs
+  44:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 5 problems (0 errors, 5 warnings)
 ```
 
 ### Resumo Build
@@ -71,14 +81,14 @@ C:\Projetos\vrnoponto\scripts\diag.mjs
 ▲ Next.js 16.1.6 (Turbopack)
 
   Creating an optimized production build ...
-✓ Compiled successfully in 2.1s
+✓ Compiled successfully in 2.2s
   Running TypeScript ...
   Collecting page data using 11 workers ...
-  Generating static pages using 11 workers (0/13) ...
-  Generating static pages using 11 workers (3/13) 
-  Generating static pages using 11 workers (6/13) 
-  Generating static pages using 11 workers (9/13) 
-✓ Generating static pages using 11 workers (13/13) in 245.0ms
+  Generating static pages using 11 workers (0/14) ...
+  Generating static pages using 11 workers (3/14) 
+  Generating static pages using 11 workers (6/14) 
+  Generating static pages using 11 workers (10/14) 
+✓ Generating static pages using 11 workers (14/14) in 235.6ms
   Finalizing page optimization ...
 
 Route (app)
@@ -91,6 +101,7 @@ Route (app)
 ├ ƒ /api/admin/upload-pdf
 ├ ƒ /api/events/record
 ├ ƒ /api/health
+├ ƒ /api/stops/nearest
 ├ ƒ /linha/[id]
 ├ ○ /no-ponto
 ├ ƒ /painel
