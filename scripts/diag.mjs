@@ -1,0 +1,92 @@
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = path.join(__dirname, '..');
+const reportsDir = path.join(rootDir, 'reports');
+
+if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+}
+
+const outputPath = path.join(reportsDir, 'VRNP_STATUS.md');
+
+function execSafe(cmd) {
+    try {
+        return execSync(cmd, { cwd: rootDir, stdio: 'pipe' }).toString().trim();
+    } catch (e) {
+        return `Error: ${e.message}\nOutput: ${e.stdout?.toString() || e.stderr?.toString()}`;
+    }
+}
+
+const now = new Date().toISOString();
+const nodeVersion = process.version;
+
+let gitBranch = execSafe('git rev-parse --abbrev-ref HEAD');
+let gitCommit = execSafe('git rev-parse --short HEAD');
+if (gitBranch.startsWith('Error')) gitBranch = 'N/A';
+if (gitCommit.startsWith('Error')) gitCommit = 'N/A';
+
+const appDir = path.join(rootDir, 'app');
+const routes = [];
+function scanRoutes(dir, baseRoute = '') {
+    if (!fs.existsSync(dir)) return;
+    const items = fs.readdirSync(dir, { withFileTypes: true });
+    let hasPage = false;
+    for (const item of items) {
+        if (item.isDirectory()) {
+            scanRoutes(path.join(dir, item.name), `${baseRoute}/${item.name}`);
+        } else if (item.name === 'page.tsx' || item.name === 'page.js') {
+            hasPage = true;
+        }
+    }
+    if (hasPage) {
+        routes.push(baseRoute === '' ? '/' : baseRoute);
+    }
+}
+scanRoutes(appDir);
+routes.sort();
+
+const envLocalPath = path.join(rootDir, '.env.local');
+const envLocalStatus = fs.existsSync(envLocalPath) ? 'OK' : 'MISSING';
+
+console.log('Running npm run lint...');
+const lintResult = execSafe('npm run lint');
+const lintStatus = lintResult.includes('Error') ? 'FAILED' : 'SUCCESS';
+
+console.log('Running npm run build...');
+const buildResult = execSafe('npm run build');
+const buildStatus = buildResult.includes('Error') ? 'FAILED' : 'SUCCESS';
+
+const reportContent = `# VRNP STATUS REPORT
+Gerado em: ${now}
+
+## Ambiente
+- Node Version: ${nodeVersion}
+- Git Branch: ${gitBranch}
+- Git Commit: ${gitCommit}
+- .env.local: ${envLocalStatus}
+
+## Rotas Detectadas (app/)
+${routes.length > 0 ? routes.map(r => `- ${r}`).join('\n') : '- Nenhuma rota encontrada'}
+
+## Scripts
+- npm run lint: ${lintStatus}
+- npm run build: ${buildStatus}
+
+### Resumo Lint
+\`\`\`text
+${lintResult.substring(0, 1000)}${lintResult.length > 1000 ? '\n... (truncado)' : ''}
+\`\`\`
+
+### Resumo Build
+\`\`\`text
+${buildResult.substring(0, 1000)}${buildResult.length > 1000 ? '\n... (truncado)' : ''}
+\`\`\`
+`;
+
+fs.writeFileSync(outputPath, reportContent);
+console.log(`Report generated successfully at ${outputPath}`);
