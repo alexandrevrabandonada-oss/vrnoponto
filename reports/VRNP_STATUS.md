@@ -1,20 +1,20 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T18:38:37.677Z
+Gerado em: 2026-02-21T18:51:16.454Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 55414c7
+- Git Commit: cac1dd9
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: FAIL
 
 ## Últimos 5 Commits
+* cac1dd9 - feat: daily sync via github actions
 * 55414c7 - ci: daily sync workflow
 * 97ef9be - feat: sync official schedules from pmvr
 * 05bfa09 - feat: vercel go-live checklist + env audit
 * cf0b7e3 - chore: ops scripts for env + supabase + smoke
-* aa74d82 - feat: nearest stops geolocation
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -27,6 +27,7 @@ Gerado em: 2026-02-21T18:38:37.677Z
 - /painel
 - /ponto/[id]
 - /registrar
+- /relatorio/mensal
 
 ## Rotas de Backend (app/api/)
 - /api/admin/sync-official
@@ -34,6 +35,8 @@ Gerado em: 2026-02-21T18:38:37.677Z
 - /api/env-audit
 - /api/events/record
 - /api/health
+- /api/report/monthly
+- /api/report/monthly.csv
 - /api/stops/nearest
 ## Componentes Compartilhados (components/)
 - RatingModal.tsx
@@ -49,6 +52,7 @@ Gerado em: 2026-02-21T18:38:37.677Z
 - 0005_storage_buckets.sql
 - 0006_nearest_stops.sql
 - 0007_official_sync.sql
+- 0008_monthly_report_views.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

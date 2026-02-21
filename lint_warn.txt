@@ -1,0 +1,21 @@
+
+C:\Projetos\vrnoponto\app\api\env-audit\route.ts
+  5:27  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\api\og\monthly-report\route.tsx
+  116:14  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\relatorio\mensal\page.tsx
+    1:10  warning  'Suspense' is defined but never used      @typescript-eslint/no-unused-vars
+    2:8   warning  'Link' is defined but never used          @typescript-eslint/no-unused-vars
+  168:65  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  201:65  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projetos\vrnoponto\scripts\diag.mjs
+  112:10  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\scripts\supabase-check.mjs
+  44:14  warning  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 8 problems (2 errors, 6 warnings)
+

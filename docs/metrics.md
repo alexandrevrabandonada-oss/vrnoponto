@@ -29,3 +29,10 @@ Este documento descreve como as métricas do painel (`/painel`) são calculadas 
 
 ---
 **Nota Técnica PostgreSQL**: O Supabase/PostgreSQL não tem uma função nativa `MEDIAN()`. Utiliza-se a função agregadora `percentile_cont(0.5) WITHIN GROUP (ORDER BY valor_numerico)`.
+
+## 4. Relatório Público Mensal
+**Definição**: Para transparência com os cidadãos e a prefeitura, as métricas em nível de Ponto e Linha são consolidadas em janelas mensais através de visões sumarizadas.
+**Lógica (Views em `0008_monthly_report_views.sql`)**:
+- `vw_monthly_stop_wait`: Agrupa instâncias de passagens/embarque num ponto dentro do mesmo mês. Fornece `p50` (mediana) e `p90` do tempo de espera, além do volume de amostras.
+- `vw_monthly_line_reliability`: Agrupa intervalos entre viagens sequenciais (Headway) da mesma linha e ponto, tirando a mediana por mês.
+- `vw_monthly_summary_stops` / `vw_monthly_summary_lines`: Adicionam cálculos de variação (Δ%) com o mês anterior utilizando a *Window Function* `LAG()` e ranqueiam o Top 10 negativo com filtragem sanitária (min > 3 amostras/mês).
