@@ -1,10 +1,10 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T15:23:54.735Z
+Gerado em: 2026-02-21T15:34:08.052Z
 
 ## Ambiente
 - Node Version: v22.19.0
 - Git Branch: master
-- Git Commit: 6835794
+- Git Commit: 0b2a9aa
 - .env.local: MISSING
 - Supabase Env Vars: MISSING
 
@@ -17,8 +17,15 @@ Gerado em: 2026-02-21T15:23:54.735Z
 - /ponto/[id]
 - /registrar
 
+## Componentes Compartilhados (components/)
+- RatingModal.tsx
+
+## Hooks (hooks/)
+- useDeviceId.ts
+
 ## Supabase Migrations
 - 0001_init.sql
+- 0002_seed.sql
 
 ## Scripts
 - npm run lint: SUCCESS
@@ -28,12 +35,6 @@ Gerado em: 2026-02-21T15:23:54.735Z
 ```text
 > vrnoponto@0.1.0 lint
 > eslint
-
-
-C:\Projetos\vrnoponto\lib\supabase\server.ts
-  1:35  warning  'CookieOptions' is defined but never used  @typescript-eslint/no-unused-vars
-
-✖ 1 problem (0 errors, 1 warning)
 ```
 
 ### Resumo Build
@@ -44,14 +45,14 @@ C:\Projetos\vrnoponto\lib\supabase\server.ts
 ▲ Next.js 16.1.6 (Turbopack)
 
   Creating an optimized production build ...
-✓ Compiled successfully in 2.4s
+✓ Compiled successfully in 2.2s
   Running TypeScript ...
   Collecting page data using 11 workers ...
   Generating static pages using 11 workers (0/9) ...
   Generating static pages using 11 workers (2/9) 
   Generating static pages using 11 workers (4/9) 
   Generating static pages using 11 workers (6/9) 
-✓ Generating static pages using 11 workers (9/9) in 232.2ms
+✓ Generating static pages using 11 workers (9/9) in 312.2ms
   Finalizing page optimization ...
 
 Route (app)
@@ -69,3 +70,12 @@ Route (app)
 ○  (Static)   prerendered as static content
 ƒ  (Dynamic)  server-rendered on demand
 ```
+
+## Fluxo de Teste Manual (MVP)
+1. Abra a aplicação e acesse a rota `/no-ponto`.
+2. Permita o uso da Geolocalização no navegador (Status do GPS deve atualizar).
+3. Selecione "Ponto Central" e "P200" e clique em **"Cheguei no Ponto"**.
+4. Acesse a rota `/registrar`.
+5. Selecione simulando o ponto atual e clique em **"Ônibus Passou Agora"** ou **"Entrei (Embarquei)"**.
+6. O modal de avaliação será aberto. Vote na lotação (de 1 a 5) e clique em **"Avaliar"**.
+7. Verifique as tabelas `stop_events` e `bus_ratings` no projeto do Supabase vinculado para confirmar a inserção do `device_id` e dados.

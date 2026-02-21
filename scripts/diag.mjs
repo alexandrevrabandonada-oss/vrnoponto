@@ -94,6 +94,12 @@ Gerado em: ${now}
 ## Rotas Detectadas (app/)
 ${routes.length > 0 ? routes.map(r => `- ${r}`).join('\n') : '- Nenhuma rota encontrada'}
 
+## Componentes Compartilhados (components/)
+- RatingModal.tsx
+
+## Hooks (hooks/)
+- useDeviceId.ts
+
 ## Supabase Migrations
 ${migrations.length > 0 ? migrations.map(m => `- ${m}`).join('\n') : '- Nenhuma migration encontrada'}
 
@@ -110,6 +116,15 @@ ${lintResult.substring(0, 1000)}${lintResult.length > 1000 ? '\n... (truncado)' 
 \`\`\`text
 ${buildResult.substring(0, 1000)}${buildResult.length > 1000 ? '\n... (truncado)' : ''}
 \`\`\`
+
+## Fluxo de Teste Manual (MVP)
+1. Abra a aplicação e acesse a rota \`/no-ponto\`.
+2. Permita o uso da Geolocalização no navegador (Status do GPS deve atualizar).
+3. Selecione "Ponto Central" e "P200" e clique em **"Cheguei no Ponto"**.
+4. Acesse a rota \`/registrar\`.
+5. Selecione simulando o ponto atual e clique em **"Ônibus Passou Agora"** ou **"Entrei (Embarquei)"**.
+6. O modal de avaliação será aberto. Vote na lotação (de 1 a 5) e clique em **"Avaliar"**.
+7. Verifique as tabelas \`stop_events\` e \`bus_ratings\` no projeto do Supabase vinculado para confirmar a inserção do \`device_id\` e dados.
 `;
 
 fs.writeFileSync(outputPath, reportContent);
