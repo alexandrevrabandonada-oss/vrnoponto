@@ -1,0 +1,127 @@
+// pdf-parse is loaded dynamically to avoid edge runtime Next.js compilation issues
+
+export type ParsedHourlyTrip = {
+    dayGroup: 'WEEKDAY' | 'SAT' | 'SUN';
+    hour: number;
+    trips: number;
+    promisedHeadwayMin: number | null;
+};
+
+export type ParseRunResult = {
+    status: 'OK' | 'WARN' | 'FAIL';
+    hourlyTrips: ParsedHourlyTrip[];
+    meta: {
+        timesFound: number;
+        daySectionsFound: number;
+        errors: string[];
+    };
+};
+
+/**
+ * Heurística de extração de PDFs da PMVR.
+ * Procura por divisões de Dias Úteis, Sábado e Domingo.
+ * Extrai todos os HH:MM (00:00 - 23:59) e os associa à última divisão lida.
+ */
+export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResult> {
+    const meta: ParseRunResult['meta'] = { timesFound: 0, daySectionsFound: 0, errors: [] };
+
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdf = require('pdf-parse');
+
+    const RAW = await pdf(pdfBuffer).catch((e: Error) => {
+        meta.errors.push(`Falha fatal no pdf-parse: ${e.message}`);
+        return null;
+    });
+
+    if (!RAW) {
+        return { status: 'FAIL', hourlyTrips: [], meta };
+    }
+
+    const text = RAW.text;
+    const lines = text.split('\n');
+
+    const tripsMap: Record<'WEEKDAY' | 'SAT' | 'SUN', Record<number, number>> = {
+        WEEKDAY: {},
+        SAT: {},
+        SUN: {}
+    };
+
+    let currentContext: 'WEEKDAY' | 'SAT' | 'SUN' = 'WEEKDAY';
+    let defaultContextAssumed = true;
+
+    for (let line of lines) {
+        line = line.toUpperCase().trim();
+
+        // 1. Tentar detectar seção de dia
+        if (line.match(/DIAS?\s+ÚTEIS|DIA\s+UTIL/)) {
+            currentContext = 'WEEKDAY';
+            defaultContextAssumed = false;
+            meta.daySectionsFound++;
+            continue;
+        }
+        if (line.match(/SÁBADO|SABADO/)) {
+            currentContext = 'SAT';
+            defaultContextAssumed = false;
+            meta.daySectionsFound++;
+            continue;
+        }
+        if (line.match(/DOMINGO|FERIADO/)) {
+            currentContext = 'SUN';
+            defaultContextAssumed = false;
+            meta.daySectionsFound++;
+            continue;
+        }
+
+        // 2. Tentar achar tempos HH:MM nesta linha
+        // Matches times like 05:30, 6:15, 22:00
+        const timeMatches = line.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g);
+
+        if (timeMatches) {
+            for (const t of timeMatches) {
+                const hourStr = t.split(':')[0];
+                const hour = parseInt(hourStr, 10);
+
+                if (hour >= 0 && hour <= 23) {
+                    tripsMap[currentContext][hour] = (tripsMap[currentContext][hour] || 0) + 1;
+                    meta.timesFound++;
+                }
+            }
+        }
+    }
+
+    // 3. Gerar a saída
+    const hourlyTrips: ParsedHourlyTrip[] = [];
+
+    const calculateHeadway = (trips: number) => {
+        if (trips >= 2) return Math.round((60.0 / trips) * 10) / 10;
+        return null;
+    };
+
+    for (const [dayGroup, hourData] of Object.entries(tripsMap)) {
+        for (const [hourStr, count] of Object.entries(hourData)) {
+            if (count > 0) {
+                hourlyTrips.push({
+                    dayGroup: dayGroup as 'WEEKDAY' | 'SAT' | 'SUN',
+                    hour: parseInt(hourStr, 10),
+                    trips: count,
+                    promisedHeadwayMin: calculateHeadway(count)
+                });
+            }
+        }
+    }
+
+    let status: 'OK' | 'WARN' | 'FAIL' = 'OK';
+    if (meta.timesFound === 0) {
+        status = 'FAIL';
+        meta.errors.push('Nenhum horário (HH:MM) encontrado no documento.');
+    } else if (defaultContextAssumed) {
+        status = 'WARN';
+        meta.errors.push('Nenhum cabeçalho de dia (Dias Úteis/Sábado/Domingo) localizado. Tudo associado como WEEKDAY por padrão.');
+    }
+
+    return {
+        status,
+        hourlyTrips,
+        meta
+    };
+}

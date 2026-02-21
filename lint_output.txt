@@ -1,17 +1,21 @@
 
 > vrnoponto@0.1.0 lint
-> eslint
+> eslint --format=stylish
 
 
-C:\Projetos\vrnoponto\app\api\bulletin\card\route.tsx
-  159:14  warning  '_err' is defined but never used  @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\api\map\stops\route.ts
+  16:38  warning  'trustError' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\app\boletim\page.tsx
-   9:5  warning  'Calendar' is defined but never used  @typescript-eslint/no-unused-vars
-  11:5  warning  'Bus' is defined but never used       @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\linha\[id]\page.tsx
+  4:49  warning  'ArrowLeft' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\components\editorial\EditorialCard.tsx
-  3:20  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\ponto\[id]\page.tsx
+  4:10  warning  'TrustMixBadge' is defined but never used  @typescript-eslint/no-unused-vars
 
-Ô£û 4 problems (0 errors, 4 warnings)
+C:\Projetos\vrnoponto\lib\official\parsePdfSchedule.ts
+  28:5   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-var-requires')
+  29:17  error    A `require()` style import is forbidden                                                                @typescript-eslint/no-require-imports
+
+Ô£û 5 problems (1 error, 4 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
 

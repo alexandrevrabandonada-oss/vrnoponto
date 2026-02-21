@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { PdfParserCard } from '@/components/admin/PdfParserCard';
 
 export default function AdminOficial() {
     const [lines, setLines] = useState<{ id: string, code: string, name: string }[]>([]);
@@ -165,6 +166,9 @@ export default function AdminOficial() {
                     )}
                 </form>
             </div>
+
+            {/* Parser Extractor Card */}
+            <PdfParserCard />
         </div>
     );
 }

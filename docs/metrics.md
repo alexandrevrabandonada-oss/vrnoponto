@@ -25,6 +25,11 @@ Utilizam a coluna `trust_level` para definir a qualidade do crowdsourcing:
 - **L3**: Dados oficiais (Motoristas ou Ônibus via GPS).
 A métrica principal calculada nestas views é `pct_verified` = ((L2 + L3) / Total) * 100.
 
+### `vw_line_promised_vs_real_30d`
+Cruza o horário planejado (cadastrado em `official_schedule_hourly` através de importação de PDF) com a vida real (`vw_line_headway_hourly_30d`). Utilizada nativamente na `/linha/[id]` para expor Gaps Reais e gerar o Kit Editorial. Calcula:
+- `delta_min`: Atraso mediano em minutos contra a tabela oficial.
+- `delta_pct`: Porcentagem de estouro do Headway estipulado na permissão.
+
 ## Automação
 
 O job de alertas é executado diariamente via GitHub Actions (`run-alerts.yml`), acionando o endpoint protegido:

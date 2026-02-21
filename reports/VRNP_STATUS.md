@@ -1,17 +1,17 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T23:15:17.006Z
+Gerado em: 2026-02-21T23:36:30.182Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: de4df0e
+- Git Commit: 414d9e6
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
-* 482aa09 - feat: trust mix badge across map, stop, line, reports
+* 414d9e6 - feat: trust mix badge across map, stop, line, reports
 * de4df0e - feat: system status dashboard in admin
 * a490a94 - chore: automate supabase migrations via github actions
 * ab3a095 - feat: partner funnel analytics
@@ -41,6 +41,7 @@ Gerado em: 2026-02-21T23:15:17.006Z
 
 ## Rotas de Backend (app/api/)
 - /api/admin/funnel/csv
+- /api/admin/oficial/parse
 - /api/admin/qr/generate
 - /api/admin/run-alerts
 - /api/admin/sync-official
@@ -52,6 +53,7 @@ Gerado em: 2026-02-21T23:15:17.006Z
 - /api/events/record
 - /api/health
 - /api/line/detail
+- /api/line/promised-vs-real
 - /api/map/stops
 - /api/partner-request
 - /api/point/detail
@@ -92,6 +94,9 @@ Gerado em: 2026-02-21T23:15:17.006Z
 - 0021_partner_funnel_views.sql
 - 0022_system_runs.sql
 - 0023_trust_aggregates.sql
+- 0024_official_schedule_parsing.sql
+- 0025_real_hourly_views.sql
+- 0026_promised_vs_real.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

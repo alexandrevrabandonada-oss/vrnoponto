@@ -3,23 +3,34 @@
 > next build
 
 Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
 
+ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 1851.6ms
+Ô£ô Compiled successfully in 3.5s
   Running TypeScript ...
   Collecting page data using 11 workers ...
-  Generating static pages using 11 workers (0/9) ...
-Error occurred prerendering page "/no-ponto". Read more: https://nextjs.org/docs/messages/prerender-error
-Error: @supabase/ssr: Your project's URL and API key are required to create a Supabase client!
+ÔÜá Using edge runtime on a page currently disables static generation for that page
+Warning: Cannot load "@napi-rs/canvas" package: "Error: Cannot find module '@napi-rs/canvas'
+Require stack:
+- C:\ROOT\node_modules\pdf-parse\dist\pdf-parse\cjs\index.cjs".
+Warning: Cannot polyfill `DOMMatrix`, rendering may be broken.
+Warning: Cannot polyfill `ImageData`, rendering may be broken.
+Warning: Cannot polyfill `Path2D`, rendering may be broken.
+ReferenceError: DOMMatrix is not defined
+    at module evaluation (C:\Projetos\vrnoponto\.next\server\chunks\[root-of-the-server]__11f6c897._.js:2:117830)
+    at instantiateModule (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:763:12)
+    at Context.commonJsRequire [as r] (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:249:12)
+    at module evaluation (C:\Projetos\vrnoponto\.next\server\chunks\[root-of-the-server]__11f6c897._.js:7:8264)
+    at instantiateModule (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:740:9)
+    at instantiateRuntimeModule (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:768:12)
+    at getOrInstantiateRuntimeModule (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:781:12)
+    at Object.m (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:790:18)
+    at Object.<anonymous> (C:\Projetos\vrnoponto\.next\server\app\api\admin\oficial\parse\route.js:9:3)
 
-Check your Supabase project's API settings to find these values
-
-https://supabase.com/dashboard/project/_/settings/api
-    at <unknown> (https://supabase.com/dashboard/project/_/settings/api)
-    at <unknown> (C:\Projetos\vrnoponto\.next\server\chunks\ssr\_185ab4e6._.js:55:63)
-    at cs (C:\Projetos\vrnoponto\.next\server\chunks\ssr\_185ab4e6._.js:59:4544)
-    at h (C:\Projetos\vrnoponto\.next\server\chunks\ssr\[root-of-the-server]__11d19d9c._.js:1:633) {
-  digest: '4154998223'
+> Build error occurred
+Error: Failed to collect page data for /api/admin/oficial/parse
+    at ignore-listed frames {
+  type: 'Error'
 }
-Export encountered an error on /no-ponto/page: /no-ponto, exiting the build.
-Ô¿» Next.js build worker exited with code: 1 and signal: null

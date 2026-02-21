@@ -151,3 +151,39 @@ export function generateLineCaption(line: { id: string, code: string, name: stri
         cta: "Status da linha: vrnoponto.vercel.app/linha/" + line.id
     };
 }
+
+/**
+ * Promised vs Real Template
+ */
+export function generatePromisedVsRealCaption(data: { line: { id: string, code: string, name: string }, dayGroup: string, worstHour: { hour: number, promised_headway_min: number | null, real_p50_headway_min: number | null, delta_pct: number | null, samples: number } | null }, tone: EditorialTone): CaptionOutput {
+    const { line, dayGroup, worstHour } = data;
+
+    const dayName = dayGroup === 'WEEKDAY' ? 'Dias Úteis' : dayGroup === 'SAT' ? 'Sábados' : 'Domingos/Feriados';
+
+    const headlines = {
+        direct: `Promessa x Realidade: O abismo na Linha ${line.code} aos ${dayName}.`,
+        explanatory: `Checagem de Fatos: A operação real da linha ${line.code} vs O quadro da Prefeitura.`,
+        convocatory: `A prefeitura finge que os ônibus da ${line.code} passam, e nós fingimos que acreditamos.`
+    };
+
+    let body = "";
+
+    if (!worstHour) {
+        body = `Nossa auditoria não encontrou atrasos absurdos para a linha ${line.code} (ou precisamos de mais colaborações de passageiros para ter certeza). Continue relatando no app!`;
+    } else {
+        if (tone === 'direct') {
+            body = `A tabela de ${dayName} promete carros a cada ${worstHour.promised_headway_min} minutos na pior faixa de horário (${worstHour.hour}h), mas na rua os passageiros aguardam a mediana de ${worstHour.real_p50_headway_min} minutos. Isso é uma explosão de +${Math.round(worstHour.delta_pct!)}% de atraso em cima da tabela.`;
+        } else if (tone === 'explanatory') {
+            body = `Batam as planilhas: Cruzamos a Tabela Oficial validada pela PMVR com a telemetria do VR no Ponto. A variação da Linha ${line.code} chega a picos de +${Math.round(worstHour.delta_pct!)}% de atraso contra o estipulado às ${worstHour.hour}h.`;
+        } else {
+            body = `Eles prometem ${worstHour.promised_headway_min}min. A vida real entrega ${worstHour.real_p50_headway_min}min (um rombo de +${Math.round(worstHour.delta_pct!)}%). Até quando a população de Volta Redonda será guiada por planilhas fictícias? Compartilhe e cobre as autoridades.`;
+        }
+    }
+
+    return {
+        caption: `${headlines[tone]}\n\n${body}`,
+        shortCaption: worstHour ? `Linha ${line.code}: Atraso bate +${Math.round(worstHour.delta_pct!)}% sobre tabela oficial às ${worstHour.hour}h.` : `Monitoramento Prometido vs Real da Linha ${line.code}.`,
+        hashtags: `#VRnoPonto #SindicatoDasEmpresas #VoltaRedonda #PrometicaXRealidade`,
+        cta: "Compare a tabela oficial: vrnoponto.vercel.app/linha/" + line.id
+    };
+}

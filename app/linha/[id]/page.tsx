@@ -4,6 +4,7 @@ import { TrustMixBadge } from '@/components/TrustMixBadge';
 import { AlertCircle, TrendingUp, TrendingDown, ArrowLeft } from 'lucide-react';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateLineCaption } from '@/lib/editorial/templates';
+import { PromisedVsRealCard } from '@/components/PromisedVsRealCard';
 
 type WeeklyHeadway = {
     week_start: string;
@@ -190,6 +191,9 @@ export default async function LinhaDetails({ params: paramsPromise }: { params: 
                         </div>
                     </div>
                 </div>
+
+                {/* Promised vs Real Hourly Gap */}
+                <PromisedVsRealCard lineId={lineId} />
 
                 {/* Tabelas de Horários Officiais */}
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
