@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "diag": "node scripts/diag.mjs",
-    "verify": "npm run lint && npm run build",
+    "verify": "eslint . && npm run build",
     "snapshot": "npm run verify && node scripts/diag.mjs snapshot",
     "supabase:version": "npx supabase --version",
     "supabase:init": "npx supabase init",

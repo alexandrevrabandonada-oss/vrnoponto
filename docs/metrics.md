@@ -36,3 +36,9 @@ Este documento descreve como as métricas do painel (`/painel`) são calculadas 
 - `vw_monthly_stop_wait`: Agrupa instâncias de passagens/embarque num ponto dentro do mesmo mês. Fornece `p50` (mediana) e `p90` do tempo de espera, além do volume de amostras.
 - `vw_monthly_line_reliability`: Agrupa intervalos entre viagens sequenciais (Headway) da mesma linha e ponto, tirando a mediana por mês.
 - `vw_monthly_summary_stops` / `vw_monthly_summary_lines`: Adicionam cálculos de variação (Δ%) com o mês anterior utilizando a *Window Function* `LAG()` e ranqueiam o Top 10 negativo com filtragem sanitária (min > 3 amostras/mês).
+
+### Mapa do Atraso (Tempo Geográfico)
+- **Janela de 30 Dias**: Calculada pela view `vw_stop_wait_30d`. Diferente do relatório mensal fixo, esta view foca em uma janela móvel (rolling window) para garantir que o mapa reflita dados recentes, independentemente do dia do mês.
+- **Geolocalização**: Coordenadas extraídas via PostGIS (`ST_X`, `ST_Y`) da tabela `stops`.
+- **Amostra Mínima**: Mantida em 3 amostras para evitar distorções visuais no mapa por dados isolados.
+

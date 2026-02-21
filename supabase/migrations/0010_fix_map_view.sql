@@ -1,9 +1,7 @@
--- Migration 0009: Delay Map Views (REFINED)
--- Criação de views focadas em tempo real / janela móvel para exibição em mapas (Geolocalização)
+-- Migration 0010: Fix Delay Map View (WITH DROP)
+DROP VIEW IF EXISTS public.vw_stop_wait_30d;
 
--- 1. Visão de Espera de 30 Dias por Ponto com Coordenadas PostGIS inclusas
--- Inclui TODOS os pontos ativos, mesmo os que não tem amostragem (p50_wait_min será null)
-CREATE OR REPLACE VIEW public.vw_stop_wait_30d AS
+CREATE VIEW public.vw_stop_wait_30d AS
 WITH recent_waits AS (
     SELECT 
         e.stop_id,
@@ -24,7 +22,7 @@ metrics AS (
     WHERE concluded_event IN ('boarding', 'passed_by')
       AND EXTRACT(EPOCH FROM (concluded_at - arrived_at))/60 BETWEEN 0 AND 180
     GROUP BY stop_id
-    HAVING COUNT(stop_id) >= 3 -- Mínimo de 3 amostras para ter métricas
+    HAVING COUNT(stop_id) >= 3
 )
 SELECT 
     s.id AS stop_id,

@@ -1,0 +1,47 @@
+Initialising login role...
+Connecting to remote database...
+Do you want to push these migrations to the remote database?
+ ÔÇó 0010_fix_map_view.sql
+
+ [Y/n] Applying migration 0010_fix_map_view.sql...
+ERROR: cannot change name of view column "lng" to "is_active" (SQLSTATE 42P16)                                                               
+At statement: 0                                                                                                                              
+-- Migration 0010: Fix Delay Map View                                                                                                        
+-- Garante que a view inclua todos os pontos e as coordenadas extra├¡das                                                                      
+                                                                                                                                             
+CREATE OR REPLACE VIEW public.vw_stop_wait_30d AS                                                                                            
+WITH recent_waits AS (                                                                                                                       
+    SELECT                                                                                                                                   
+        e.stop_id,                                                                                                                           
+        e.occurred_at AS arrived_at,                                                                                                         
+        LEAD(e.occurred_at) OVER (PARTITION BY e.device_id, e.stop_id ORDER BY e.occurred_at) as concluded_at,                               
+        LEAD(e.event_type) OVER (PARTITION BY e.device_id, e.stop_id ORDER BY e.occurred_at) as concluded_event                              
+    FROM public.stop_events e                                                                                                                
+    WHERE e.event_type IN ('arrived', 'boarding', 'passed_by')                                                                               
+      AND e.occurred_at >= NOW() - INTERVAL '30 days'                                                                                        
+),                                                                                                                                           
+metrics AS (                                                                                                                                 
+    SELECT                                                                                                                                   
+        stop_id,                                                                                                                             
+        COUNT(stop_id) as samples,                                                                                                           
+        ROUND((percentile_cont(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (concluded_at - arrived_at))/60))::numeric, 1) AS p50_wait_min,
+        ROUND((percentile_cont(0.9) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (concluded_at - arrived_at))/60))::numeric, 1) AS p90_wait_min 
+    FROM recent_waits                                                                                                                        
+    WHERE concluded_event IN ('boarding', 'passed_by')                                                                                       
+      AND EXTRACT(EPOCH FROM (concluded_at - arrived_at))/60 BETWEEN 0 AND 180                                                               
+    GROUP BY stop_id                                                                                                                         
+    HAVING COUNT(stop_id) >= 3                                                                                                               
+)                                                                                                                                            
+SELECT                                                                                                                                       
+    s.id AS stop_id,                                                                                                                         
+    s.name AS stop_name,                                                                                                                     
+    s.is_active,                                                                                                                             
+    ST_X(s.location::geometry) AS lng,                                                                                                       
+    ST_Y(s.location::geometry) AS lat,                                                                                                       
+    COALESCE(m.samples, 0) as samples,                                                                                                       
+    m.p50_wait_min,                                                                                                                          
+    m.p90_wait_min                                                                                                                           
+FROM public.stops s                                                                                                                          
+LEFT JOIN metrics m ON s.id = m.stop_id                                                                                                      
+WHERE s.is_active = true                                                                                                                     
+Try rerunning the command with --debug to troubleshoot the error.

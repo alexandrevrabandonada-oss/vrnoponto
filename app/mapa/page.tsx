@@ -74,7 +74,8 @@ function ListView({ stops }: { stops: StopMapItem[] }) {
     );
 }
 
-export default async function DelayMapPage({ searchParams }: { searchParams: { m?: string } }) {
+export default async function DelayMapPage(props: { searchParams: Promise<{ m?: string }> }) {
+    const searchParams = await props.searchParams;
     const listMode = searchParams.m === 'lista';
     const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000';
     const stops = await fetchStops(baseUrl);

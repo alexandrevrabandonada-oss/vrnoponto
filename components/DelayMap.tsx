@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import MarkerClusterGroup_ from 'react-leaflet-cluster';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MarkerClusterGroup = MarkerClusterGroup_ as any;
 import 'leaflet/dist/leaflet.css';
 import { ArrowRight, Clock, MapPin, Users } from 'lucide-react';

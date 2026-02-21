@@ -21,12 +21,21 @@ if (!nodeVersionStr.startsWith('v20')) {
 
 const outputPath = path.join(reportsDir, isSnapshot ? 'VRNP_SNAPSHOT.md' : 'VRNP_STATUS.md');
 
-function execSafe(cmd) {
+function execWithStatus(cmd) {
     try {
-        return execSync(cmd, { cwd: rootDir, stdio: 'pipe' }).toString().trim();
+        const output = execSync(cmd, { cwd: rootDir, stdio: 'pipe' }).toString().trim();
+        return { code: 0, output };
     } catch (e) {
-        return `Error: ${e.message}\nOutput: ${e.stdout?.toString() || e.stderr?.toString()}`;
+        return {
+            code: e.status || 1,
+            output: e.stdout?.toString() || e.stderr?.toString() || e.message
+        };
     }
+}
+
+// Para retrocompatibilidade ou uso simples
+function execSafe(cmd) {
+    return execWithStatus(cmd).output;
 }
 
 const now = new Date().toISOString();
@@ -37,6 +46,7 @@ if (gitBranch.startsWith('Error')) gitBranch = 'N/A';
 if (gitCommit.startsWith('Error')) gitCommit = 'N/A';
 
 const recentCommits = execSafe('git log -n 5 --pretty=format:"* %h - %s"');
+const eslintVersion = execSafe('npx eslint -v');
 
 const appRoutes = [];
 const apiRoutes = [];
@@ -97,20 +107,24 @@ if (fs.existsSync(migrationsDir)) {
 }
 
 console.log('Running npm run lint...');
-const lintResult = execSafe('npm run lint');
-const lintStatus = lintResult.includes('Error') ? 'FAILED' : 'SUCCESS';
+const lintRes = execWithStatus('npm run lint');
+const lintStatus = lintRes.code === 0 ? 'SUCCESS' : 'FAILED';
+const lintOutput = lintRes.output;
 
 console.log('Running npm run build...');
-const buildResult = execSafe('npm run build');
-const buildStatus = buildResult.includes('Error') ? 'FAILED' : 'SUCCESS';
+const buildRes = execWithStatus('npm run build');
+const buildStatus = buildRes.code === 0 ? 'SUCCESS' : 'FAILED';
+const buildOutput = buildRes.output;
 
 console.log('Checking /api/health...');
 let apiHealthStatus = 'FAIL';
 try {
-    const res = await fetch('http://localhost:3000/api/health', { signal: AbortSignal.timeout(2000) });
+    const res = await fetch('http://localhost:3000/api/health', { signal: AbortSignal.timeout(1500) });
     if (res.ok) apiHealthStatus = 'OK';
-} catch (_e) {
-    // FAIL
+} catch (e) {
+    if (e.cause?.code === 'ECONNREFUSED' || e.name === 'TimeoutError') {
+        apiHealthStatus = 'SKIPPED (server not running)';
+    }
 }
 
 const reportContent = `# VRNP STATUS REPORT
@@ -123,6 +137,7 @@ Gerado em: ${now}
 - .env.local: ${envLocalStatus}
 - Supabase Env Vars: ${supabaseEnvStatus}
 - /api/health Local: ${apiHealthStatus}
+- ESLint Version: ${eslintVersion}
 
 ## Últimos 5 Commits
 ${recentCommits.split('\n').join('\n')}
@@ -150,14 +165,14 @@ ${migrations.length > 0 ? migrations.map(m => `- ${m}`).join('\n') : '- Nenhuma 
 - npm run lint: ${lintStatus}
 - npm run build: ${buildStatus}
 
-${isSnapshot ? `### Resumo Lint
+${isSnapshot || lintStatus === 'FAILED' ? `### Resumo Lint
 \`\`\`text
-${lintResult.substring(0, 1000)}${lintResult.length > 1000 ? '\n... (truncado)' : ''}
-\`\`\`
+${lintOutput.split('\n').slice(-40).join('\n')}
+\`\`\`` : ''}
 
-### Resumo Build
+${isSnapshot || buildStatus === 'FAILED' ? `### Resumo Build
 \`\`\`text
-${buildResult.substring(0, 1000)}${buildResult.length > 1000 ? '\n... (truncado)' : ''}
+${buildOutput.split('\n').slice(-40).join('\n')}
 \`\`\`` : ''}
 
 ## OPS (Windows Automation Workspace)

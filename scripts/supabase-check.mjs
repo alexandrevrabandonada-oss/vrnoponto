@@ -14,15 +14,26 @@ if (fs.existsSync(envLocalPath)) {
 
 console.log('--- SUPABASE REMOTE CHECK ---');
 
+let cliLoggedIn = false;
+try {
+    execSync('npx supabase projects list', { stdio: ['pipe', 'pipe', 'ignore'] });
+    cliLoggedIn = true;
+} catch {
+    cliLoggedIn = false;
+}
+
 const projectRef = process.env.SUPABASE_PROJECT_REF;
 const accessToken = process.env.SUPABASE_ACCESS_TOKEN;
 
 console.table([
+    { Variable: 'Supabase CLI', Status: cliLoggedIn ? 'LOGGED_IN' : 'NOT_LOGGED_IN' },
     { Variable: 'SUPABASE_PROJECT_REF', Status: projectRef ? 'OK' : 'MISSING' },
     { Variable: 'SUPABASE_ACCESS_TOKEN', Status: accessToken ? 'OK' : 'MISSING' },
 ]);
 
-if (!projectRef || !accessToken) {
+if (cliLoggedIn) {
+    console.log('\\n[✓] Supabase CLI está autenticada. Você pode rodar comandos remotos.');
+} else if (!projectRef || !accessToken) {
     console.log('\\n[!] INSTRUÇÕES:');
     console.log('Para conectar ao Supabase remoto (Produção/Staging), você precisa definir estas duas variáveis.\\n');
     console.log('1. SUPABASE_PROJECT_REF: É o ID na URL do seu projeto (ex: rrbpirfqslybhfguxhmp).');
@@ -34,14 +45,8 @@ if (!projectRef || !accessToken) {
     console.log('export SUPABASE_PROJECT_REF="xyz"');
     console.log('export SUPABASE_ACCESS_TOKEN="sbp_..."');
     console.log('\\nConsulte docs/supabase-remote.md para mais detalhes.');
-} else {
-    console.log('\\n[✓] Variáveis detectadas. Validando com a CLI...\\n');
-    try {
-        // Tenta listar projetos para validar o token. Omitimos stderr para não printar erro feio se der auth fail.
-        execSync('npx supabase projects list', { stdio: ['pipe', 'pipe', 'ignore'] });
-        console.log('[✓] Conexão com a nuvem do Supabase validada com sucesso!');
-        console.log('Você já pode rodar: npm run supabase:link && npm run supabase:push');
-    } catch (_err) {
-        console.log('[!] O Token existe, mas a autenticação falhou. O Token pode estar inválido ou expirado.');
-    }
+}
+
+if (!cliLoggedIn && (projectRef && accessToken)) {
+    console.log('\\n[!] Variáveis detectadas, mas CLI não parece autenticada com elas.');
 }
