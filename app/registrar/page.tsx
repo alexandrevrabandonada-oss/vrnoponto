@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+// SUPABASE CLIENT DELETED
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { RatingModal } from '@/components/RatingModal';
 
