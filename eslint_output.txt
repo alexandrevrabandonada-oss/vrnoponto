@@ -1,46 +1,14 @@
 
+C:\Projetos\vrnoponto\app\api\events\record\route.ts
+  105:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
 C:\Projetos\vrnoponto\app\no-ponto\page.tsx
-  37:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
-
-Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
-* Update external systems with the latest state from React.
-* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
-
-Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
-
-C:\Projetos\vrnoponto\app\no-ponto\page.tsx:37:13
-  35 |             );
-  36 |         } else {
-> 37 |             setGpsStatus('Geolocaliza├º├úo n├úo suportada neste navegador.');
-     |             ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
-  38 |         }
-  39 |     }, []);
-  40 |  react-hooks/set-state-in-effect
+  13:11  warning  'supabase' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  63:23  error    Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
 
 C:\Projetos\vrnoponto\app\registrar\page.tsx
-  15:12  warning  'selectedEvent' is assigned a value but never used  @typescript-eslint/no-unused-vars
-  79:53  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
-
-C:\Projetos\vrnoponto\hooks\useDeviceId.ts
-  14:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
-
-Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
-* Update external systems with the latest state from React.
-* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
-
-Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
-
-C:\Projetos\vrnoponto\hooks\useDeviceId.ts:14:9
-  12 |             localStorage.setItem('vrnp_device_id', id);
-  13 |         }
-> 14 |         setDeviceId(id);
-     |         ^^^^^^^^^^^ Avoid calling setState() directly within an effect
-  15 |     }, []);
-  16 |
-  17 |     return deviceId;  react-hooks/set-state-in-effect
-
-C:\Projetos\vrnoponto\lib\supabase\server.ts
-  1:35  warning  'CookieOptions' is defined but never used  @typescript-eslint/no-unused-vars
+  13:11  warning  'supabase' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  46:23  error    Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
 
 Ô£û 5 problems (3 errors, 2 warnings)
 

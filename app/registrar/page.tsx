@@ -10,7 +10,6 @@ const MOCK_STOP_ID = '22222222-2222-2222-2222-222222222222';
 
 export default function Registrar() {
     const deviceId = useDeviceId();
-    const supabase = createClient();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,23 +21,32 @@ export default function Registrar() {
         setIsSubmitting(true);
         setMessage('');
 
-        const { error } = await supabase.from('stop_events').insert({
-            stop_id: MOCK_STOP_ID,
-            line_id: MOCK_LINE_ID,
-            device_id: deviceId,
-            event_type: eventType,
-        });
+        try {
+            const res = await fetch('/api/events/record', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    deviceId,
+                    stopId: MOCK_STOP_ID,
+                    lineId: MOCK_LINE_ID,
+                    eventType
+                })
+            });
 
-        setIsSubmitting(false);
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Erro desconhecido');
+            }
 
-        if (error) {
-            setMessage('Erro ao registrar evento: ' + error.message);
-        } else {
-            setMessage("Evento de '" + eventType + "' salvo!");
-            // Abrir modal se for embarque ou passou
+            setMessage("Evento '" + eventType + "' salvo! Nível: " + (data.event?.trust_level || 'L1'));
             if (eventType === 'boarding' || eventType === 'passed_by') {
                 setIsModalOpen(true);
             }
+        } catch (err: unknown) {
+            const errMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+            setMessage('Erro ao registrar evento: ' + errMessage);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 

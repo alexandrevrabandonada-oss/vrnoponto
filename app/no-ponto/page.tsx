@@ -10,7 +10,6 @@ const MOCK_STOP_ID = '22222222-2222-2222-2222-222222222222';
 
 export default function NoPonto() {
     const deviceId = useDeviceId();
-    const supabase = createClient();
 
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [gpsStatus, setGpsStatus] = useState<string>('Solicitando GPS...');
@@ -43,20 +42,28 @@ export default function NoPonto() {
         setIsSubmitting(true);
         setMessage('');
 
-        const { error } = await supabase.from('stop_events').insert({
-            stop_id: selectedStop,
-            line_id: selectedLine,
-            device_id: deviceId,
-            event_type: 'arrived',
-            // occurred_at é preenchido pelo banco (default now())
-        });
+        try {
+            const res = await fetch('/api/events/record', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    deviceId,
+                    stopId: selectedStop,
+                    lineId: selectedLine,
+                    eventType: 'arrived'
+                })
+            });
 
-        setIsSubmitting(false);
-
-        if (error) {
-            setMessage('Erro ao registrar: ' + error.message);
-        } else {
-            setMessage('Presença registrada com sucesso!');
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Erro desconhecido');
+            }
+            setMessage('Presença registrada com sucesso! Nível: ' + (data.event?.trust_level || 'L1'));
+        } catch (err: unknown) {
+            const errMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+            setMessage('Erro ao registrar: ' + errMessage);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
