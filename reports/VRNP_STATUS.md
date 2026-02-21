@@ -1,23 +1,23 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T16:49:16.452Z
+Gerado em: 2026-02-21T16:54:31.228Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: master
-- Git Commit: aa74d82
+- Git Commit: cf0b7e3
 - .env.local: MISSING
 - Supabase Env Vars: MISSING
 - /api/health Local: FAIL
 
 ## Últimos 5 Commits
+* cf0b7e3 - chore: ops scripts for env + supabase + smoke
 * aa74d82 - feat: nearest stops geolocation
 * 3048392 - chore: supabase remote automations
 * d8ebf38 - feat: admin mvp + official pdf upload
 * cf92455 - chore: production pipeline + feedback pack
-* cecf539 - feat: implement analytics dashboard
 
-## Rotas Detectadas (app/)
-- /
+## Rotas Dinâmicas (app/page.tsx)
+- /.
 - /admin
 - /admin/linhas
 - /admin/oficial
@@ -28,6 +28,12 @@ Gerado em: 2026-02-21T16:49:16.452Z
 - /ponto/[id]
 - /registrar
 
+## Rotas de Backend (app/api/)
+- /api/admin/upload-pdf
+- /api/env-audit
+- /api/events/record
+- /api/health
+- /api/stops/nearest
 ## Componentes Compartilhados (components/)
 - RatingModal.tsx
 

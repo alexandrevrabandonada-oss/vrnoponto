@@ -38,25 +38,31 @@ if (gitCommit.startsWith('Error')) gitCommit = 'N/A';
 
 const recentCommits = execSafe('git log -n 5 --pretty=format:"* %h - %s"');
 
-const appDir = path.join(rootDir, 'app');
-const routes = [];
-function scanRoutes(dir, baseRoute = '') {
+const appRoutes = [];
+const apiRoutes = [];
+
+// Função recursiva para encontrar rotas (page.tsx e route.ts)
+function findRoutes(dir) {
     if (!fs.existsSync(dir)) return;
     const items = fs.readdirSync(dir, { withFileTypes: true });
-    let hasPage = false;
+
     for (const item of items) {
         if (item.isDirectory()) {
-            scanRoutes(path.join(dir, item.name), `${baseRoute}/${item.name}`);
-        } else if (item.name === 'page.tsx' || item.name === 'page.js') {
-            hasPage = true;
+            findRoutes(path.join(dir, item.name));
+        } else if (item.isFile()) {
+            if (item.name === 'page.tsx') {
+                const relative = path.relative(path.join(rootDir, 'app'), path.join(dir, item.name));
+                appRoutes.push('/' + path.dirname(relative).replace(/\\/g, '/'));
+            } else if (item.name === 'route.ts') {
+                const relative = path.relative(path.join(rootDir, 'app'), path.join(dir, item.name));
+                apiRoutes.push('/api/' + path.dirname(relative).replace(/^api[\\/]/, '').replace(/\\/g, '/'));
+            }
         }
     }
-    if (hasPage) {
-        routes.push(baseRoute === '' ? '/' : baseRoute);
-    }
 }
-scanRoutes(appDir);
-routes.sort();
+findRoutes(path.join(rootDir, 'app'));
+appRoutes.sort();
+apiRoutes.sort();
 
 const envLocalPath = path.join(rootDir, '.env.local');
 const envLocalExists = fs.existsSync(envLocalPath);
@@ -121,9 +127,11 @@ Gerado em: ${now}
 ## Últimos 5 Commits
 ${recentCommits.split('\n').join('\n')}
 
-## Rotas Detectadas (app/)
-${routes.length > 0 ? routes.map(r => `- ${r}`).join('\n') : '- Nenhuma rota encontrada'}
+## Rotas Dinâmicas (app/page.tsx)
+${appRoutes.length > 0 ? appRoutes.map(r => `- ${r}`).join('\n') : '- Nenhuma rota encontrada'}
 
+## Rotas de Backend (app/api/)
+${apiRoutes.length > 0 ? apiRoutes.map(r => `- ${r}`).join('\n') : '- Nenhuma rota encontada'}
 ## Componentes Compartilhados (components/)
 - RatingModal.tsx
 

@@ -1,23 +1,23 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T16:10:33.493Z
+Gerado em: 2026-02-21T16:55:24.369Z
 
 ## Ambiente
-- Node Version: v22.19.0
+- Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: master
-- Git Commit: 3048392
+- Git Commit: cf0b7e3
 - .env.local: MISSING
 - Supabase Env Vars: MISSING
 - /api/health Local: FAIL
 
 ## Últimos 5 Commits
+* cf0b7e3 - chore: ops scripts for env + supabase + smoke
+* aa74d82 - feat: nearest stops geolocation
 * 3048392 - chore: supabase remote automations
 * d8ebf38 - feat: admin mvp + official pdf upload
 * cf92455 - chore: production pipeline + feedback pack
-* cecf539 - feat: implement analytics dashboard
-* 46b3d5c - feat: implement trust levels and rate limiting
 
-## Rotas Detectadas (app/)
-- /
+## Rotas Dinâmicas (app/page.tsx)
+- /.
 - /admin
 - /admin/linhas
 - /admin/oficial
@@ -28,6 +28,12 @@ Gerado em: 2026-02-21T16:10:33.493Z
 - /ponto/[id]
 - /registrar
 
+## Rotas de Backend (app/api/)
+- /api/admin/upload-pdf
+- /api/env-audit
+- /api/events/record
+- /api/health
+- /api/stops/nearest
 ## Componentes Compartilhados (components/)
 - RatingModal.tsx
 
@@ -57,6 +63,9 @@ Gerado em: 2026-02-21T16:10:33.493Z
 > eslint
 
 
+C:\Projetos\vrnoponto\app\api\env-audit\route.ts
+  5:27  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
 C:\Projetos\vrnoponto\app\linha\[id]\page.tsx
   2:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
 
@@ -65,12 +74,12 @@ C:\Projetos\vrnoponto\app\no-ponto\page.tsx
   9:7   warning  'MOCK_STOP_ID' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
 C:\Projetos\vrnoponto\scripts\diag.mjs
-  101:10  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  112:10  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Projetos\vrnoponto\scripts\supabase-check.mjs
   44:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
 
-✖ 5 problems (0 errors, 5 warnings)
+✖ 6 problems (0 errors, 6 warnings)
 ```
 
 ### Resumo Build
@@ -81,14 +90,14 @@ C:\Projetos\vrnoponto\scripts\supabase-check.mjs
 ▲ Next.js 16.1.6 (Turbopack)
 
   Creating an optimized production build ...
-✓ Compiled successfully in 2.2s
+✓ Compiled successfully in 2.5s
   Running TypeScript ...
   Collecting page data using 11 workers ...
   Generating static pages using 11 workers (0/14) ...
   Generating static pages using 11 workers (3/14) 
   Generating static pages using 11 workers (6/14) 
   Generating static pages using 11 workers (10/14) 
-✓ Generating static pages using 11 workers (14/14) in 235.6ms
+✓ Generating static pages using 11 workers (14/14) in 251.9ms
   Finalizing page optimization ...
 
 Route (app)
@@ -99,6 +108,7 @@ Route (app)
 ├ ○ /admin/oficial
 ├ ƒ /admin/pontos
 ├ ƒ /api/admin/upload-pdf
+├ ƒ /api/env-audit
 ├ ƒ /api/events/record
 ├ ƒ /api/health
 ├ ƒ /api/stops/nearest
@@ -114,6 +124,13 @@ Route (app)
 ○  (Static)   prerendered as static content
 ƒ  (Dynamic)  server-rendered on demand
 ```
+
+## OPS (Windows Automation Workspace)
+As rotinas DevOps foram automatizadas para uso sem "touching" manual via PowerShell:
+- `npm run ops:env`: Prompt seguro das chaves `.env.local` ocultas do History.
+- `npm run ops:supabase`: Valida Tokens remotos e engatilha Link + Push da pasta de migrations.
+- `npm run ops:smoke`: Realiza o SpinUp do Next.js via background jobs (`Start-Process`), testa porta limite e pinga na API REST cURL para ter certeza do estado real do build finalizado.
+- `npm run ops:go`: Comanda a união das forjas (Auth -> Verifica -> Sobe -> Diag).
 
 ## Fluxo de Teste Manual (MVP)
 1. Abra a aplicação e acesse a rota `/no-ponto`.
