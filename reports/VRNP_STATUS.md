@@ -1,32 +1,34 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T19:50:11.334Z
+Gerado em: 2026-02-21T19:54:50.849Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 7ff379b
+- Git Commit: 515188f
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
+* 515188f - feat: L3 without public QR (collective + trip proof)
 * 7ff379b - feat: point detail page + og share
 * fd78df3 - chore: harden diag + supabase check + lint reliability
 * 6f46dd1 - feat: mapa do atraso
 * ce6746f - feat: monthly public report + export
-* cac1dd9 - feat: daily sync via github actions
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
 - /admin
 - /admin/linhas
 - /admin/oficial
+- /admin/parceiros
 - /admin/pontos
 - /linha/[id]
 - /mapa
 - /no-ponto
 - /painel
+- /parceiros
 - /ponto/[id]
 - /qr/[token]
 - /registrar
@@ -66,9 +68,10 @@ Gerado em: 2026-02-21T19:50:11.334Z
 - 0012_qr_l3.sql
 - 0013_distance_rpc.sql
 - 0014_trust_methods.sql
+- 0015_partners.sql
 
 ## Supabase Remote (Status)
-- SUPABASE_PROJECT_REF: MISSING
+- SUPABASE_PROJECT_REF: OK
 - SUPABASE_ACCESS_TOKEN: MISSING
 *(Run `npm run supabase:check` to validate the token against the Supabase CLI)*
 

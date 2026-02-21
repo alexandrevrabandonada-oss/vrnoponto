@@ -13,10 +13,14 @@ O sistema de informações em tempo real via crowdsourcing do VR no Ponto utiliz
 
 ### `L3` (Nível 3 - Prova Forte)
 O nível máximo de confiabilidade, atingido por métodos que comprovam a presença física ou trajetos plausíveis:
-- **Coletivo**: 3 ou mais dispositivos únicos relatando o mesmo evento (ex: `passed_by`) para a mesma linha/ponto em uma janela de 8 min. Todos os relatos são promovidos a `L3`.
-- **Trajeto**: O usuário marca `boarding` (Embarquei) em um ponto e `alighted` (Desci) em outro ponto diferente após pelo menos 5 minutos. Ambos os eventos são promovidos a `L3`.
-- **QR Parceiro (Opcional)**: Scan de QR Code físico em pontos ou ônibus de parceiros comerciais. Requer validação de proximidade GPS (80m).
-- **Rate Limit**: 1 promoção L3 por ponto a cada 30 minutos por dispositivo.
+- **COLETIVO (L3)**: 3 ou mais dispositivos únicos relatando o mesmo evento para a mesma linha/ponto em uma janela de 8 min.
+- **TRAJETO (L3)**: Usuário marca Embarque em um ponto e Desembarque em outro após pelo menos 5 minutos e 800m de deslocamento. Ambos os eventos são promovidos.
+- **QR PARCEIRO (L3)**: Scan de QR Code físico em **locais autorizados** (comércio, sindicatos). Requer validação de proximidade GPS (80m).
+
+> [!TIP]
+> O método QR Code agora é focado em **Pontos Parceiros** onde há material oficial, movendo a auditoria para ambientes seguros e controlados.
+
+- **Rate Limit**: 1 promoção L3 via QR a cada 30 minutos por dispositivo.
 
 
 ## Rate Limiting (Prevenção de Spam)

@@ -35,6 +35,13 @@ const iconYellow = createColoredIcon('#f59e0b'); // 5-10 min
 const iconOrange = createColoredIcon('#f97316'); // 10-20 min
 const iconRed = createColoredIcon('#ef4444'); // > 20 min
 
+const iconPartner = L.divIcon({
+    className: 'custom-div-icon',
+    html: `<div style='background-color:#4f46e5; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(79,70,229,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;'>🤝</div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14]
+});
+
 function getIconForP50(p50: number | null) {
     if (p50 === null) return iconGray;
     if (p50 <= 5) return iconGreen;
@@ -58,14 +65,30 @@ export type StopMapItem = {
         lat: number;
         lng: number;
     } | null;
-    metrics: {
+    metrics?: {
         p50_wait_min: number;
         p90_wait_min: number;
         samples: number;
     } | null;
 };
 
-export default function DelayMapComponent({ stops }: { stops: StopMapItem[] }) {
+export type PartnerMapItem = {
+    id: string;
+    name: string;
+    category?: string;
+    location: {
+        lat: number;
+        lng: number;
+    } | null;
+};
+
+export default function DelayMapComponent({
+    stops = [],
+    partners = []
+}: {
+    stops?: StopMapItem[],
+    partners?: PartnerMapItem[]
+}) {
     // Volta Redonda center (approx)
     const defaultCenter: [number, number] = [-22.518, -44.095];
     const defaultZoom = 13;
@@ -128,6 +151,26 @@ export default function DelayMapComponent({ stops }: { stops: StopMapItem[] }) {
                                 >
                                     Abrir Detalhes <ArrowRight size={14} />
                                 </a>
+                            </div>
+                        </Popup>
+                    </Marker>
+                ))}
+
+                {partners.filter(p => p.location && p.location.lat).map(partner => (
+                    <Marker
+                        key={partner.id}
+                        position={[partner.location!.lat, partner.location!.lng]}
+                        icon={iconPartner}
+                    >
+                        <Popup>
+                            <div className="p-2 text-center w-48">
+                                <strong className="block text-indigo-600 mb-1">{partner.name}</strong>
+                                <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                    {partner.category || 'Parceiro'}
+                                </span>
+                                <div className="mt-3 text-[11px] text-gray-500 leading-tight">
+                                    Escaneie o QR oficial aqui para ganhar Prova de Presença (L3).
+                                </div>
                             </div>
                         </Popup>
                     </Marker>

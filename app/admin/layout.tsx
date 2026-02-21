@@ -17,6 +17,7 @@ export default function AdminLayout({
                         <Link href="/admin/linhas" className="hover:text-indigo-200 transition-colors">Linhas</Link>
                         <Link href="/admin/pontos" className="hover:text-indigo-200 transition-colors">Pontos</Link>
                         <Link href="/admin/oficial" className="hover:text-indigo-200 transition-colors">Horários Oficiais</Link>
+                        <Link href="/admin/parceiros" className="hover:text-indigo-200 transition-colors">Parceiros</Link>
                     </div>
                 </div>
             </nav>

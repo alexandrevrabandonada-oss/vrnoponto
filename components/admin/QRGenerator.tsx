@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Download, Printer, QrCode, Loader2, X } from 'lucide-react';
 
-export function QRGenerator({ stopId, stopName }: { stopId: string, stopName: string }) {
+export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, partnerId?: string, stopName: string }) {
     const [qrUrl, setQrUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -16,7 +16,10 @@ export function QRGenerator({ stopId, stopName }: { stopId: string, stopName: st
             const res = await fetch('/api/admin/qr/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stop_id: stopId })
+                body: JSON.stringify({
+                    stop_id: stopId,
+                    partner_id: partnerId
+                })
             });
             const data = await res.json();
             if (data.qr_url) {

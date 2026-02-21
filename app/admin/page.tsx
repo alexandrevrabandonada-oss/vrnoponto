@@ -41,6 +41,10 @@ export default function AdminHome() {
                     <h2 className="text-xl font-bold text-indigo-700 mb-2">Horários Oficiais</h2>
                     <p className="text-sm text-gray-500">Faça upload de tabelas de horário em PDF.</p>
                 </a>
+                <a href="/admin/parceiros" className="block p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    <h2 className="text-xl font-bold text-indigo-700 mb-2">Pontos Parceiros</h2>
+                    <p className="text-sm text-gray-500">Gestão de locais autorizados e QR Codes L3.</p>
+                </a>
             </div>
 
             <div className="mt-12 bg-gray-50 rounded-xl p-6 border border-gray-200">

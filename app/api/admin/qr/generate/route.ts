@@ -6,40 +6,49 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
     try {
-        const { stop_id } = await req.json();
+        const { stop_id, partner_id } = await req.json();
 
-        if (!stop_id) {
-            return NextResponse.json({ error: 'stop_id is required' }, { status: 400 });
+        if (!stop_id && !partner_id) {
+            return NextResponse.json({ error: 'stop_id or partner_id is required' }, { status: 400 });
         }
 
         const supabase = await createClient();
+        let name = '';
 
-        // 1. Verificar se stop existe e é ativo
-        const { data: stop, error: stopError } = await supabase
-            .from('stops')
-            .select('name, is_active')
-            .eq('id', stop_id)
-            .single();
-
-        if (stopError || !stop) {
-            return NextResponse.json({ error: 'Stop not found' }, { status: 404 });
+        if (stop_id) {
+            const { data: stop, error: stopError } = await supabase
+                .from('stops')
+                .select('name')
+                .eq('id', stop_id)
+                .single();
+            if (stopError || !stop) return NextResponse.json({ error: 'Stop not found' }, { status: 404 });
+            name = stop.name;
+        } else {
+            const { data: partner, error: partnerError } = await supabase
+                .from('partners')
+                .select('name')
+                .eq('id', partner_id)
+                .single();
+            if (partnerError || !partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+            name = partner.name;
         }
 
-        // 2. Gerar Token Aleatório (32 bytes base64url)
+        // 2. Gerar Token Aleatório
         const token = crypto.randomBytes(32).toString('base64url');
         const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
-        // 3. Inativar QRs anteriores para este ponto (opcional, mas recomendado)
-        await supabase
-            .from('qr_checkins')
-            .update({ is_active: false })
-            .eq('stop_id', stop_id);
+        // 3. Inativar QRs anteriores
+        const query = supabase.from('qr_checkins').update({ is_active: false });
+        if (stop_id) query.eq('stop_id', stop_id);
+        else query.eq('partner_id', partner_id);
+        await query;
 
         // 4. Salvar Novo QR
         const { error: insertError } = await supabase
             .from('qr_checkins')
             .insert({
-                stop_id,
+                stop_id: stop_id || null,
+                partner_id: partner_id || null,
                 token_hash: tokenHash,
                 is_active: true
             });
@@ -52,8 +61,8 @@ export async function POST(req: Request) {
 
         return NextResponse.json({
             qr_url: `${baseUrl}/qr/${token}`,
-            stop_name: stop.name,
-            stop_id: stop_id
+            name,
+            id: stop_id || partner_id
         });
 
     } catch (err: unknown) {
