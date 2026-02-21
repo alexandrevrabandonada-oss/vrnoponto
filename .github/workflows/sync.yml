@@ -1,0 +1,25 @@
+name: Daily sync official schedules
+
+on:
+  schedule:
+    # GitHub cron é UTC. 10:15 UTC = 07:15 (Brasil -03) na maior parte do ano.
+    - cron: "15 10 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Call sync endpoint
+        env:
+          URL: ${{ secrets.VRNP_SYNC_URL }}
+          TOKEN: ${{ secrets.VRNP_ADMIN_TOKEN }}
+        run: |
+          echo "Calling: $URL"
+          curl -sS -X POST "$URL?dryRun=false&limit=999" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            --max-time 600 \
+            | tee result.json
+          echo "Done."
