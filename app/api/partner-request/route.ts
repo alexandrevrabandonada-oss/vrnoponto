@@ -72,8 +72,10 @@ export async function POST(req: Request) {
         if (error) throw error;
 
         // Success — log telemetry
-        const today = new Date().toISOString().slice(0, 10);
-        await supabase.rpc('increment_telemetry', { p_event_key: 'partner_request_created', p_date: today }).catch(() => { });
+        try {
+            const today = new Date().toISOString().slice(0, 10);
+            await supabase.rpc('increment_telemetry', { p_event_key: 'partner_request_created', p_date: today });
+        } catch { }
 
         return NextResponse.json({ ok: true });
     } catch (err: unknown) {

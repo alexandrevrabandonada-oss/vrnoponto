@@ -1,28 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T19:54:50.849Z
+Gerado em: 2026-02-21T22:18:49.266Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 515188f
+- Git Commit: ab3a095
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
-* 515188f - feat: L3 without public QR (collective + trip proof)
-* 7ff379b - feat: point detail page + og share
-* fd78df3 - chore: harden diag + supabase check + lint reliability
-* 6f46dd1 - feat: mapa do atraso
-* ce6746f - feat: monthly public report + export
-
-## 📊 Monitoramento & Transparência
-- **Métricas Semanais**: 100% (Views, Alertas e Agendamento)
-- **Boletim Público**: 100% (API, UI e OG Images)
-- **Social Marketing**: 100% (Gerador de Cards 1:1 e 9:16)
-- **Automação de Ativos**: Operacional (Artifacts via GitHub Actions)
-- **Documentação**: [Metrics](./docs/metrics.md), [Trust](./docs/trust.md), [Bulletin](./docs/bulletin.md)
+* ab3a095 - feat: partner funnel analytics
+* e67f5ba - feat: 10s onboarding
+* 941c3e1 - feat: partner onboarding funnel
+* ca72f8c - feat: editorial kit (captions + copy buttons)
+* 52fdfb7 - fix: final lint corrections for partner kit
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -31,12 +24,15 @@ Gerado em: 2026-02-21T19:54:50.849Z
 - /admin/oficial
 - /admin/parceiros
 - /admin/pontos
+- /boletim
+- /como-usar
 - /linha/[id]
 - /mapa
 - /no-ponto
 - /painel
 - /parceiro/[id]
 - /parceiros
+- /parceiros/entrar
 - /ponto/[id]
 - /qr/[token]
 - /registrar
@@ -44,25 +40,27 @@ Gerado em: 2026-02-21T19:54:50.849Z
 
 ## Rotas de Backend (app/api/)
 - /api/admin/funnel/csv
-- /api/admin/partner/kit/poster
-- /api/admin/partner/kit/seal
 - /api/admin/qr/generate
+- /api/admin/run-alerts
 - /api/admin/sync-official
 - /api/admin/upload-pdf
+- /api/alerts
+- /api/bulletin
 - /api/env-audit
 - /api/events/record
 - /api/health
 - /api/map/stops
-- /api/partner/detail
+- /api/partner-request
 - /api/point/detail
 - /api/qr/validate
 - /api/report/monthly
 - /api/report/monthly.csv
 - /api/stops/nearest
-
+- /api/telemetry
+- /api/timeseries/line
+- /api/timeseries/stop
 ## Componentes Compartilhados (components/)
 - RatingModal.tsx
-- admin/PartnerKitModal.tsx
 
 ## Hooks (hooks/)
 - useDeviceId.ts
@@ -84,12 +82,14 @@ Gerado em: 2026-02-21T19:54:50.849Z
 - 0014_trust_methods.sql
 - 0015_partners.sql
 - 0016_token_plain.sql
+- 0017_timeseries_weekly.sql
+- 0018_alerts.sql
 - 0019_partner_requests.sql
 - 0020_telemetry_counts.sql
 - 0021_partner_funnel_views.sql
 
 ## Supabase Remote (Status)
-- SUPABASE_PROJECT_REF: OK
+- SUPABASE_PROJECT_REF: MISSING
 - SUPABASE_ACCESS_TOKEN: MISSING
 *(Run `npm run supabase:check` to validate the token against the Supabase CLI)*
 

@@ -30,12 +30,22 @@ Após a Vercel finalizar e gerar luz verde, abra a URL oficial do app e bata nes
 * [ ] `/painel`: Abas interativas de Linhas e Visão Geral devem redimensionar e não apagar a tela (Testando se a Anon Key logou ao DB para RLS).
 * [ ] `/admin?t=SEUTOKEN`: A URL deve limpar pro `/admin` automaticamente, gerar o cookie no seu browser e exibir o Dashboard Administrativo c/ as ferramentas (Testando a integridade Middleware + EnvVars).
 
-## 5. Automação Diária (GitHub Actions)
-Para que o sistema baixe diariamente os PDFs da prefeitura sem intervenção, o repositório conta com um cronjob no GitHub Actions (`.github/workflows/sync-official.yml`).
+## 5. Automação Diária e CI/CD (GitHub Actions)
 
-Para ativá-lo:
-* [ ] Acesse as configurações no repositório do GitHub: **Settings > Secrets and variables > Actions**.
-* [ ] Crie as *Repository secrets*:
-  * `VRNP_SYNC_URL`: A URL do seu endpoint de sync em produção (ex: `https://meu-app.vercel.app/api/admin/sync-official`).
-  * `VRNP_ADMIN_TOKEN`: A sua senha mestra criada no passo 2 acima (o mesmo valor de `ADMIN_TOKEN`).
-* [ ] Teste a conexão acessando a aba **Actions**, procure pelo fluxo "Daily sync official schedules", e clique em **Run workflow**.
+O repositório conta com automações no GitHub Actions para facilitar o dia a dia operacinal:
+
+1. **Sync Oficial (`.github/workflows/sync-official.yml`)**: Baixa diariamente PDFs de horários (Cronjob).
+2. **Supabase Migrate (`.github/workflows/supabase-migrate.yml`)**: Aplica migrations automaticamente no banco de produção sempre que houver um `push` na branch `main` modificando arquivos em `supabase/migrations/` ou `config.toml`.
+
+### Como configurar os Secrets do GitHub
+Para ativar essas automações, crie os seguintes *Repository secrets* no GitHub (**Settings > Secrets and variables > Actions**):
+
+| Secret | Usado por | Descrição |
+| --- | --- | --- |
+| `VRNP_SYNC_URL` | Sync Oficial | URL de sync (ex: `https://meu-app.vercel.app/api/admin/sync-official`) |
+| `VRNP_ADMIN_TOKEN` | Sync Oficial | Sua senha mestra (`ADMIN_TOKEN`) |
+| `SUPABASE_ACCESS_TOKEN` | Migrate | Token de acesso pessoal gerado no painel da Supabase |
+| `SUPABASE_PROJECT_REF` | Migrate | ID do projeto Supabase (ex: `rrbpirfqsly...`) |
+| `SUPABASE_DB_PASSWORD` | Migrate | A senha master do banco de dados (usada no `db push`) |
+
+> ⚠️ **Aviso de Segurança (Migrations Automáticas)**: As migrations são aplicadas diretamente no banco de dados. Para maior controle, considere usar *Environments* no GitHub (ex: "production") e ativar a regra de *Required Reviewers*. Isso fará com que o workflow pause e espere aprovação manual antes de tocar no banco.

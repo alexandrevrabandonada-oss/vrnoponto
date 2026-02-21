@@ -110,8 +110,10 @@ export default async function AdminParceiros({ searchParams }: { searchParams: P
             resolved_at: new Date().toISOString()
         }).eq('id', id);
 
-        const today = new Date().toISOString().slice(0, 10);
-        await adminClient.rpc('increment_telemetry', { p_event_key: 'partner_request_approved', p_date: today }).catch(() => { });
+        try {
+            const today = new Date().toISOString().slice(0, 10);
+            await adminClient.rpc('increment_telemetry', { p_event_key: 'partner_request_approved', p_date: today });
+        } catch { }
 
         revalidatePath('/admin/parceiros');
     }
@@ -132,8 +134,10 @@ export default async function AdminParceiros({ searchParams }: { searchParams: P
             resolved_at: new Date().toISOString()
         }).eq('id', id);
 
-        const today = new Date().toISOString().slice(0, 10);
-        await adminClient.rpc('increment_telemetry', { p_event_key: 'partner_request_rejected', p_date: today }).catch(() => { });
+        try {
+            const today = new Date().toISOString().slice(0, 10);
+            await adminClient.rpc('increment_telemetry', { p_event_key: 'partner_request_rejected', p_date: today });
+        } catch { }
 
         revalidatePath('/admin/parceiros');
     }

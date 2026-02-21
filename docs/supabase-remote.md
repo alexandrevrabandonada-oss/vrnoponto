@@ -41,3 +41,19 @@ Após configurar, rode:
 3. \`npm run supabase:link\` -> Vai conectar a pasta \`supabase/\` local ao seu database online usando o token associado.
 4. \`npm run supabase:push\` -> Enviará todos os arquivos SQL da pasta \`supabase/migrations/\` para o seu database remoto.
 5. \`npm run supabase:seed\` -> Executará os arquivos de testes que dão \`INSERT\` na base, como as regras estressadas ou dados preliminares.
+
+## 4. CI/CD (GitHub Actions)
+
+As automações de banco de dados (`supabase:link` e `supabase:push`) agora também estão configuradas para rodar no GitHub Actions!
+
+Existem dois workflows configurados na pasta `.github/workflows`:
+- **Supabase Migrate (Auto)**: Disparado ao dar push na `main` alterando `supabase/migrations/` ou `config.toml`.
+- **Supabase Migrate (Manual)**: Pode ser rodado sob demanda pela aba Actions.
+
+### Segredos para o CI
+No repositório do GitHub, crie os *Repository secrets*:
+- `SUPABASE_ACCESS_TOKEN`
+- `SUPABASE_PROJECT_REF`
+- `SUPABASE_DB_PASSWORD`
+
+*(Opcional: use Environments do GitHub para exigir aprovação manual - "Required Reviewers" - antes de disparar o push, pois tocar no banco de dados de produção afeta o sistema em tempo real).*
