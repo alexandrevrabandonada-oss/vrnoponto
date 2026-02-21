@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { QRGenerator } from '@/components/admin/QRGenerator';
+import { PartnerKitModal } from '@/components/admin/PartnerKitModal';
 
 export default async function AdminParceiros() {
     const supabase = await createClient();
@@ -97,7 +98,7 @@ export default async function AdminParceiros() {
                             <th className="p-4 font-semibold text-gray-600">Categoria</th>
                             <th className="p-4 font-semibold text-gray-600">Bairro</th>
                             <th className="p-4 font-semibold text-gray-600">Status</th>
-                            <th className="p-4 font-semibold text-gray-600">QR Code</th>
+                            <th className="p-4 font-semibold text-gray-600 text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -111,7 +112,8 @@ export default async function AdminParceiros() {
                                         {partner.is_active ? 'Ativo' : 'Inativo'}
                                     </span>
                                 </td>
-                                <td className="p-4 text-right">
+                                <td className="p-4 flex items-center justify-end gap-2">
+                                    <PartnerKitModal partner={partner} />
                                     <QRGenerator partnerId={partner.id} stopName={partner.name} />
                                 </td>
                             </tr>

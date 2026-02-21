@@ -40,7 +40,7 @@ export default function ParceirosPage() {
                 .eq('is_active', true);
 
             if (data) {
-                const partnersData: any[] = data;
+                const partnersData = data as unknown as Array<{ id: string, name: string, category: string, neighborhood: string, location: { lat: number, lng: number } | string | null }>;
                 const mapped = partnersData.map(p => {
                     const loc = p.location;
                     if (typeof loc === 'string') {
@@ -66,7 +66,7 @@ export default function ParceirosPage() {
             <div className="p-4 space-y-4">
                 {/* Map Section */}
                 <div className="h-[300px] w-full bg-gray-200 dark:bg-gray-800 rounded-2xl overflow-hidden shadow-inner border dark:border-gray-700 relative z-0">
-                    <DelayMap stops={[]} partners={partners as any} />
+                    <DelayMap stops={[]} partners={partners as unknown as any[]} />
                 </div>
 
                 <div className="flex items-start gap-2 px-1 bg-indigo-50/50 dark:bg-indigo-900/10 p-3 rounded-xl border border-indigo-100/50 dark:border-indigo-900/20">

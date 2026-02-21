@@ -1,66 +1,69 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { X, Camera } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function QRScanner({ onClose }: { onClose: () => void }) {
     const router = useRouter();
+    const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
     useEffect(() => {
+        // Initialize scanner
         const scanner = new Html5QrcodeScanner(
             "reader",
-            { fps: 10, qrbox: { width: 250, height: 250 } },
+            {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            },
             /* verbose= */ false
         );
 
-        scanner.render(
-            (decodedText) => {
-                // O link gerado é https://.../qr/TOKEN
-                // Se o usuário escanea o link oficial, redirecionamos.
+        scanner.render((decodedText) => {
+            // handle success
+            scanner.clear().then(() => {
+                // If it's a internal link, extract token
                 if (decodedText.includes('/qr/')) {
-                    scanner.clear();
-                    router.push(decodedText.split(window.location.origin)[1] || decodedText);
-                    onClose();
+                    const token = decodedText.split('/qr/')[1];
+                    router.push(`/qr/${token}`);
                 } else {
-                    // Se for só o token (fallback manual)
-                    scanner.clear();
-                    router.push(`/qr/${decodedText}`);
+                    alert("QR Code inválido: " + decodedText);
                     onClose();
                 }
-            },
-            (error) => {
-                // Ignore scanner search errors
-            }
-        );
+            }).catch(err => console.error("Error clearing scanner", err));
+        }, (errorMessage) => {
+            // handle failure (scanning)
+            // console.warn(errorMessage);
+        });
+
+        scannerRef.current = scanner;
 
         return () => {
-            scanner.clear().catch((err: unknown) => {
-                console.error("Failed to clear scanner", err);
-            });
+            if (scannerRef.current) {
+                scannerRef.current.clear().catch(err => console.error("Failed to clear scanner on unmount", err));
+            }
         };
-    }, [onClose, router]);
+    }, [router, onClose]);
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6">
-            <div className="w-full max-w-sm bg-white rounded-3xl overflow-hidden relative">
-                <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <div className="flex items-center gap-2 text-indigo-600 font-bold">
-                        <Camera size={18} />
-                        <span>Escaneie o QR Code</span>
+        <div className="fixed inset-0 bg-black/90 z-[60] flex flex-col items-center justify-center p-6 animate-in fade-in duration-300">
+            <div className="w-full max-w-md bg-zinc-900 rounded-3xl overflow-hidden shadow-2xl border border-zinc-800">
+                <div className="p-4 flex justify-between items-center border-b border-zinc-800">
+                    <div className="flex items-center gap-2 text-white font-bold">
+                        <Camera size={20} className="text-indigo-400" />
+                        <span>Escanear QR Code</span>
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-                        <X size={24} />
+                    <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-full text-zinc-400">
+                        <X size={20} />
                     </button>
                 </div>
 
-                <div id="reader" className="w-full"></div>
+                <div id="reader" className="w-full aspect-square bg-black"></div>
 
                 <div className="p-6 text-center">
-                    <p className="text-gray-500 text-sm">
-                        Aponte para o QR Code fixado no ponto de ônibus para validar sua presença.
-                    </p>
+                    <p className="text-zinc-500 text-sm font-medium">Aponte a câmera para o QR Code impresso no ponto ou estabelecimento.</p>
                 </div>
             </div>
         </div>

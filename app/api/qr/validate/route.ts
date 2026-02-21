@@ -40,8 +40,8 @@ export async function POST(req: Request) {
         }
         const isStop = !!qr.stop_id;
         const anchorId = qr.stop_id || qr.partner_id;
-        const anyAnchor: any = anchor;
-        const anchorName = anyAnchor.name;
+        const anchorObj = anchor as { name: string };
+        const anchorName = anchorObj.name;
 
         // 2. Validar Proximidade (80 metros)
         // Usaremos a RPC get_distance_meters que agora deve suportar parceiros ou usar coordenadas
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
         // Vou assumir que atualizarei a RPC para aceitar anchor_id e table_name ou criar uma genérica.
         // Para simplificar e ser robusto, vou usar uma nova RPC 'get_distance_to_location(lat, lng, user_lat, user_lng)'
         // Ou melhor, buscar a location e passar pro RPC.
-        const locationWKT = (anchor as any).location; // GEOGRAPHY as string/WKT or GeoJSON
+        const locationWKT = (anchor as { location: string }).location; // GEOGRAPHY as string/WKT or GeoJSON
 
         const { data: distM, error: distError } = await supabase
             .rpc('get_distance_meters_v2', {

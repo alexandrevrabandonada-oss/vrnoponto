@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Activity, MapPin, Bus, Handshake, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Activity, MapPin, Bus, Handshake } from 'lucide-react';
 
 export default function AdminHome() {
     const [health, setHealth] = useState<string | null>(null);

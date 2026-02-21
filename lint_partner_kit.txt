@@ -1,0 +1,34 @@
+
+C:\Projetos\vrnoponto\app\admin\page.tsx
+  3:44  warning  'ShieldCheck' is defined but never used    @typescript-eslint/no-unused-vars
+  3:57  warning  'AlertTriangle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\api\admin\partner\kit\poster\route.tsx
+  174:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\api\admin\partner\kit\seal\route.tsx
+  95:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\api\partner\detail\route.tsx
+  36:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projetos\vrnoponto\app\api\qr\validate\route.ts
+  43:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  52:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projetos\vrnoponto\app\parceiro\[id]\page.tsx
+  4:66  warning  'Printer' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\parceiros\page.tsx
+  43:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  69:64  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projetos\vrnoponto\components\QRScanner.tsx
+   3:21  warning  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  33:14  warning  'error' is defined but never used     @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\admin\PartnerKitModal.tsx
+  4:22  warning  'Download' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 13 problems (5 errors, 8 warnings)
+

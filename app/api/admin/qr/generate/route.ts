@@ -50,6 +50,7 @@ export async function POST(req: Request) {
                 stop_id: stop_id || null,
                 partner_id: partner_id || null,
                 token_hash: tokenHash,
+                token_plain: token,
                 is_active: true
             });
 
