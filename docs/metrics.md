@@ -42,3 +42,16 @@ Este documento descreve como as métricas do painel (`/painel`) são calculadas 
 - **Geolocalização**: Coordenadas extraídas via PostGIS (`ST_X`, `ST_Y`) da tabela `stops`.
 - **Amostra Mínima**: Mantida em 3 amostras para evitar distorções visuais no mapa por dados isolados.
 
+## 5. Auditoria Popular e Tendências
+**Definição**: Visão detalhada por ponto para fiscalização cidadã, incluindo performance por linha e evolução semanal.
+
+### Tendência Semanal (`vw_point_detail_30d`)
+- **Lógica**: Compara a espera mediana (P50) dos últimos 7 dias com os 7 dias imediatamente anteriores (dias -14 a -7).
+- **Cálculo**: `(P50_atual - P50_anterior) / P50_anterior * 100`.
+- **Filtro**: Requer mínimo de 3 amostras em cada janela de 7 dias para calcular a tendência (caso contrário retorna NULL).
+
+### Performance por Linha (`vw_point_lines_30d`)
+- **Lógica**: Agregado de 30 dias que abre o tempo de espera mediana por linha específica em cada ponto.
+- **Objetivo**: Identificar quais empresas/linhas são responsáveis pela má avaliação do ponto de ônibus.
+
+

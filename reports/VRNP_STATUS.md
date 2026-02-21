@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T19:22:56.092Z
+Gerado em: 2026-02-21T19:27:17.276Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 6f46dd1
+- Git Commit: fd78df3
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
+* fd78df3 - chore: harden diag + supabase check + lint reliability
 * 6f46dd1 - feat: mapa do atraso
 * ce6746f - feat: monthly public report + export
 * cac1dd9 - feat: daily sync via github actions
 * 55414c7 - ci: daily sync workflow
-* 97ef9be - feat: sync official schedules from pmvr
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -38,6 +38,7 @@ Gerado em: 2026-02-21T19:22:56.092Z
 - /api/events/record
 - /api/health
 - /api/map/stops
+- /api/point/detail
 - /api/report/monthly
 - /api/report/monthly.csv
 - /api/stops/nearest
@@ -58,6 +59,7 @@ Gerado em: 2026-02-21T19:22:56.092Z
 - 0008_monthly_report_views.sql
 - 0009_map_views.sql
 - 0010_fix_map_view.sql
+- 0011_point_detail_views.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING
