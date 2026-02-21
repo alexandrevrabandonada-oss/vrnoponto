@@ -11,16 +11,16 @@
 
 ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 4.3s
+Ô£ô Compiled successfully in 3.8s
   Running TypeScript ...
   Collecting page data using 11 workers ...
 ÔÜá Using edge runtime on a page currently disables static generation for that page
-  Generating static pages using 11 workers (0/18) ...
-  Generating static pages using 11 workers (4/18) 
-  Generating static pages using 11 workers (8/18) 
+  Generating static pages using 11 workers (0/19) ...
+  Generating static pages using 11 workers (4/19) 
+  Generating static pages using 11 workers (9/19) 
 ÔÜá metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
-  Generating static pages using 11 workers (13/18) 
-Ô£ô Generating static pages using 11 workers (18/18) in 381.0ms
+  Generating static pages using 11 workers (14/19) 
+Ô£ô Generating static pages using 11 workers (19/19) in 328.1ms
   Finalizing page optimization ...
 
 Route (app)
@@ -45,6 +45,7 @@ Route (app)
 Ôö£ ãÆ /api/health
 Ôö£ ãÆ /api/map/stops
 Ôö£ ãÆ /api/og/monthly-report
+Ôö£ ãÆ /api/partner-request
 Ôö£ ãÆ /api/partner/detail
 Ôö£ ãÆ /api/point/detail
 Ôö£ ãÆ /api/qr/validate
@@ -62,6 +63,7 @@ Route (app)
 Ôö£ ãÆ /parceiro/[id]
 Ôö£ ãÆ /parceiro/[id]/opengraph-image
 Ôö£ Ôùï /parceiros
+Ôö£ Ôùï /parceiros/entrar
 Ôö£ ãÆ /ponto/[id]
 Ôö£ ãÆ /ponto/[id]/opengraph-image
 Ôö£ ãÆ /qr/[token]

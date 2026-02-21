@@ -1,21 +1,66 @@
-# Pontos Parceiros (Kit e Transparência)
+# Funil de Adesão — Pontos Parceiros
 
-Os **Pontos Parceiros** são estabelecimentos locais que apoiam a auditoria do VR no Ponto ao hospedar QR Codes oficiais para validação de presença L3.
+Documentação do fluxo de onboarding de novos Pontos Parceiros no VR no Ponto.
 
-## Por que ser um Parceiro?
-- **Confiabilidade**: Validar presença em um parceiro garante o nível máximo de auditoria (Prova de Presença).
-- **Alcance**: Permite que cidadãos contribuam mesmo longe de pontos de ônibus físicos.
-- **Segurança**: Oferece um ambiente seguro e iluminado para a interação do usuário.
+## O que é um Ponto Parceiro?
 
-## O Kit Parceiro
-Cada parceiro tem acesso a um kit de materiais através do painel administrativo:
-1. **Página Pública**: `vrnoponto.vercel.app/parceiro/[id]` - Mostra informações do parceiro e botão de validação.
-2. **Selo Digital**: Uma imagem circular 1:1 "Parceiro Verificado" para uso em redes sociais.
-3. **Cartaz A4**: Um cartaz vertical pronto para impressão com o QR Code oficial e instruções.
+Um Ponto Parceiro é um estabelecimento (comércio, sindicato, escola, coletivo etc.) que autoriza a afixação de um QR Code oficial do VR no Ponto em seu local. Os passageiros escaneiam o QR para registrar "Prova de Presença" (nível L3) no sistema.
 
-## Diretrizes de Uso
-- **Localização**: O Cartaz A4 deve ser colocado em local visível (balcão, totem ou entrada).
-- **Patrimônio Público**: **NUNCA** cole adesivos ou cartazes em pontos de ônibus públicos ou mobiliário urbano sem autorização oficial. O sistema de parceiros visa justamente expandir a rede sem depender de colagem ilegal.
+## Funil de Adesão
 
-## Transparência
-O sistema registra o `partner_id` nos relatos validados, permitindo identificar a origem da prova de presença e garantindo que o sistema seja auditável pela comunidade.
+```
+/parceiros → botão CTA → /parceiros/entrar → POST /api/partner-request → partner_requests (PENDING)
+                                                                                          ↓
+                                                                          /admin/parceiros?tab=requests
+                                                                                ↓
+                                                                      Aprovar → partners (is_active=true)
+                                                                      Rejeitar → rejection_reason stored
+```
+
+## Rotas
+
+| Rota | Tipo | Descrição |
+|---|---|---|
+| `/parceiros` | Public | Lista de parceiros ativos com mapa |
+| `/parceiros/entrar` | Public | Formulário de pedido de adesão |
+| `/api/partner-request` | API / POST | Recebe e valida pedidos |
+| `/admin/parceiros` | Admin | Gestão de parceiros ativos |
+| `/admin/parceiros?tab=requests` | Admin | Inbox de pedidos PENDING |
+
+## Proteções Anti-Spam na API
+
+- **Honeypot**: campo `website` oculto. Se preenchido, a requisição é descartada silenciosamente.
+- **Rate Limit**: máximo de 3 pedidos por dia por IP.
+- **Validação mínima**: `name` + `neighborhood` + ao menos um contato (`contact_phone` ou `contact_instagram`).
+
+## RLS da Tabela `partner_requests`
+
+| Operação | Quem pode |
+|---|---|
+| `INSERT` | Qualquer pessoa (`anon`, `authenticated`) |
+| `SELECT` / `UPDATE` | Somente `service_role` (admin backend) |
+
+Os dados dos solicitantes nunca são expostos publicamente.
+
+## Templates de Convite
+
+Arquivo: `lib/editorial/partner_invite.ts`
+
+| Função | Canal |
+|---|---|
+| `getWhatsAppShort()` | WhatsApp (curto) |
+| `getWhatsAppLong()` | WhatsApp (longo com contexto) |
+| `getInstagramDM()` | Instagram DM |
+
+Disponíveis como botões de cópia rápida na página `/parceiros`.
+
+## Critérios de Aprovação
+
+Um pedido deve ser aprovado quando:
+1. O local é real e verificável (bairro coerente).
+2. O contato é responsivo.
+3. O estabelecimento tem circulação de passageiros.
+
+Ao aprovar, o admin clica "Aprovar e Criar" e o sistema automaticamente:
+- Cria um registro em `partners` com `is_active = true`.
+- Marca o pedido como `APPROVED` com `resolved_at`.
