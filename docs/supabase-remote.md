@@ -36,7 +36,8 @@ $env:SUPABASE_ACCESS_TOKEN="sbp_123..."
 ## 3. Comandos Úteis
 
 Após configurar, rode:
-1. \`npm run supabase:check\` -> Vai listar se suas variáveis foram encontradas com sucesso.
-2. \`npm run supabase:link\` -> Vai conectar a pasta \`supabase/\` local ao seu database online usando o token associado.
-3. \`npm run supabase:push\` -> Enviará todos os arquivos SQL da pasta \`supabase/migrations/\` para o seu database remoto.
-4. \`npm run supabase:seed\` -> Executará os arquivos de testes que dão \`INSERT\` na base, como as regras estressadas ou dados preliminares.
+1. \`npm run ops:go\` -> O fluxo Mágico Completo (Aplica senhas invisíveis, Linca com a nuvem, Ergue schemas e roda Smoke Test em Windows num clique só!)
+2. \`npm run supabase:check\` -> Vai listar se suas variáveis foram encontradas com sucesso.
+3. \`npm run supabase:link\` -> Vai conectar a pasta \`supabase/\` local ao seu database online usando o token associado.
+4. \`npm run supabase:push\` -> Enviará todos os arquivos SQL da pasta \`supabase/migrations/\` para o seu database remoto.
+5. \`npm run supabase:seed\` -> Executará os arquivos de testes que dão \`INSERT\` na base, como as regras estressadas ou dados preliminares.

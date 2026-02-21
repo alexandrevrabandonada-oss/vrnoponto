@@ -10,7 +10,7 @@ Para realizar o deploy na Vercel, você precisa configurar as variáveis de ambi
    - `SUPABASE_SERVICE_ROLE_KEY`: A chave secreta *service_role* (usada apenas no servidor).
    - `ADMIN_TOKEN`: Um token que você inventou para proteger rotas administrativas (ex: `/admin`).
 
-## 2. Rodando Localmente
+## 2. Rodando Localmente (Manual via \`.env\`)
 1. Copie o arquivo `.env.example` para criar o seu `.env.local`:
    ```bash
    cp .env.example .env.local
@@ -22,7 +22,18 @@ Para realizar o deploy na Vercel, você precisa configurar as variáveis de ambi
    npm run dev
    ```
 
-## 3. Confirmando Conexão
+## 3. Workflow de Setup "Com Um Clique" (Windows PowerShell)
+Se você estiver no Windows, não precisa tocar em arquivos `.env` manualmente. Basta rodar o agregador:
+```bash
+npm run ops:go
+```
+Ele vai:
+1. Pedir senhas de forma invisível.
+2. Linkar o projeto à internet no Supabase localmente e subir as estruturas do banco.
+3. Fazer linting, building, e rodar o projeto em background.
+4. Bater um cURL teste para ver se o projeto ergueu saudável no porto 3000 ("Smoke Test") e reportar.
+
+## 4. Confirmando Conexão
 Para confirmar que as variáveis foram carregadas com sucesso e que a aplicação tem acesso ao Supabase:
 1. Acesse a Home (`/`) e verifique a mensagem de "Supabase conectado".
 2. Acesse no navegador ou via cURL o endpoint de health check:

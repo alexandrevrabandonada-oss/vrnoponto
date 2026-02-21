@@ -15,7 +15,11 @@
     "supabase:link": "npx supabase link --project-ref $SUPABASE_PROJECT_REF",
     "supabase:push": "npx supabase db push",
     "supabase:seed": "npx supabase db execute --file supabase/migrations/0002_seed.sql",
-    "supabase:check": "node scripts/supabase-check.mjs"
+    "supabase:check": "node scripts/supabase-check.mjs",
+    "ops:env": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/vrnp-env-local.ps1",
+    "ops:supabase": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/vrnp-supabase-apply.ps1",
+    "ops:smoke": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/vrnp-smoke.ps1",
+    "ops:go": "npm run ops:env && npm run supabase:check && npm run ops:supabase && npm run verify && npm run ops:smoke && npm run diag"
   },
   "engines": {
     "node": "20.x"

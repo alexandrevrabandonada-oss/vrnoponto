@@ -13,6 +13,12 @@ if (!fs.existsSync(reportsDir)) {
 }
 
 const isSnapshot = process.argv.includes('snapshot');
+let nodeVersionStr = process.version;
+let nodeWarn = '';
+if (!nodeVersionStr.startsWith('v20')) {
+    nodeWarn = ' [WARNING: local node != engines node 20.x]';
+}
+
 const outputPath = path.join(reportsDir, isSnapshot ? 'VRNP_SNAPSHOT.md' : 'VRNP_STATUS.md');
 
 function execSafe(cmd) {
@@ -24,7 +30,6 @@ function execSafe(cmd) {
 }
 
 const now = new Date().toISOString();
-const nodeVersion = process.version;
 
 let gitBranch = execSafe('git rev-parse --abbrev-ref HEAD');
 let gitCommit = execSafe('git rev-parse --short HEAD');
@@ -106,7 +111,7 @@ const reportContent = `# VRNP STATUS REPORT
 Gerado em: ${now}
 
 ## Ambiente
-- Node Version: ${nodeVersion}
+- Node Version: ${nodeVersionStr}${nodeWarn}
 - Git Branch: ${gitBranch}
 - Git Commit: ${gitCommit}
 - .env.local: ${envLocalStatus}
@@ -137,7 +142,7 @@ ${migrations.length > 0 ? migrations.map(m => `- ${m}`).join('\n') : '- Nenhuma 
 - npm run lint: ${lintStatus}
 - npm run build: ${buildStatus}
 
-### Resumo Lint
+${isSnapshot ? `### Resumo Lint
 \`\`\`text
 ${lintResult.substring(0, 1000)}${lintResult.length > 1000 ? '\n... (truncado)' : ''}
 \`\`\`
@@ -145,7 +150,14 @@ ${lintResult.substring(0, 1000)}${lintResult.length > 1000 ? '\n... (truncado)' 
 ### Resumo Build
 \`\`\`text
 ${buildResult.substring(0, 1000)}${buildResult.length > 1000 ? '\n... (truncado)' : ''}
-\`\`\`
+\`\`\`` : ''}
+
+## OPS (Windows Automation Workspace)
+As rotinas DevOps foram automatizadas para uso sem "touching" manual via PowerShell:
+- \`npm run ops:env\`: Prompt seguro das chaves \`.env.local\` ocultas do History.
+- \`npm run ops:supabase\`: Valida Tokens remotos e engatilha Link + Push da pasta de migrations.
+- \`npm run ops:smoke\`: Realiza o SpinUp do Next.js via background jobs (\`Start-Process\`), testa porta limite e pinga na API REST cURL para ter certeza do estado real do build finalizado.
+- \`npm run ops:go\`: Comanda a união das forjas (Auth -> Verifica -> Sobe -> Diag).
 
 ## Fluxo de Teste Manual (MVP)
 1. Abra a aplicação e acesse a rota \`/no-ponto\`.
