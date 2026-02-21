@@ -1,20 +1,20 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T18:14:31.223Z
+Gerado em: 2026-02-21T18:38:37.677Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
-- Git Branch: master
-- Git Commit: 05bfa09
+- Git Branch: main
+- Git Commit: 55414c7
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: FAIL
 
 ## Últimos 5 Commits
+* 55414c7 - ci: daily sync workflow
+* 97ef9be - feat: sync official schedules from pmvr
 * 05bfa09 - feat: vercel go-live checklist + env audit
 * cf0b7e3 - chore: ops scripts for env + supabase + smoke
 * aa74d82 - feat: nearest stops geolocation
-* 3048392 - chore: supabase remote automations
-* d8ebf38 - feat: admin mvp + official pdf upload
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.

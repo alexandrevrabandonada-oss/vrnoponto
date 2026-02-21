@@ -29,3 +29,13 @@ Após a Vercel finalizar e gerar luz verde, abra a URL oficial do app e bata nes
 * [ ] `/no-ponto` (Aprovar GPS do Browser): O select de pontos *deve carregar pontos nomeados* ou o alerta amarelinho de nenhum ponto (caso o banco esteja zerado de seeds). *Não pode craxar.*
 * [ ] `/painel`: Abas interativas de Linhas e Visão Geral devem redimensionar e não apagar a tela (Testando se a Anon Key logou ao DB para RLS).
 * [ ] `/admin?t=SEUTOKEN`: A URL deve limpar pro `/admin` automaticamente, gerar o cookie no seu browser e exibir o Dashboard Administrativo c/ as ferramentas (Testando a integridade Middleware + EnvVars).
+
+## 5. Automação Diária (GitHub Actions)
+Para que o sistema baixe diariamente os PDFs da prefeitura sem intervenção, o repositório conta com um cronjob no GitHub Actions (`.github/workflows/sync-official.yml`).
+
+Para ativá-lo:
+* [ ] Acesse as configurações no repositório do GitHub: **Settings > Secrets and variables > Actions**.
+* [ ] Crie as *Repository secrets*:
+  * `VRNP_SYNC_URL`: A URL do seu endpoint de sync em produção (ex: `https://meu-app.vercel.app/api/admin/sync-official`).
+  * `VRNP_ADMIN_TOKEN`: A sua senha mestra criada no passo 2 acima (o mesmo valor de `ADMIN_TOKEN`).
+* [ ] Teste a conexão acessando a aba **Actions**, procure pelo fluxo "Daily sync official schedules", e clique em **Run workflow**.
