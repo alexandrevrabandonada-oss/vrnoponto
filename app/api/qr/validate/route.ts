@@ -49,7 +49,8 @@ export async function POST(req: Request) {
         // Vou assumir que atualizarei a RPC para aceitar anchor_id e table_name ou criar uma genérica.
         // Para simplificar e ser robusto, vou usar uma nova RPC 'get_distance_to_location(lat, lng, user_lat, user_lng)'
         // Ou melhor, buscar a location e passar pro RPC.
-        const locationWKT = (anchor as { location: string }).location; // GEOGRAPHY as string/WKT or GeoJSON
+        const anchorData = anchor as unknown as { location: string } | Array<{ location: string }>;
+        const locationWKT = Array.isArray(anchorData) ? anchorData[0]?.location : anchorData?.location;
 
         const { data: distM, error: distError } = await supabase
             .rpc('get_distance_meters_v2', {
