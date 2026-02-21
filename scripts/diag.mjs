@@ -51,7 +51,16 @@ scanRoutes(appDir);
 routes.sort();
 
 const envLocalPath = path.join(rootDir, '.env.local');
-const envLocalStatus = fs.existsSync(envLocalPath) ? 'OK' : 'MISSING';
+const envLocalExists = fs.existsSync(envLocalPath);
+const envLocalStatus = envLocalExists ? 'OK' : 'MISSING';
+
+let supabaseEnvStatus = 'MISSING';
+if (envLocalExists) {
+    const envContent = fs.readFileSync(envLocalPath, 'utf8');
+    const hasUrl = envContent.includes('NEXT_PUBLIC_SUPABASE_URL');
+    const hasKey = envContent.includes('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    if (hasUrl && hasKey) supabaseEnvStatus = 'OK';
+}
 
 console.log('Running npm run lint...');
 const lintResult = execSafe('npm run lint');
@@ -69,6 +78,7 @@ Gerado em: ${now}
 - Git Branch: ${gitBranch}
 - Git Commit: ${gitCommit}
 - .env.local: ${envLocalStatus}
+- Supabase Env Vars: ${supabaseEnvStatus}
 
 ## Rotas Detectadas (app/)
 ${routes.length > 0 ? routes.map(r => `- ${r}`).join('\n') : '- Nenhuma rota encontrada'}
