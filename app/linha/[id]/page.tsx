@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { Sparkline } from '@/components/metrics/Sparkline';
-import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { TrustMixBadge } from '@/components/TrustMixBadge';
+import { AlertCircle, TrendingUp, TrendingDown, ArrowLeft } from 'lucide-react';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateLineCaption } from '@/lib/editorial/templates';
 
@@ -40,15 +41,18 @@ export default async function LinhaDetails({ params: paramsPromise }: { params: 
         return <div className="p-8 text-center text-red-500 font-bold">Linha não encontrada.</div>;
     }
 
-    // Busca dados semanais e alertas
-    const [weeklyRes, alertsRes] = await Promise.all([
+    // Busca dados semanais, alertas e trust mix
+    const [weeklyRes, alertsRes, trustMixRes] = await Promise.all([
         fetch(`${baseUrl}/api/timeseries/line?line_id=${lineId}&weeks=8`, { cache: 'no-store' }),
-        fetch(`${baseUrl}/api/alerts?days=30`, { cache: 'no-store' })
+        fetch(`${baseUrl}/api/alerts?days=30`, { cache: 'no-store' }),
+        // Utilizando o Supabase Client para dar bypass numa chamada via fetch na TrustMix
+        supabase.from('vw_trust_mix_line_30d').select('total_events, pct_verified').eq('line_id', lineId).single()
     ]);
 
     const weekly: WeeklyHeadway[] = await weeklyRes.json().catch(() => []);
     const allAlerts: Alert[] = await alertsRes.json().catch(() => []);
     const alerts = allAlerts.filter(a => a.target_id === lineId && a.alert_type === 'LINE_HEADWAY');
+    const trustMix = trustMixRes.data;
 
     const lastWeekly = weekly[weekly.length - 1];
     const prevWeekly = weekly[weekly.length - 2];
@@ -95,6 +99,11 @@ export default async function LinhaDetails({ params: paramsPromise }: { params: 
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white mt-1">
                                 {line.code} - {line.name}
                             </h1>
+                            {trustMix && (
+                                <div className="mt-2">
+                                    <TrustMixBadge total={trustMix.total_events} pctVerified={trustMix.pct_verified} />
+                                </div>
+                            )}
                         </div>
                         <div className="text-right">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${line.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

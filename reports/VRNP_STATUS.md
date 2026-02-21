@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T23:04:58.670Z
+Gerado em: 2026-02-21T23:15:17.006Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: a490a94
+- Git Commit: de4df0e
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
+* 482aa09 - feat: trust mix badge across map, stop, line, reports
+* de4df0e - feat: system status dashboard in admin
 * a490a94 - chore: automate supabase migrations via github actions
 * ab3a095 - feat: partner funnel analytics
 * e67f5ba - feat: 10s onboarding
-* 941c3e1 - feat: partner onboarding funnel
-* ca72f8c - feat: editorial kit (captions + copy buttons)
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -51,6 +51,7 @@ Gerado em: 2026-02-21T23:04:58.670Z
 - /api/env-audit
 - /api/events/record
 - /api/health
+- /api/line/detail
 - /api/map/stops
 - /api/partner-request
 - /api/point/detail
@@ -90,6 +91,7 @@ Gerado em: 2026-02-21T23:04:58.670Z
 - 0020_telemetry_counts.sql
 - 0021_partner_funnel_views.sql
 - 0022_system_runs.sql
+- 0023_trust_aggregates.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

@@ -7,6 +7,7 @@ import MarkerClusterGroup_ from 'react-leaflet-cluster';
 const MarkerClusterGroup = MarkerClusterGroup_ as any;
 import 'leaflet/dist/leaflet.css';
 import { ArrowRight, Clock, MapPin, Users } from 'lucide-react';
+import { TrustMixBadge } from './TrustMixBadge';
 
 // Corrigir path de ícones padrão do Marker no Leaflet c/ NextJS
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
@@ -68,6 +69,10 @@ export type StopMapItem = {
             severity: 'WARN' | 'CRIT';
             delta_pct: number;
         } | null;
+    } | null;
+    trust_mix?: {
+        total: number;
+        pct_verified: number;
     } | null;
 };
 
@@ -143,6 +148,11 @@ export default function DelayMapComponent({
                                             <span className="text-gray-500 flex items-center gap-1"><Users size={14} /> Amostras</span>
                                             <span className="font-mono text-gray-600">{stop.metrics.samples}</span>
                                         </div>
+                                        {stop.trust_mix && (
+                                            <div className="pt-2 mt-2 border-t border-gray-100 flex justify-center">
+                                                <TrustMixBadge total={stop.trust_mix.total} pctVerified={stop.trust_mix.pct_verified} />
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="text-sm text-gray-500 italic mb-3">

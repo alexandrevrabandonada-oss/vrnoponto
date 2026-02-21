@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, Share2, TrendingDown, TrendingUp, Users, MapPin, ShieldAlert, BadgeAlert, AlertCircle } from 'lucide-react';
-import Link from 'next/link';
 import { Sparkline } from '@/components/metrics/Sparkline';
+import { TrustMixBadge } from '@/components/TrustMixBadge';
+import Link from 'next/link';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateStopCaption } from '@/lib/editorial/templates';
 
@@ -9,6 +10,7 @@ import { generateStopCaption } from '@/lib/editorial/templates';
 type PointDetail = {
     stop: { id: string; name: string; neighborhood: string; is_active: boolean };
     metrics: { p50_wait_min: number | null; p90_wait_min: number | null; samples: number; delta_7d_pct: number | null };
+    trust_mix: { total_events: number; pct_verified: number } | null;
     lines: Array<{ line_id: string; line_code: string; line_name: string; p50_wait_min: number; samples: number }>;
 };
 

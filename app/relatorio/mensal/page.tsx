@@ -1,6 +1,7 @@
 import { Calendar, Download, Share2, Info, ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateMonthlyCaption } from '@/lib/editorial/templates';
+import { TrustMixBadge } from '@/components/TrustMixBadge';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +46,7 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
         if (!res.ok) throw new Error('Não foi possível carregar os dados');
         const json = await res.json();
         data = json.data;
+        data.trust_mix = json.trust_mix;
     } catch (e: unknown) {
         if (e instanceof Error) errorMsg = e.message;
     }
@@ -61,9 +63,12 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                         <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
                             Relatório Público Mensal
                         </h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-gray-500 dark:text-gray-400 mt-1 mb-2">
                             Análise de mobilidade e confiabilidade do transporte em Volta Redonda.
                         </p>
+                        {data?.trust_mix && (
+                            <TrustMixBadge total={data.trust_mix.total_events} pctVerified={data.trust_mix.pct_verified} />
+                        )}
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
@@ -169,16 +174,24 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                                             <th className="px-6 py-3 font-semibold">Ponto</th>
                                             <th className="px-6 py-3 font-semibold text-right">Mediana (p50)</th>
                                             <th className="px-6 py-3 font-semibold text-right">Crítico (p90)</th>
+                                            <th className="px-6 py-3 font-semibold text-center">Confiabilidade</th>
                                             <th className="px-6 py-3 font-semibold text-right">Var. %</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                        {data.topStops?.map((s: { stop_id: string; stop_name: string; p50_wait_min: number; p90_wait_min: number; delta_p50_percent: number | null }, i: number) => (
+                                        {data.topStops?.map((s: { stop_id: string; stop_name: string; p50_wait_min: number; p90_wait_min: number; delta_p50_percent: number | null; trust_mix?: { total_events: number; pct_verified: number } | null }, i: number) => (
                                             <tr key={s.stop_id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                                 <td className="px-6 py-4 font-black text-gray-400">#{i + 1}</td>
                                                 <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{s.stop_name}</td>
                                                 <td className="px-6 py-4 text-right font-bold text-red-600 dark:text-red-400">{s.p50_wait_min}m</td>
                                                 <td className="px-6 py-4 text-right text-gray-500">{s.p90_wait_min}m</td>
+                                                <td className="px-6 py-4 text-center">
+                                                    {s.trust_mix ? (
+                                                        <TrustMixBadge total={s.trust_mix.total_events} pctVerified={s.trust_mix.pct_verified} />
+                                                    ) : (
+                                                        <span className="text-gray-400 text-xs italic">N/A</span>
+                                                    )}
+                                                </td>
                                                 <td className="px-6 py-4 text-right flex justify-end">
                                                     <DeltaBadge percent={s.delta_p50_percent} />
                                                 </td>
@@ -202,11 +215,12 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                                             <th className="px-6 py-3 font-semibold">Linha</th>
                                             <th className="px-6 py-3 font-semibold text-right">Mediana (p50)</th>
                                             <th className="px-6 py-3 font-semibold text-right">Crítico (p90)</th>
+                                            <th className="px-6 py-3 font-semibold text-center">Confiabilidade</th>
                                             <th className="px-6 py-3 font-semibold text-right">Var. %</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                        {data.topLines?.map((l: { line_id: string; line_code: string; line_name: string; p50_headway_min: number; p90_headway_min: number; delta_p50_percent: number | null }, i: number) => (
+                                        {data.topLines?.map((l: { line_id: string; line_code: string; line_name: string; p50_headway_min: number; p90_headway_min: number; delta_p50_percent: number | null; trust_mix?: { total_events: number; pct_verified: number } | null }, i: number) => (
                                             <tr key={l.line_id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                                 <td className="px-6 py-4 font-black text-gray-400">#{i + 1}</td>
                                                 <td className="px-6 py-4">
@@ -215,6 +229,13 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                                                 </td>
                                                 <td className="px-6 py-4 text-right font-bold text-amber-600 dark:text-amber-400">{l.p50_headway_min}m</td>
                                                 <td className="px-6 py-4 text-right text-gray-500">{l.p90_headway_min}m</td>
+                                                <td className="px-6 py-4 text-center">
+                                                    {l.trust_mix ? (
+                                                        <TrustMixBadge total={l.trust_mix.total_events} pctVerified={l.trust_mix.pct_verified} />
+                                                    ) : (
+                                                        <span className="text-gray-400 text-xs italic">N/A</span>
+                                                    )}
+                                                </td>
                                                 <td className="px-6 py-4 text-right flex justify-end">
                                                     <DeltaBadge percent={l.delta_p50_percent} />
                                                 </td>

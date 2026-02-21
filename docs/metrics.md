@@ -17,6 +17,14 @@ Agrega tempos de espera por semana. Utilizada para a "Linha do Tempo" e geraçã
 ### `vw_line_headway_weekly`
 Agrega intervalos (headway) reais por semana. Utilizada para medir a confiabilidade da linha.
 
+### `vw_trust_mix_*_30d` (`stop`, `line`, `city`)
+Novas views (introduzidas na migration 0023) que calculam o "Selo de Confiabilidade" das amostras em uma janela móvel de 30 dias.
+Utilizam a coluna `trust_level` para definir a qualidade do crowdsourcing:
+- **L1**: Relato único, não verificado.
+- **L2**: Relatos múltiplos cruzados geograficamente.
+- **L3**: Dados oficiais (Motoristas ou Ônibus via GPS).
+A métrica principal calculada nestas views é `pct_verified` = ((L2 + L3) / Total) * 100.
+
 ## Automação
 
 O job de alertas é executado diariamente via GitHub Actions (`run-alerts.yml`), acionando o endpoint protegido:

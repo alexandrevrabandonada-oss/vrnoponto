@@ -43,6 +43,13 @@ export async function GET(req: Request) {
             .eq('stop_id', stopId)
             .order('samples', { ascending: false });
 
+        // 4. Busca métricas de integridade Trust Mix (novo)
+        const { data: trustMix } = await supabase
+            .from('vw_trust_mix_stop_30d')
+            .select('total_events, pct_verified')
+            .eq('stop_id', stopId)
+            .single();
+
         return NextResponse.json({
             stop: {
                 ...stop,
@@ -54,6 +61,7 @@ export async function GET(req: Request) {
                 samples: 0,
                 delta_7d_pct: null
             },
+            trust_mix: trustMix || null,
             lines: lines || []
         });
 
