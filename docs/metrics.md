@@ -30,6 +30,24 @@ Cruza o horário planejado (cadastrado em `official_schedule_hourly` através de
 - `delta_min`: Atraso mediano em minutos contra a tabela oficial.
 - `delta_pct`: Porcentagem de estouro do Headway estipulado na permissão.
 
+### `vw_stopline_headway_hourly_30d` (migration 0027)
+Agrega headways reais por **ponto + linha + hora + tipo de dia** nos últimos 30 dias.
+- Considera apenas eventos `passed_by` e `boarding`.
+- Calcula `real_p50_headway_min`, `real_p90_headway_min`, `samples` e `pct_verified`.
+- Exige no mínimo 3 amostras por célula.
+
+### `vw_stopline_promised_vs_real_30d` (migration 0028)
+Join entre `official_schedule_hourly` (prometido) e `vw_stopline_headway_hourly_30d` (real) por ponto.
+- `delta_min = real_p50 - promised`, `delta_pct = (delta/promised)*100`.
+- Marca `meta = 'NO_PROMISE'` quando não existe schedule parseado.
+
+### `vw_worst_stops_30d` (migration 0029)
+Ranking dos 50 piores pontos por `worst_delta_min` (max atraso prometido vs real).
+- Inclui `stop_name`, `neighborhood`, `avg_delta_min`, `pct_verified_avg`.
+
+### `vw_worst_neighborhoods_30d` (migration 0029)
+Ranking dos piores bairros por `avg_delta_min`, agregando a média dos pontos do bairro.
+
 ## Automação
 
 O job de alertas é executado diariamente via GitHub Actions (`run-alerts.yml`), acionando o endpoint protegido:

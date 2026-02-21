@@ -200,7 +200,96 @@ export default async function Painel({
                     </div>
                 </div>
 
+                {/* Worst Stops – Promised vs Real Delta (New) */}
+                <WorstRankingsSection baseUrl={baseUrl} />
+
             </div>
         </main>
+    );
+}
+
+async function WorstRankingsSection({ baseUrl }: { baseUrl: string }) {
+    const [worstStopsRes, worstNeighborhoodsRes] = await Promise.all([
+        fetch(`${baseUrl}/api/dashboard/worst-stops?limit=10`, { cache: 'no-store' }),
+        fetch(`${baseUrl}/api/dashboard/worst-neighborhoods?limit=10`, { cache: 'no-store' }),
+    ]);
+
+    const worstStops = await worstStopsRes.json().then((j: { data?: { stop_id: string; stop_name: string; neighborhood: string; worst_delta_min: number; avg_delta_min: number; samples_total: number; pct_verified_avg: number }[] }) => j.data || []).catch(() => []);
+    const worstNeighborhoods = await worstNeighborhoodsRes.json().then((j: { data?: { neighborhood: string; avg_delta_min: number; stops_count: number; samples_total: number }[] }) => j.data || []).catch(() => []);
+
+    return (
+        <div className="space-y-6 mt-8">
+            {/* Worst Stops by Promise Gap */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
+                    <AlertTriangle className="text-red-500" size={20} />
+                    <h2 className="text-lg font-bold dark:text-white">Piores Pontos (Prometido vs Real – 30d)</h2>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+                        <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 uppercase font-semibold text-xs">
+                            <tr>
+                                <th className="px-6 py-3">#</th>
+                                <th className="px-6 py-3">Ponto</th>
+                                <th className="px-6 py-3">Bairro</th>
+                                <th className="px-6 py-3 text-right">Pior Atraso</th>
+                                <th className="px-6 py-3 text-right">Média</th>
+                                <th className="px-6 py-3 text-center">Amostras</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                            {worstStops.length === 0 ? (
+                                <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-400">Sem dados de prometido vs real.</td></tr>
+                            ) : worstStops.map((s: { stop_id: string; stop_name: string; neighborhood: string; worst_delta_min: number; avg_delta_min: number; samples_total: number }, i: number) => (
+                                <tr key={s.stop_id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                    <td className="px-6 py-3 font-bold text-gray-900 dark:text-white">#{i + 1}</td>
+                                    <td className="px-6 py-3 font-medium">
+                                        <a href={`/ponto/${s.stop_id}`} className="text-indigo-600 hover:underline">{s.stop_name}</a>
+                                    </td>
+                                    <td className="px-6 py-3 text-gray-500">{s.neighborhood || '—'}</td>
+                                    <td className="px-6 py-3 text-right font-black text-red-600">+{s.worst_delta_min} min</td>
+                                    <td className="px-6 py-3 text-right font-medium text-orange-500">+{s.avg_delta_min} min</td>
+                                    <td className="px-6 py-3 text-center"><span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">{s.samples_total}</span></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Worst Neighborhoods */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
+                    <Bus className="text-orange-500" size={20} />
+                    <h2 className="text-lg font-bold dark:text-white">Piores Bairros (Prometido vs Real – 30d)</h2>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+                        <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 uppercase font-semibold text-xs">
+                            <tr>
+                                <th className="px-6 py-3">#</th>
+                                <th className="px-6 py-3">Bairro</th>
+                                <th className="px-6 py-3 text-right">Atraso Médio</th>
+                                <th className="px-6 py-3 text-center">Pontos</th>
+                                <th className="px-6 py-3 text-center">Amostras</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                            {worstNeighborhoods.length === 0 ? (
+                                <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400">Sem dados de bairros.</td></tr>
+                            ) : worstNeighborhoods.map((n: { neighborhood: string; avg_delta_min: number; stops_count: number; samples_total: number }, i: number) => (
+                                <tr key={n.neighborhood} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                    <td className="px-6 py-3 font-bold text-gray-900 dark:text-white">#{i + 1}</td>
+                                    <td className="px-6 py-3 font-medium">{n.neighborhood}</td>
+                                    <td className="px-6 py-3 text-right font-black text-orange-500">+{n.avg_delta_min} min</td>
+                                    <td className="px-6 py-3 text-center">{n.stops_count}</td>
+                                    <td className="px-6 py-3 text-center"><span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">{n.samples_total}</span></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     );
 }

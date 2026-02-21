@@ -137,6 +137,24 @@ export default function BoletimPage() {
                     </button>
                 </div>
 
+                {/* Top 3 Worst Stops Card */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <button
+                        onClick={() => window.open('/api/bulletin/worst-stops-card?format=square', '_blank')}
+                        className="flex items-center justify-center gap-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-5 rounded-2xl border border-red-200 dark:border-red-800 font-bold hover:shadow-lg transition-all active:scale-95"
+                    >
+                        <MapPin size={20} />
+                        Top 3 Pontos Críticos (Feed)
+                    </button>
+                    <button
+                        onClick={() => window.open('/api/bulletin/worst-stops-card?format=story', '_blank')}
+                        className="flex items-center justify-center gap-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-5 rounded-2xl border border-red-200 dark:border-red-800 font-bold hover:shadow-lg transition-all active:scale-95"
+                    >
+                        <MapPin size={20} />
+                        Top 3 Pontos Críticos (Story)
+                    </button>
+                </div>
+
                 {/* Top Critical Stoppages */}
                 <section>
                     <h2 className="text-lg font-black text-gray-900 dark:text-white mb-4 px-1 flex items-center gap-2">

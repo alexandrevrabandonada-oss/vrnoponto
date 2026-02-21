@@ -17,6 +17,18 @@ async function fetchStops(baseUrl: string) {
     }
 }
 
+async function fetchWorstStops(baseUrl: string) {
+    try {
+        const res = await fetch(`${baseUrl}/api/dashboard/worst-stops?limit=100`, { cache: 'no-store' });
+        if (!res.ok) return [];
+        const json = await res.json();
+        return json.data;
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
+}
+
 async function fetchAlerts(baseUrl: string) {
     try {
         const res = await fetch(`${baseUrl}/api/alerts?days=30`, { cache: 'no-store' });
@@ -88,20 +100,33 @@ function ListView({ stops }: { stops: StopMapItem[] }) {
 export default async function DelayMapPage(props: { searchParams: Promise<{ m?: string }> }) {
     const searchParams = await props.searchParams;
     const listMode = searchParams.m === 'lista';
+    const criticalMode = searchParams.m === 'criticos';
     const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000';
 
-    const [stopsRaw, alerts] = await Promise.all([
+    const [stopsRaw, alerts, worstStops] = await Promise.all([
         fetchStops(baseUrl),
-        fetchAlerts(baseUrl)
+        fetchAlerts(baseUrl),
+        fetchWorstStops(baseUrl)
     ]);
 
-    const stops = stopsRaw.map(s => {
+    let stops = stopsRaw.map(s => {
         const stopAlert = (alerts || []).find((a: { target_id: string, alert_type: string }) => a.target_id === s.id && a.alert_type === 'STOP_WAIT');
+        const worst = (worstStops || []).find((w: { stop_id: string }) => w.stop_id === s.id);
+
         return {
             ...s,
-            metrics: s.metrics ? { ...s.metrics, alert: stopAlert } : null
+            metrics: s.metrics ? {
+                ...s.metrics,
+                alert: stopAlert,
+                worst_delta: worst?.worst_delta_min,
+                pct_verified: worst?.pct_verified_avg
+            } : null
         };
     });
+
+    if (criticalMode) {
+        stops = stops.filter(s => s.metrics?.worst_delta && s.metrics.worst_delta > 10);
+    }
 
     return (
         <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
@@ -121,7 +146,7 @@ export default async function DelayMapPage(props: { searchParams: Promise<{ m?: 
                     <div className="flex bg-gray-200 dark:bg-gray-800 p-1 rounded-lg">
                         <a
                             href="/mapa"
-                            className={`px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition ${!listMode ? 'bg-white dark:bg-black shadow text-indigo-600 dark:text-indigo-400' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition ${!listMode && !criticalMode ? 'bg-white dark:bg-black shadow text-indigo-600 dark:text-indigo-400' : 'text-gray-500 hover:text-gray-700'}`}
                         >
                             <MapIcon size={16} /> Mapa
                         </a>
@@ -130,6 +155,12 @@ export default async function DelayMapPage(props: { searchParams: Promise<{ m?: 
                             className={`px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition ${listMode ? 'bg-white dark:bg-black shadow text-indigo-600 dark:text-indigo-400' : 'text-gray-500 hover:text-gray-700'}`}
                         >
                             <MenuSquare size={16} /> Lista
+                        </a>
+                        <a
+                            href="/mapa?m=criticos"
+                            className={`px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition ${criticalMode ? 'bg-white dark:bg-black shadow text-red-600 dark:text-red-400' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            <Zap size={16} /> Críticos
                         </a>
                     </div>
                 </div>

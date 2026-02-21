@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, Share2, TrendingDown, TrendingUp, Users, MapPin, ShieldAlert, BadgeAlert, AlertCircle } from 'lucide-react';
 import { Sparkline } from '@/components/metrics/Sparkline';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
+import { StopPromisedVsRealCard } from '@/components/StopPromisedVsRealCard';
 import Link from 'next/link';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateStopCaption } from '@/lib/editorial/templates';
@@ -235,6 +236,9 @@ export default async function PontoDetailPage(props: { params: Promise<{ id: str
                         </div>
                     )}
                 </section>
+
+                {/* Promised Vs Real Stop Gap Comparison */}
+                <StopPromisedVsRealCard stopId={stop.id} />
 
                 {/* Audit Action / Alert */}
                 <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-600 p-6 rounded-r-2xl">
