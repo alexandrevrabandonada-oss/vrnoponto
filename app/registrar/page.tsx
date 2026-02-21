@@ -6,6 +6,7 @@ import { useDeviceId } from '@/hooks/useDeviceId';
 import { RatingModal } from '@/components/RatingModal';
 import { QRScanner } from '@/components/QRScanner';
 import { ShieldCheck, QrCode } from 'lucide-react';
+import { HelpModal } from '@/components/HelpModal';
 
 const MOCK_LINE_ID = '11111111-1111-1111-1111-111111111111';
 const MOCK_STOP_ID = '22222222-2222-2222-2222-222222222222';
@@ -143,6 +144,15 @@ export default function Registrar() {
                 onClose={() => setIsModalOpen(false)}
                 lineId={MOCK_LINE_ID}
                 deviceId={deviceId}
+            />
+
+            <HelpModal
+                storageKey="help_registrar_v1"
+                tips={[
+                    "Marque 'Ônibus Passou' se o veículo chegou cheio ou você preferiu não embarcar.",
+                    "Marque 'Entrei' ao embarcar. Se depois marcar 'Desci', o sistema gera Prova de Trajeto (L3).",
+                    "L1 = Relato individual. L2 = Confirmado por outros no mesmo ponto. L3 = Prova física.",
+                ]}
             />
         </main>
     );

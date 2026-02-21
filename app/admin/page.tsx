@@ -1,12 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Activity, MapPin, Bus, Handshake } from 'lucide-react';
+import { Activity, MapPin, Bus, Handshake, Zap } from 'lucide-react';
 
 export default function AdminHome() {
     const [health, setHealth] = useState<string | null>(null);
     const [envAudit, setEnvAudit] = useState<Record<string, string> | null>(null);
     const [stats, setStats] = useState<{ lines: number, stops: number, partners: number } | null>(null);
+    const [telemetry, setTelemetry] = useState<{ today: number, week: number } | null>(null);
 
     useEffect(() => {
         // Fetch Health
@@ -37,6 +38,22 @@ export default function AdminHome() {
             });
         }
         fetchStats();
+
+        // Fetch Telemetry
+        async function fetchTelemetry() {
+            const supabase = createClient();
+            const today = new Date().toISOString().slice(0, 10);
+            const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+            const { data } = await supabase
+                .from('telemetry_counts')
+                .select('count, date')
+                .eq('event_key', 'cta_click')
+                .gte('date', weekAgo);
+            const todayCount = data?.find(r => r.date === today)?.count || 0;
+            const weekCount = data?.reduce((s, r) => s + (r.count || 0), 0) || 0;
+            setTelemetry({ today: todayCount, week: weekCount });
+        }
+        fetchTelemetry();
     }, []);
 
     return (
@@ -74,6 +91,28 @@ export default function AdminHome() {
                         <span className="text-2xl font-black text-emerald-600/20">{stats?.partners ?? '..'}</span>
                     </div>
                 </a>
+
+                <div className="p-5 bg-white rounded-2xl border border-indigo-100 shadow-sm">
+                    <div className="bg-indigo-50 text-indigo-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-xl">
+                        <Zap size={20} />
+                    </div>
+                    <div className="flex justify-between items-end">
+                        <div>
+                            <h2 className="text-lg font-bold text-gray-900 leading-tight">Onboarding</h2>
+                            <p className="text-xs text-gray-400 mt-0.5">Cliques &quot;Começar agora&quot;</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-4 mt-3">
+                        <div>
+                            <div className="text-2xl font-black text-indigo-600">{telemetry?.today ?? '–'}</div>
+                            <div className="text-[10px] text-gray-400 uppercase font-bold">Hoje</div>
+                        </div>
+                        <div>
+                            <div className="text-2xl font-black text-indigo-600/50">{telemetry?.week ?? '–'}</div>
+                            <div className="text-[10px] text-gray-400 uppercase font-bold">7 dias</div>
+                        </div>
+                    </div>
+                </div>
 
                 <a href="/admin/oficial" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-gray-100 hover:border-gray-200 transition-all">
                     <div className="bg-gray-50 text-gray-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">

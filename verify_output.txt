@@ -11,16 +11,16 @@
 
 ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 3.8s
+Ô£ô Compiled successfully in 3.7s
   Running TypeScript ...
   Collecting page data using 11 workers ...
 ÔÜá Using edge runtime on a page currently disables static generation for that page
-  Generating static pages using 11 workers (0/19) ...
-  Generating static pages using 11 workers (4/19) 
-  Generating static pages using 11 workers (9/19) 
+  Generating static pages using 11 workers (0/20) ...
+  Generating static pages using 11 workers (5/20) 
+  Generating static pages using 11 workers (10/20) 
 ÔÜá metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
-  Generating static pages using 11 workers (14/19) 
-Ô£ô Generating static pages using 11 workers (19/19) in 328.1ms
+  Generating static pages using 11 workers (15/20) 
+Ô£ô Generating static pages using 11 workers (20/20) in 900.8ms
   Finalizing page optimization ...
 
 Route (app)
@@ -52,10 +52,12 @@ Route (app)
 Ôö£ ãÆ /api/report/monthly
 Ôö£ ãÆ /api/report/monthly.csv
 Ôö£ ãÆ /api/stops/nearest
+Ôö£ ãÆ /api/telemetry
 Ôö£ ãÆ /api/timeseries/line
 Ôö£ ãÆ /api/timeseries/stop
 Ôö£ Ôùï /boletim
 Ôö£ ãÆ /boletim/opengraph-image
+Ôö£ Ôùï /como-usar
 Ôö£ ãÆ /linha/[id]
 Ôö£ ãÆ /mapa
 Ôö£ Ôùï /no-ponto
