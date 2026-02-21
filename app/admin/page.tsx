@@ -1,10 +1,11 @@
-'use client';
-
 import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { Activity, MapPin, Bus, Handshake, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 export default function AdminHome() {
     const [health, setHealth] = useState<string | null>(null);
     const [envAudit, setEnvAudit] = useState<Record<string, string> | null>(null);
+    const [stats, setStats] = useState<{ lines: number, stops: number, partners: number } | null>(null);
 
     useEffect(() => {
         // Fetch Health
@@ -17,10 +18,24 @@ export default function AdminHome() {
         fetch('/api/env-audit')
             .then(res => res.json())
             .then(data => setEnvAudit(data.env || {}))
-            .catch(err => {
-                console.error("Erro na auditoria:", err);
-                setEnvAudit({ "API_ERROR": "FAIL" });
+            .catch(() => setEnvAudit({ "API_ERROR": "FAIL" }));
+
+        // Fetch Real-time Stats
+        async function fetchStats() {
+            const supabase = createClient();
+            const [lines, stops, partners] = await Promise.all([
+                supabase.from('lines').select('id', { count: 'exact', head: true }),
+                supabase.from('stops').select('id', { count: 'exact', head: true }),
+                supabase.from('partners').select('id', { count: 'exact', head: true })
+            ]);
+
+            setStats({
+                lines: lines.count || 0,
+                stops: stops.count || 0,
+                partners: partners.count || 0
             });
+        }
+        fetchStats();
     }, []);
 
     return (
@@ -28,22 +43,44 @@ export default function AdminHome() {
             <h1 className="text-3xl font-bold text-gray-900">Dashboard Administrativo</h1>
             <p className="text-gray-600">Bem-vindo ao painel de controle do VR no Ponto.</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                <a href="/admin/linhas" className="block p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <h2 className="text-xl font-bold text-indigo-700 mb-2">Linhas e Variantes</h2>
-                    <p className="text-sm text-gray-500">Cadastre o trajeto das linhas (ex: P200 Vila Rica).</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+                <a href="/admin/linhas" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-indigo-100 hover:border-indigo-200 transition-all">
+                    <div className="bg-indigo-50 text-indigo-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
+                        <Bus size={20} />
+                    </div>
+                    <div className="flex justify-between items-end">
+                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Linhas de Ônibus</h2>
+                        <span className="text-2xl font-black text-indigo-600/20">{stats?.lines ?? '..'}</span>
+                    </div>
                 </a>
-                <a href="/admin/pontos" className="block p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <h2 className="text-xl font-bold text-indigo-700 mb-2">Pontos de Ônibus</h2>
-                    <p className="text-sm text-gray-500">Cadastre pontos fixos com coordenadas de GPS.</p>
+
+                <a href="/admin/pontos" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-amber-100 hover:border-amber-200 transition-all">
+                    <div className="bg-amber-50 text-amber-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
+                        <MapPin size={20} />
+                    </div>
+                    <div className="flex justify-between items-end">
+                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Pontos de Parada</h2>
+                        <span className="text-2xl font-black text-amber-600/20">{stats?.stops ?? '..'}</span>
+                    </div>
                 </a>
-                <a href="/admin/oficial" className="block p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <h2 className="text-xl font-bold text-indigo-700 mb-2">Horários Oficiais</h2>
-                    <p className="text-sm text-gray-500">Faça upload de tabelas de horário em PDF.</p>
+
+                <a href="/admin/parceiros" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-emerald-100 hover:border-emerald-200 transition-all">
+                    <div className="bg-emerald-50 text-emerald-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
+                        <Handshake size={20} />
+                    </div>
+                    <div className="flex justify-between items-end">
+                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Pontos Parceiros</h2>
+                        <span className="text-2xl font-black text-emerald-600/20">{stats?.partners ?? '..'}</span>
+                    </div>
                 </a>
-                <a href="/admin/parceiros" className="block p-6 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <h2 className="text-xl font-bold text-indigo-700 mb-2">Pontos Parceiros</h2>
-                    <p className="text-sm text-gray-500">Gestão de locais autorizados e QR Codes L3.</p>
+
+                <a href="/admin/oficial" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-gray-100 hover:border-gray-200 transition-all">
+                    <div className="bg-gray-50 text-gray-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
+                        <Activity size={20} />
+                    </div>
+                    <div className="flex justify-between items-end">
+                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Horários Oficiais</h2>
+                    </div>
                 </a>
             </div>
 

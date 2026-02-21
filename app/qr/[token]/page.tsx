@@ -8,7 +8,8 @@ export default function QRCheckinPage(props: { params: Promise<{ token: string }
     const params = use(props.params);
     const [status, setStatus] = useState<'loading' | 'locating' | 'validating' | 'success' | 'error'>('loading');
     const [error, setError] = useState<string | null>(null);
-    const [stopName, setStopName] = useState<string | null>(null);
+    const [anchorName, setAnchorName] = useState<string | null>(null);
+    const [anchorType, setAnchorType] = useState<'STOP' | 'PARTNER' | null>(null);
 
     useEffect(() => {
         async function validate(deviceId: string, lat: number, lng: number) {
@@ -22,7 +23,8 @@ export default function QRCheckinPage(props: { params: Promise<{ token: string }
                 const data = await res.json();
 
                 if (res.ok) {
-                    setStopName(data.stop_name);
+                    setAnchorName(data.anchor_name);
+                    setAnchorType(data.anchor_type);
                     setStatus('success');
                 } else {
                     setError(data.error || 'Falha na validação');
@@ -93,10 +95,13 @@ export default function QRCheckinPage(props: { params: Promise<{ token: string }
                             Presença Confirmada!
                         </h1>
                         <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl">
-                            <p className="text-emerald-800 font-bold">
-                                {stopName}
+                            <div className="text-[10px] text-emerald-600 uppercase font-black mb-1 bg-emerald-100/50 inline-block px-2 py-0.5 rounded tracking-wider">
+                                {anchorType === 'PARTNER' ? 'PONTO PARCEIRO' : 'PONTO DE ÔNIBUS'}
+                            </div>
+                            <p className="text-emerald-800 font-bold text-lg leading-tight mt-1">
+                                {anchorName}
                             </p>
-                            <p className="text-emerald-600 text-sm mt-1">Confiabilidade L3 Ativada</p>
+                            <p className="text-emerald-600/70 text-xs mt-1 font-bold">Confiabilidade L3 Ativada</p>
                         </div>
                         <p className="text-gray-500 text-sm leading-relaxed">
                             Seu relato recente foi promovido para Prova Forte. Obrigado por colaborar!
