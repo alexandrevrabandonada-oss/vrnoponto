@@ -43,6 +43,7 @@ Gerado em: 2026-02-21T19:54:50.849Z
 - /relatorio/mensal
 
 ## Rotas de Backend (app/api/)
+- /api/admin/funnel/csv
 - /api/admin/partner/kit/poster
 - /api/admin/partner/kit/seal
 - /api/admin/qr/generate
@@ -83,6 +84,9 @@ Gerado em: 2026-02-21T19:54:50.849Z
 - 0014_trust_methods.sql
 - 0015_partners.sql
 - 0016_token_plain.sql
+- 0019_partner_requests.sql
+- 0020_telemetry_counts.sql
+- 0021_partner_funnel_views.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: OK

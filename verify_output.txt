@@ -11,70 +11,18 @@
 
 ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 3.7s
+Ô£ô Compiled successfully in 3.4s
   Running TypeScript ...
-  Collecting page data using 11 workers ...
-ÔÜá Using edge runtime on a page currently disables static generation for that page
-  Generating static pages using 11 workers (0/20) ...
-  Generating static pages using 11 workers (5/20) 
-  Generating static pages using 11 workers (10/20) 
-ÔÜá metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
-  Generating static pages using 11 workers (15/20) 
-Ô£ô Generating static pages using 11 workers (20/20) in 900.8ms
-  Finalizing page optimization ...
+Failed to compile.
 
-Route (app)
-Ôöî ãÆ /
-Ôö£ Ôùï /_not-found
-Ôö£ Ôùï /admin
-Ôö£ ãÆ /admin/linhas
-Ôö£ Ôùï /admin/oficial
-Ôö£ ãÆ /admin/parceiros
-Ôö£ ãÆ /admin/pontos
-Ôö£ ãÆ /api/admin/partner/kit/poster
-Ôö£ ãÆ /api/admin/partner/kit/seal
-Ôö£ ãÆ /api/admin/qr/generate
-Ôö£ ãÆ /api/admin/run-alerts
-Ôö£ ãÆ /api/admin/sync-official
-Ôö£ ãÆ /api/admin/upload-pdf
-Ôö£ ãÆ /api/alerts
-Ôö£ ãÆ /api/bulletin
-Ôö£ ãÆ /api/bulletin/card
-Ôö£ ãÆ /api/env-audit
-Ôö£ ãÆ /api/events/record
-Ôö£ ãÆ /api/health
-Ôö£ ãÆ /api/map/stops
-Ôö£ ãÆ /api/og/monthly-report
-Ôö£ ãÆ /api/partner-request
-Ôö£ ãÆ /api/partner/detail
-Ôö£ ãÆ /api/point/detail
-Ôö£ ãÆ /api/qr/validate
-Ôö£ ãÆ /api/report/monthly
-Ôö£ ãÆ /api/report/monthly.csv
-Ôö£ ãÆ /api/stops/nearest
-Ôö£ ãÆ /api/telemetry
-Ôö£ ãÆ /api/timeseries/line
-Ôö£ ãÆ /api/timeseries/stop
-Ôö£ Ôùï /boletim
-Ôö£ ãÆ /boletim/opengraph-image
-Ôö£ Ôùï /como-usar
-Ôö£ ãÆ /linha/[id]
-Ôö£ ãÆ /mapa
-Ôö£ Ôùï /no-ponto
-Ôö£ ãÆ /painel
-Ôö£ ãÆ /parceiro/[id]
-Ôö£ ãÆ /parceiro/[id]/opengraph-image
-Ôö£ Ôùï /parceiros
-Ôö£ Ôùï /parceiros/entrar
-Ôö£ ãÆ /ponto/[id]
-Ôö£ ãÆ /ponto/[id]/opengraph-image
-Ôö£ ãÆ /qr/[token]
-Ôö£ Ôùï /registrar
-Ôöö ãÆ /relatorio/mensal
+./app/admin/parceiros/page.tsx:114:114
+Type error: Property 'catch' does not exist on type 'PostgrestFilterBuilder<any, any, any, any, "increment_telemetry", null, "RPC">'. Did you mean 'match'?
 
-
-ãÆ Proxy (Middleware)
-
-Ôùï  (Static)   prerendered as static content
-ãÆ  (Dynamic)  server-rendered on demand
-
+  112 |
+  113 |         const today = new Date().toISOString().slice(0, 10);
+> 114 |         await adminClient.rpc('increment_telemetry', { p_event_key: 'partner_request_approved', p_date: today }).catch(() => { });
+      |                                                                                                                  ^
+  115 |
+  116 |         revalidatePath('/admin/parceiros');
+  117 |     }
+Next.js build worker exited with code: 1 and signal: null

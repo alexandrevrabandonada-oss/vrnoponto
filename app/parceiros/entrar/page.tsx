@@ -6,6 +6,7 @@ import {
     CheckCircle2, Loader2, ArrowLeft, Navigation, Store, ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
+import { TelemetryTracker } from '@/components/TelemetryTracker';
 
 const CATEGORIES = [
     { value: 'comercio', label: 'Comércio' },
@@ -58,6 +59,13 @@ export default function ParceirosEntrarPage() {
         e.preventDefault();
         setError(null);
 
+        // Fire click track asynchronously
+        fetch('/api/telemetry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event: 'click_partner_apply_submit' }),
+        }).catch(() => { });
+
         if (!form.authorized) {
             setError('Você precisa confirmar que tem autorização para instalar o material no local.');
             return;
@@ -101,6 +109,7 @@ export default function ParceirosEntrarPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+            <TelemetryTracker eventName="page_view_partner_apply" />
             {/* Header */}
             <header className="bg-indigo-900 text-white p-6 rounded-b-3xl shadow-xl">
                 <Link href="/parceiros" className="flex items-center gap-2 text-indigo-200 text-sm mb-4 hover:text-white transition">

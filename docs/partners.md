@@ -64,3 +64,19 @@ Um pedido deve ser aprovado quando:
 Ao aprovar, o admin clica "Aprovar e Criar" e o sistema automaticamente:
 - Cria um registro em `partners` com `is_active = true`.
 - Marca o pedido como `APPROVED` com `resolved_at`.
+
+## Métricas e Telemetria (Funil)
+
+Para entender se o cadastro público converte, o app rastreia os eventos usando contadores sem PII na tabela `telemetry_counts`:
+
+1. **`page_view_partners`**: Visualização de `/parceiros` (Debounce: 1/sessão)
+2. **`page_view_partner_apply`**: Visualização do formulário `/parceiros/entrar` (Debounce)
+3. **`click_partner_apply_submit`**: Clique no botão Enviar Pedido
+4. **`partner_request_created`**: Pedido salvo com sucesso no banco (Server-side)
+5. **`partner_request_approved` / `partner_request_rejected`**: Ações do administrador
+6. **`partner_kit_generated`**: Geração do selo/QR Code no painel Admin
+
+### Exibição e Exportação
+* **Views**: `vw_partner_funnel_daily` pivota os eventos por dia útil, e `vw_partner_funnel_summary_30d` soma e traz as taxas de conversão dos últimos 30 dias.
+* **Painel Admin**: Em `/admin/parceiros` há um card visualizando as métricas (Acessaram → Enviaram → Aprovados → Kits), com *taxas percentuais em badges*.
+* **CSV API**: Um botão Exportar chama `GET /api/admin/funnel/csv` para download nativo do CSV dos últimos 60 dias (protegido por server action context login ou token, se isolado).

@@ -8,6 +8,10 @@ const ALLOWED_EVENTS = new Set([
     'pageview_como_usar',
     'pageview_no_ponto',
     'pageview_registrar',
+    'page_view_partners',
+    'page_view_partner_apply',
+    'click_partner_apply_submit',
+    'partner_kit_generated',
 ]);
 
 export async function POST(req: Request) {

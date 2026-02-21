@@ -25,6 +25,13 @@ export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, 
             if (data.qr_url) {
                 setQrUrl(data.qr_url);
                 setShowModal(true);
+
+                // Log telemetry on successful kit generation
+                fetch('/api/telemetry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ event: 'partner_kit_generated' }),
+                }).catch(() => { });
             }
         } catch (err) {
             console.error('Failed to generate QR', err);

@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { QRGenerator } from '@/components/admin/QRGenerator';
 import { PartnerKitModal } from '@/components/admin/PartnerKitModal';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
-import { CheckCircle, XCircle, UserPlus } from 'lucide-react';
+import { CheckCircle, XCircle, UserPlus, FileDown, PieChart } from 'lucide-react';
 
 interface PartnerRequest {
     id: string;
@@ -32,7 +32,6 @@ export default async function AdminParceiros({ searchParams }: { searchParams: P
         .select('id, name, category, neighborhood, is_active')
         .order('name');
 
-    // Service role client to read partner_requests (bypasses RLS)
     const supabaseAdmin = createServiceClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL || '',
         process.env.SUPABASE_SERVICE_ROLE_KEY || ''
@@ -41,6 +40,23 @@ export default async function AdminParceiros({ searchParams }: { searchParams: P
         .from('partner_requests')
         .select('*')
         .order('created_at', { ascending: false });
+
+    // Fetch funnel 30d summary view
+    const { data: funnelData } = await supabaseAdmin
+        .from('vw_partner_funnel_summary_30d')
+        .select('*')
+        .single();
+
+    // Fallback if view is empty or missing yet
+    const funnel = funnelData || {
+        total_views_apply: 0,
+        total_requests_created: 0,
+        total_requests_approved: 0,
+        total_kits_generated: 0,
+        apply_rate_pct: 0,
+        approval_rate_pct: 0,
+        kit_rate_pct: 0
+    };
 
     const pendingCount = requests?.filter(r => r.status === 'PENDING').length || 0;
 
@@ -94,6 +110,9 @@ export default async function AdminParceiros({ searchParams }: { searchParams: P
             resolved_at: new Date().toISOString()
         }).eq('id', id);
 
+        const today = new Date().toISOString().slice(0, 10);
+        await adminClient.rpc('increment_telemetry', { p_event_key: 'partner_request_approved', p_date: today }).catch(() => { });
+
         revalidatePath('/admin/parceiros');
     }
 
@@ -113,14 +132,63 @@ export default async function AdminParceiros({ searchParams }: { searchParams: P
             resolved_at: new Date().toISOString()
         }).eq('id', id);
 
+        const today = new Date().toISOString().slice(0, 10);
+        await adminClient.rpc('increment_telemetry', { p_event_key: 'partner_request_rejected', p_date: today }).catch(() => { });
+
         revalidatePath('/admin/parceiros');
     }
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold text-gray-900">Pontos Parceiros</h1>
-                <p className="text-gray-600">Gestão de locais autorizados e pedidos de adesão.</p>
+            <div className="flex justify-between items-end">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Pontos Parceiros</h1>
+                    <p className="text-gray-600">Gestão de locais autorizados e pedidos de adesão.</p>
+                </div>
+            </div>
+
+            {/* Funnel Metrics Dashboard */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-gray-100 text-gray-600 p-2 rounded-xl">
+                            <PieChart size={20} />
+                        </div>
+                        <h2 className="text-lg font-black text-gray-900">Funil de Ativação (30 dias)</h2>
+                    </div>
+                    <a href="/api/admin/funnel/csv" target="_blank"
+                        className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-xl transition">
+                        <FileDown size={16} /> Exportar CSV diário
+                    </a>
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div>
+                        <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Acessaram Form</div>
+                        <div className="text-2xl font-black text-gray-900">{funnel.total_views_apply || 0}</div>
+                    </div>
+                    <div className="border-l border-gray-100 pl-6">
+                        <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Enviaram PENDENTE</div>
+                        <div className="flex items-end gap-2">
+                            <span className="text-2xl font-black text-indigo-600">{funnel.total_requests_created || 0}</span>
+                            <span className="text-xs font-bold bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full mb-1">{funnel.apply_rate_pct}% conversão</span>
+                        </div>
+                    </div>
+                    <div className="border-l border-gray-100 pl-6">
+                        <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Aprovados ATIVO</div>
+                        <div className="flex items-end gap-2">
+                            <span className="text-2xl font-black text-green-600">{funnel.total_requests_approved || 0}</span>
+                            <span className="text-xs font-bold bg-green-50 text-green-600 px-2 py-0.5 rounded-full mb-1">{funnel.approval_rate_pct}% tx. aprovação</span>
+                        </div>
+                    </div>
+                    <div className="border-l border-gray-100 pl-6">
+                        <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Kits Gerados (QR)</div>
+                        <div className="flex items-end gap-2">
+                            <span className="text-2xl font-black text-gray-900">{funnel.total_kits_generated || 0}</span>
+                            <span className="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full mb-1">{funnel.kit_rate_pct}% tx. geração</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Tabs */}

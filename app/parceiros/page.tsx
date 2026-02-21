@@ -7,6 +7,7 @@ import { MapPin, Info, ArrowRight, Loader2, Copy, Check, MessageCircle } from 'l
 import type { PartnerMapItem } from '@/components/DelayMap';
 import Link from 'next/link';
 import { getWhatsAppShort, getInstagramDM } from '@/lib/editorial/partner_invite';
+import { TelemetryTracker } from '@/components/TelemetryTracker';
 
 // Import map dynamically for Client Side
 const DelayMap = dynamic(() => import('@/components/DelayMap'), {
@@ -69,6 +70,7 @@ export default function ParceirosPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+            <TelemetryTracker eventName="page_view_partners" />
             <header className="bg-indigo-900 text-white p-6 rounded-b-3xl shadow-lg">
                 <h1 className="text-2xl font-black">Pontos Parceiros</h1>
                 <p className="text-indigo-200 text-sm mt-1">Locais autorizados para validar sua presença (L3).</p>
