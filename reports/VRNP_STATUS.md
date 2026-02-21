@@ -1,10 +1,10 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T15:21:33.608Z
+Gerado em: 2026-02-21T15:23:54.735Z
 
 ## Ambiente
 - Node Version: v22.19.0
 - Git Branch: master
-- Git Commit: 479eec4
+- Git Commit: 6835794
 - .env.local: MISSING
 - Supabase Env Vars: MISSING
 
@@ -16,6 +16,9 @@ Gerado em: 2026-02-21T15:21:33.608Z
 - /painel
 - /ponto/[id]
 - /registrar
+
+## Supabase Migrations
+- 0001_init.sql
 
 ## Scripts
 - npm run lint: SUCCESS
@@ -41,14 +44,14 @@ C:\Projetos\vrnoponto\lib\supabase\server.ts
 ▲ Next.js 16.1.6 (Turbopack)
 
   Creating an optimized production build ...
-✓ Compiled successfully in 1773.8ms
+✓ Compiled successfully in 2.4s
   Running TypeScript ...
   Collecting page data using 11 workers ...
   Generating static pages using 11 workers (0/9) ...
   Generating static pages using 11 workers (2/9) 
   Generating static pages using 11 workers (4/9) 
   Generating static pages using 11 workers (6/9) 
-✓ Generating static pages using 11 workers (9/9) in 222.9ms
+✓ Generating static pages using 11 workers (9/9) in 232.2ms
   Finalizing page optimization ...
 
 Route (app)

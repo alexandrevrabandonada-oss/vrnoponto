@@ -62,6 +62,17 @@ if (envLocalExists) {
     if (hasUrl && hasKey) supabaseEnvStatus = 'OK';
 }
 
+const migrationsDir = path.join(rootDir, 'supabase', 'migrations');
+const migrations = [];
+if (fs.existsSync(migrationsDir)) {
+    const items = fs.readdirSync(migrationsDir);
+    for (const item of items) {
+        if (item.endsWith('.sql')) {
+            migrations.push(item);
+        }
+    }
+}
+
 console.log('Running npm run lint...');
 const lintResult = execSafe('npm run lint');
 const lintStatus = lintResult.includes('Error') ? 'FAILED' : 'SUCCESS';
@@ -82,6 +93,9 @@ Gerado em: ${now}
 
 ## Rotas Detectadas (app/)
 ${routes.length > 0 ? routes.map(r => `- ${r}`).join('\n') : '- Nenhuma rota encontrada'}
+
+## Supabase Migrations
+${migrations.length > 0 ? migrations.map(m => `- ${m}`).join('\n') : '- Nenhuma migration encontrada'}
 
 ## Scripts
 - npm run lint: ${lintStatus}
