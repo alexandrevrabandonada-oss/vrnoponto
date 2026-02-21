@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         }
         const isStop = !!qr.stop_id;
         const anchorId = qr.stop_id || qr.partner_id;
-        const anchorObj = anchor as { name: string };
+        const anchorObj = anchor as unknown as { name: string, location: string };
         const anchorName = anchorObj.name;
 
         // 2. Validar Proximidade (80 metros)

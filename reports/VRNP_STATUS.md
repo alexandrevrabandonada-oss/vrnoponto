@@ -28,6 +28,7 @@ Gerado em: 2026-02-21T19:54:50.849Z
 - /mapa
 - /no-ponto
 - /painel
+- /parceiro/[id]
 - /parceiros
 - /ponto/[id]
 - /qr/[token]
@@ -35,6 +36,8 @@ Gerado em: 2026-02-21T19:54:50.849Z
 - /relatorio/mensal
 
 ## Rotas de Backend (app/api/)
+- /api/admin/partner/kit/poster
+- /api/admin/partner/kit/seal
 - /api/admin/qr/generate
 - /api/admin/sync-official
 - /api/admin/upload-pdf
@@ -42,13 +45,16 @@ Gerado em: 2026-02-21T19:54:50.849Z
 - /api/events/record
 - /api/health
 - /api/map/stops
+- /api/partner/detail
 - /api/point/detail
 - /api/qr/validate
 - /api/report/monthly
 - /api/report/monthly.csv
 - /api/stops/nearest
+
 ## Componentes Compartilhados (components/)
 - RatingModal.tsx
+- admin/PartnerKitModal.tsx
 
 ## Hooks (hooks/)
 - useDeviceId.ts
@@ -69,6 +75,7 @@ Gerado em: 2026-02-21T19:54:50.849Z
 - 0013_distance_rpc.sql
 - 0014_trust_methods.sql
 - 0015_partners.sql
+- 0016_token_plain.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: OK
