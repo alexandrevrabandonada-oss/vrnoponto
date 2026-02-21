@@ -1,0 +1,51 @@
+
+> vrnoponto@0.1.0 build
+> next build
+
+Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 3.2s
+  Running TypeScript ...
+  Collecting page data using 11 workers ...
+ÔÜá Using edge runtime on a page currently disables static generation for that page
+  Generating static pages using 11 workers (0/14) ...
+  Generating static pages using 11 workers (3/14) 
+  Generating static pages using 11 workers (6/14) 
+  Generating static pages using 11 workers (10/14) 
+Ô£ô Generating static pages using 11 workers (14/14) in 247.4ms
+  Finalizing page optimization ...
+
+Route (app)
+Ôöî ãÆ /
+Ôö£ Ôùï /_not-found
+Ôö£ Ôùï /admin
+Ôö£ ãÆ /admin/linhas
+Ôö£ Ôùï /admin/oficial
+Ôö£ ãÆ /admin/pontos
+Ôö£ ãÆ /api/admin/sync-official
+Ôö£ ãÆ /api/admin/upload-pdf
+Ôö£ ãÆ /api/env-audit
+Ôö£ ãÆ /api/events/record
+Ôö£ ãÆ /api/health
+Ôö£ ãÆ /api/map/stops
+Ôö£ ãÆ /api/og/monthly-report
+Ôö£ ãÆ /api/report/monthly
+Ôö£ ãÆ /api/report/monthly.csv
+Ôö£ ãÆ /api/stops/nearest
+Ôö£ ãÆ /linha/[id]
+Ôö£ ãÆ /mapa
+Ôö£ Ôùï /no-ponto
+Ôö£ ãÆ /painel
+Ôö£ ãÆ /ponto/[id]
+Ôö£ Ôùï /registrar
+Ôöö ãÆ /relatorio/mensal
+
+
+ãÆ Proxy (Middleware)
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+

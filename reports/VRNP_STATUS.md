@@ -1,20 +1,20 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T18:51:16.454Z
+Gerado em: 2026-02-21T19:02:15.194Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: cac1dd9
+- Git Commit: ce6746f
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: FAIL
 
 ## Últimos 5 Commits
+* ce6746f - feat: monthly public report + export
 * cac1dd9 - feat: daily sync via github actions
 * 55414c7 - ci: daily sync workflow
 * 97ef9be - feat: sync official schedules from pmvr
 * 05bfa09 - feat: vercel go-live checklist + env audit
-* cf0b7e3 - chore: ops scripts for env + supabase + smoke
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -23,6 +23,7 @@ Gerado em: 2026-02-21T18:51:16.454Z
 - /admin/oficial
 - /admin/pontos
 - /linha/[id]
+- /mapa
 - /no-ponto
 - /painel
 - /ponto/[id]
@@ -35,6 +36,7 @@ Gerado em: 2026-02-21T18:51:16.454Z
 - /api/env-audit
 - /api/events/record
 - /api/health
+- /api/map/stops
 - /api/report/monthly
 - /api/report/monthly.csv
 - /api/stops/nearest
@@ -53,6 +55,7 @@ Gerado em: 2026-02-21T18:51:16.454Z
 - 0006_nearest_stops.sql
 - 0007_official_sync.sql
 - 0008_monthly_report_views.sql
+- 0009_map_views.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING
@@ -60,7 +63,7 @@ Gerado em: 2026-02-21T18:51:16.454Z
 *(Run `npm run supabase:check` to validate the token against the Supabase CLI)*
 
 ## Scripts
-- npm run lint: SUCCESS
+- npm run lint: FAILED
 - npm run build: SUCCESS
 
 

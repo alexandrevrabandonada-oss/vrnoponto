@@ -1,15 +1,28 @@
 
-C:\Projetos\vrnoponto\app\api\env-audit\route.ts
-  5:27  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\api\map\stops\route.ts
+  23:23  warning  'stops' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  23:37  warning  'stopsError' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\app\api\og\monthly-report\route.tsx
-  116:14  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\mapa\page.tsx
+  3:10  warning  'Clock' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\app\relatorio\mensal\page.tsx
-    1:10  warning  'Suspense' is defined but never used      @typescript-eslint/no-unused-vars
-    2:8   warning  'Link' is defined but never used          @typescript-eslint/no-unused-vars
-  168:65  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  201:65  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+C:\Projetos\vrnoponto\components\DelayMap.tsx
+  75:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projetos\vrnoponto\components\DelayMap.tsx:75:9
+  73 |
+  74 |     useEffect(() => {
+> 75 |         setMounted(true);
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  76 |     }, []);
+  77 |
+  78 |     if (!mounted) return <div className="h-full w-full flex items-center justify-center bg-gray-100 animate-pulse rounded-xl" />;  react-hooks/set-state-in-effect
 
 C:\Projetos\vrnoponto\scripts\diag.mjs
   112:10  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
@@ -17,5 +30,5 @@ C:\Projetos\vrnoponto\scripts\diag.mjs
 C:\Projetos\vrnoponto\scripts\supabase-check.mjs
   44:14  warning  '_err' is defined but never used  @typescript-eslint/no-unused-vars
 
-Ô£û 8 problems (2 errors, 6 warnings)
+Ô£û 6 problems (1 error, 5 warnings)
 
