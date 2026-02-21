@@ -109,7 +109,7 @@ let apiHealthStatus = 'FAIL';
 try {
     const res = await fetch('http://localhost:3000/api/health', { signal: AbortSignal.timeout(2000) });
     if (res.ok) apiHealthStatus = 'OK';
-} catch (e) {
+} catch (_e) {
     // FAIL
 }
 

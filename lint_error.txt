@@ -1,0 +1,26 @@
+
+C:\Projetos\vrnoponto\app\admin\oficial\page.tsx
+  12:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projetos\vrnoponto\app\api\admin\sync-official\route.ts
+  45:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projetos\vrnoponto\app\api\env-audit\route.ts
+  5:27  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\linha\[id]\page.tsx
+   2:8    warning  'Link' is defined but never used          @typescript-eslint/no-unused-vars
+  28:113  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projetos\vrnoponto\app\no-ponto\page.tsx
+  4:10  warning  'createClient' is defined but never used           @typescript-eslint/no-unused-vars
+  9:7   warning  'MOCK_STOP_ID' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\scripts\diag.mjs
+  112:10  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\scripts\supabase-check.mjs
+  44:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 9 problems (3 errors, 6 warnings)
+

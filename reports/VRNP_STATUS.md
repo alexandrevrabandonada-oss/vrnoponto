@@ -1,20 +1,20 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T16:54:31.228Z
+Gerado em: 2026-02-21T18:14:31.223Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: master
-- Git Commit: cf0b7e3
-- .env.local: MISSING
-- Supabase Env Vars: MISSING
+- Git Commit: 05bfa09
+- .env.local: OK
+- Supabase Env Vars: OK
 - /api/health Local: FAIL
 
 ## Últimos 5 Commits
+* 05bfa09 - feat: vercel go-live checklist + env audit
 * cf0b7e3 - chore: ops scripts for env + supabase + smoke
 * aa74d82 - feat: nearest stops geolocation
 * 3048392 - chore: supabase remote automations
 * d8ebf38 - feat: admin mvp + official pdf upload
-* cf92455 - chore: production pipeline + feedback pack
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -29,6 +29,7 @@ Gerado em: 2026-02-21T16:54:31.228Z
 - /registrar
 
 ## Rotas de Backend (app/api/)
+- /api/admin/sync-official
 - /api/admin/upload-pdf
 - /api/env-audit
 - /api/events/record
@@ -47,6 +48,7 @@ Gerado em: 2026-02-21T16:54:31.228Z
 - 0004_analytics_views.sql
 - 0005_storage_buckets.sql
 - 0006_nearest_stops.sql
+- 0007_official_sync.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

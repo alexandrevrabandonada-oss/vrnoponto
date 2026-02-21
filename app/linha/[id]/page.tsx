@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server';
-import Link from 'next/link';
 
 export default async function LinhaDetails({ params }: { params: { id: string } }) {
     const supabase = await createClient();
@@ -24,17 +23,22 @@ export default async function LinhaDetails({ params }: { params: { id: string } 
 
     const variantIds = variants?.map(v => v.id) || [];
 
-    // Busca Tabelas de Horários (PDFs)
-    let schedules: { id: string, title: string, valid_from: string, pdf_path: string }[] = [];
-    if (variantIds.length > 0) {
-        const { data: scheds } = await supabase
-            .from('official_schedules')
-            .select('id, title, valid_from, pdf_path')
-            .in('line_variant_id', variantIds)
-            .order('valid_from', { ascending: false });
+    // Busca Tabelas de Horários (PDFs manuais e automáticos da PMVR)
+    let schedules: { id: string, title: string, valid_from: string, pdf_path: string, doc_type?: string, meta?: Record<string, string> }[] = [];
 
-        if (scheds) schedules = scheds;
+    // Constrói a query usando Variante (Upload Manual) OU Line Code (Crawler PMVR)
+    let orQuery = `line_code.eq.${line.code}`;
+    if (variantIds.length > 0) {
+        orQuery = `line_variant_id.in.(${variantIds.join(',')}),` + orQuery;
     }
+
+    const { data: scheds } = await supabase
+        .from('official_schedules')
+        .select('id, title, valid_from, pdf_path, doc_type, meta')
+        .or(orQuery)
+        .order('id', { ascending: false });
+
+    if (scheds) schedules = scheds;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
@@ -69,24 +73,38 @@ export default async function LinhaDetails({ params }: { params: { id: string } 
                         </p>
                     ) : (
                         <div className="space-y-3">
-                            {schedules.map((sched) => (
-                                <div key={sched.id} className="flex flex-col sm:flex-row justify-between items-center p-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600">
-                                    <div className="mb-3 sm:mb-0">
-                                        <p className="font-bold text-gray-800 dark:text-gray-100">{sched.title || 'Tabela de Horários'}</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            Válido a partir de: {new Date(sched.valid_from).toLocaleDateString('pt-BR')}
-                                        </p>
+                            {schedules.map((sched) => {
+                                const isHorario = !sched.doc_type || sched.doc_type === 'HORARIO';
+                                const parsedDate = sched.valid_from ? new Date(sched.valid_from).toLocaleDateString('pt-BR') : sched.meta?.em_vigor;
+                                const updateDate = sched.meta?.data_atualizacao;
+
+                                return (
+                                    <div key={sched.id} className="flex flex-col sm:flex-row justify-between items-center p-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600">
+                                        <div className="mb-3 sm:mb-0">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`px-2 py-0.5 text-[10px] font-bold rounded ${isHorario ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
+                                                    {isHorario ? 'HORÁRIOS' : 'ITINERÁRIO'}
+                                                </span>
+                                                <p className="font-bold text-gray-800 dark:text-gray-100">{sched.title || 'Tabela Oficial'}</p>
+                                            </div>
+
+                                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
+                                                {parsedDate && <p>Válido a partir de: {parsedDate}</p>}
+                                                {updateDate && <p>Atualizado em: {updateDate}</p>}
+                                                {sched.meta?.operator && <p>Operadora: {sched.meta.operator}</p>}
+                                            </div>
+                                        </div>
+                                        <a
+                                            href={`${supabaseUrl}/storage/v1/object/public/official/${sched.pdf_path}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full sm:w-auto text-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                        >
+                                            Abrir PDF
+                                        </a>
                                     </div>
-                                    <a
-                                        href={`${supabaseUrl}/storage/v1/object/public/official/${sched.pdf_path}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-full sm:w-auto text-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                                    >
-                                        Abrir PDF
-                                    </a>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
                 </div>

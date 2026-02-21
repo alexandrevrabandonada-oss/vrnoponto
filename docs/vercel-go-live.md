@@ -7,7 +7,7 @@ Abaixo está a lista estrita de conferência antes e durante a subida de ambient
 * [ ] Conceda acesso ao repositório `vrnoponto`.
 
 ## 2. Configurar Variáveis de Ambiente
-Na tela de configuração (aba *Environment Variables*), você deve informar 4 chaves cruciais, as mesmas que habitam seu lado local oculto. Copie do seu cofre e declare para os ambientes `Production` e `Preview`:
+Na tela de configuração (aba *Environment Variables*), você deve informar 5 chaves cruciais, as mesmas que habitam seu lado local oculto. Copie do seu cofre e declare para os ambientes `Production` e `Preview`:
 
 | Variável | Obrigatório | Descrição |
 | --- | --- | --- |
@@ -15,6 +15,7 @@ Na tela de configuração (aba *Environment Variables*), você deve informar 4 c
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | **SIM** | A chave pública do banco Client-Safe. |
 | `SUPABASE_SERVICE_ROLE_KEY` | **SIM** | A super-chave do banco; MANTENHA SECRETA. |
 | `ADMIN_TOKEN` | **SIM** | O token criado por você para liberar a URL do seu Painel. |
+| `OFFICIAL_SOURCE_URL` | **SIM** | A base do site da prefeitura que contém os links dos anexos de horários. |
 
 *Jamais adicione as chaves terminadas em "CLI/Access Token" como variáveis de hospedagem web.*
 

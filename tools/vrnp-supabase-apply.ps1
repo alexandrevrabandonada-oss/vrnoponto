@@ -1,44 +1,48 @@
-<#
-.SYNOPSIS
-  Script para validar chaves remotas e engatilhar Migrações do Supabase.
-#>
+$ErrorActionPreference = "Stop"
+Write-Host "==========================="
+Write-Host "  VR no Ponto - Ops Push"
+Write-Host "==========================="
 
-$projectRef = $env:SUPABASE_PROJECT_REF
-$accessToken = $env:SUPABASE_ACCESS_TOKEN
-
-Write-Host "===========================" -ForegroundColor Cyan
-Write-Host "  VR no Ponto - Ops Push" -ForegroundColor Cyan
-Write-Host "===========================" -ForegroundColor Cyan
-
-If ([string]::IsNullOrWhiteSpace($projectRef) -or [string]::IsNullOrWhiteSpace($accessToken)) {
-    Write-Host "ERRO FATAL: Variáveis SUPABASE_PROJECT_REF ou SUPABASE_ACCESS_TOKEN ausentes." -ForegroundColor Red
-    Write-Host "Declare-as na sessão atual com `$env:SUPABASE_PROJECT_REF="..." ou verifique se o Antigravity as possui em memória." -ForegroundColor Red
-    Exit 1
+if ([string]::IsNullOrWhiteSpace($env:SUPABASE_PROJECT_REF)) {
+  Write-Host "ERRO FATAL: SUPABASE_PROJECT_REF ausente." -ForegroundColor Red
+  Write-Host "Dica: $env:SUPABASE_PROJECT_REF=""pmfnlvtwenqrrdxarodl""" -ForegroundColor Yellow
+  exit 1
 }
 
-Write-Host "[OK] Variáveis de ambiente encontradas." -ForegroundColor Green
-
-Write-Host "Iniciando Link do Projeto $projectRef..."
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+Push-Location $repoRoot
 try {
-   npm run supabase:link 
-} catch {
-   Write-Host "Aviso: 'supabase link' acusou erro (o projeto já pode estar linkado ou deu conflito). Continuando..." -ForegroundColor Yellow
-}
+  # valida que a CLI está logada (não depende de ACCESS_TOKEN env)
+  npx supabase projects list *> $null
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "Você não parece estar logado no Supabase CLI. Rode: npx supabase login" -ForegroundColor Red
+    exit 1
+  }
 
-Write-Host "Subindo Migrations para o banco remoto..."
-try {
-   npm run supabase:push
-} catch {
-   Write-Host "Falha durante o supabase db push. Verifique o output acima." -ForegroundColor Red
-   Exit 1
-}
+  Write-Host ("Linkando projeto: " + $env:SUPABASE_PROJECT_REF + "...")
+  npx supabase link --project-ref $env:SUPABASE_PROJECT_REF
+  if ($LASTEXITCODE -ne 0) { exit 1 }
+  Write-Host "Link OK." -ForegroundColor Green
 
-$prompt = Read-Host "Migrations aplicadas com sucesso. Executar SEED base? (Y/n)"
-if ($prompt -eq 'y' -or $prompt -eq 'Y' -or $prompt -eq '') {
-   Write-Host "Executando Seed..."
-   npm run supabase:seed
-} else {
-   Write-Host "Pulando processo de Seed."
-}
+  Write-Host "Subindo migrations (db push)..."
+  npx supabase db push --linked
+  if ($LASTEXITCODE -ne 0) { exit 1 }
+  Write-Host "Migrations OK." -ForegroundColor Green
 
-Write-Host "=> Processo do Supabase Remoto finalizado." -ForegroundColor Green
+  $ans = Read-Host "Executar seed (via --include-seed)? (y/N)"
+  if ($ans -match "^(y|Y)$") {
+    # garante seed.sql no padrão da CLI
+    if (!(Test-Path "supabase\seed.sql") -and (Test-Path "supabase\migrations\0002_seed.sql")) {
+      Copy-Item "supabase\migrations\0002_seed.sql" "supabase\seed.sql" -Force
+      Write-Host "Criado supabase\seed.sql a partir de 0002_seed.sql" -ForegroundColor Cyan
+    }
+    npx supabase db push --linked --include-seed
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+    Write-Host "Seed OK." -ForegroundColor Green
+  } else {
+    Write-Host "Seed pulado."
+  }
+} finally {
+  Pop-Location
+}
+Write-Host "=> Supabase remoto: finalizado."

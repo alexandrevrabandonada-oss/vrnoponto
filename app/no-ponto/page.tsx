@@ -1,12 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { useDeviceId } from '@/hooks/useDeviceId';
 
 // IDs mockados (vindos da migration 0002_seed.sql)
 const MOCK_LINE_ID = '11111111-1111-1111-1111-111111111111';
-const MOCK_STOP_ID = '22222222-2222-2222-2222-222222222222';
 
 export default function NoPonto() {
     const deviceId = useDeviceId();

@@ -1,0 +1,34 @@
+$ErrorActionPreference = "Stop"
+Write-Host "==========================="
+Write-Host "  VR no Ponto - Ops Push"
+Write-Host "==========================="
+
+if ([string]::IsNullOrWhiteSpace($env:SUPABASE_PROJECT_REF) -or [string]::IsNullOrWhiteSpace($env:SUPABASE_ACCESS_TOKEN)) {
+  Write-Host "ERRO FATAL: Variáveis SUPABASE_PROJECT_REF ou SUPABASE_ACCESS_TOKEN ausentes." -ForegroundColor Red
+  exit 1
+}
+
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+Write-Host ("Iniciando Link do Projeto " + $env:SUPABASE_PROJECT_REF + "...")
+Push-Location $repoRoot
+try {
+  # chama o CLI direto (PowerShell expande $env:...)
+  npx supabase link --project-ref $env:SUPABASE_PROJECT_REF
+  Write-Host "Link OK." -ForegroundColor Green
+
+  Write-Host "Subindo Migrations para o banco remoto..."
+  npx supabase db push --linked
+  Write-Host "Migrations: OK." -ForegroundColor Green
+
+  $ans = Read-Host "Executar SEED (via db push --include-seed)? (y/N)"
+  if ($ans -match "^(y|Y)$") {
+    # include-seed é o mecanismo suportado pela CLI
+    npx supabase db push --linked --include-seed
+    Write-Host "Seed: OK." -ForegroundColor Green
+  } else {
+    Write-Host "Seed: pulado."
+  }
+} finally {
+  Pop-Location
+}
+Write-Host "=> Processo do Supabase Remoto finalizado."

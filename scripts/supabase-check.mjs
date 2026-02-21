@@ -41,7 +41,7 @@ if (!projectRef || !accessToken) {
         execSync('npx supabase projects list', { stdio: ['pipe', 'pipe', 'ignore'] });
         console.log('[✓] Conexão com a nuvem do Supabase validada com sucesso!');
         console.log('Você já pode rodar: npm run supabase:link && npm run supabase:push');
-    } catch (err) {
+    } catch (_err) {
         console.log('[!] O Token existe, mas a autenticação falhou. O Token pode estar inválido ou expirado.');
     }
 }
