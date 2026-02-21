@@ -12,7 +12,8 @@ if (!fs.existsSync(reportsDir)) {
     fs.mkdirSync(reportsDir, { recursive: true });
 }
 
-const outputPath = path.join(reportsDir, 'VRNP_STATUS.md');
+const isSnapshot = process.argv.includes('snapshot');
+const outputPath = path.join(reportsDir, isSnapshot ? 'VRNP_SNAPSHOT.md' : 'VRNP_STATUS.md');
 
 function execSafe(cmd) {
     try {
@@ -29,6 +30,8 @@ let gitBranch = execSafe('git rev-parse --abbrev-ref HEAD');
 let gitCommit = execSafe('git rev-parse --short HEAD');
 if (gitBranch.startsWith('Error')) gitBranch = 'N/A';
 if (gitCommit.startsWith('Error')) gitCommit = 'N/A';
+
+const recentCommits = execSafe('git log -n 5 --pretty=format:"* %h - %s"');
 
 const appDir = path.join(rootDir, 'app');
 const routes = [];
@@ -81,6 +84,15 @@ console.log('Running npm run build...');
 const buildResult = execSafe('npm run build');
 const buildStatus = buildResult.includes('Error') ? 'FAILED' : 'SUCCESS';
 
+console.log('Checking /api/health...');
+let apiHealthStatus = 'FAIL';
+try {
+    const res = await fetch('http://localhost:3000/api/health', { signal: AbortSignal.timeout(2000) });
+    if (res.ok) apiHealthStatus = 'OK';
+} catch (e) {
+    // FAIL
+}
+
 const reportContent = `# VRNP STATUS REPORT
 Gerado em: ${now}
 
@@ -90,6 +102,10 @@ Gerado em: ${now}
 - Git Commit: ${gitCommit}
 - .env.local: ${envLocalStatus}
 - Supabase Env Vars: ${supabaseEnvStatus}
+- /api/health Local: ${apiHealthStatus}
+
+## Últimos 5 Commits
+${recentCommits.split('\n').join('\n')}
 
 ## Rotas Detectadas (app/)
 ${routes.length > 0 ? routes.map(r => `- ${r}`).join('\n') : '- Nenhuma rota encontrada'}

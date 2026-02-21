@@ -1,0 +1,101 @@
+# VRNP STATUS REPORT
+Gerado em: 2026-02-21T15:48:29.330Z
+
+## Ambiente
+- Node Version: v22.19.0
+- Git Branch: master
+- Git Commit: 8db5890
+- .env.local: MISSING
+- Supabase Env Vars: MISSING
+- /api/health Local: FAIL
+
+## Últimos 5 Commits
+* 8db5890 - chore: production pipeline + feedback pack
+* cecf539 - feat: implement analytics dashboard
+* 46b3d5c - feat: implement trust levels and rate limiting
+* 4df227b - feat: mvp anonymous event registration
+* 0b2a9aa - feat: init database schema
+
+## Rotas Detectadas (app/)
+- /
+- /admin
+- /linha/[id]
+- /no-ponto
+- /painel
+- /ponto/[id]
+- /registrar
+
+## Componentes Compartilhados (components/)
+- RatingModal.tsx
+
+## Hooks (hooks/)
+- useDeviceId.ts
+
+## Supabase Migrations
+- 0001_init.sql
+- 0002_seed.sql
+- 0003_trust_levels.sql
+- 0004_analytics_views.sql
+
+## Scripts
+- npm run lint: SUCCESS
+- npm run build: SUCCESS
+
+### Resumo Lint
+```text
+> vrnoponto@0.1.0 lint
+> eslint
+
+
+C:\Projetos\vrnoponto\app\no-ponto\page.tsx
+  4:10  warning  'createClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\scripts\diag.mjs
+  92:10  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)
+```
+
+### Resumo Build
+```text
+> vrnoponto@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.1s
+  Running TypeScript ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/9) ...
+  Generating static pages using 11 workers (2/9) 
+  Generating static pages using 11 workers (4/9) 
+  Generating static pages using 11 workers (6/9) 
+✓ Generating static pages using 11 workers (9/9) in 212.7ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ○ /admin
+├ ƒ /api/events/record
+├ ƒ /api/health
+├ ƒ /linha/[id]
+├ ○ /no-ponto
+├ ƒ /painel
+├ ƒ /ponto/[id]
+└ ○ /registrar
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+```
+
+## Fluxo de Teste Manual (MVP)
+1. Abra a aplicação e acesse a rota `/no-ponto`.
+2. Permita o uso da Geolocalização no navegador (Status do GPS deve atualizar).
+3. Selecione "Ponto Central" e "P200" e clique em **"Cheguei no Ponto"**.
+4. Acesse a rota `/registrar`.
+5. Selecione simulando o ponto atual e clique em **"Ônibus Passou Agora"** ou **"Entrei (Embarquei)"**.
+6. O modal de avaliação será aberto. Vote na lotação (de 1 a 5) e clique em **"Avaliar"**.
+7. Verifique as tabelas `stop_events` e `bus_ratings` no projeto do Supabase vinculado para confirmar a inserção do `device_id` e dados.

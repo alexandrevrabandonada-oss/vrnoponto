@@ -102,8 +102,9 @@ export async function POST(req: Request) {
             message: finalTrustLevel === 'L2' ? 'Event upgraded to L2' : 'Event recorded as L1'
         }, { status: 201 });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('API /record error:', error);
-        return NextResponse.json({ error: error.message || 'Internal error' }, { status: 500 });
+        const errMessage = error instanceof Error ? error.message : 'Internal error';
+        return NextResponse.json({ error: errMessage }, { status: 500 });
     }
 }
