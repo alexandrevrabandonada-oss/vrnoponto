@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-21T23:51:31.593Z
+Gerado em: 2026-02-22T00:02:18.307Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 77b5951
+- Git Commit: 56492b8
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
+* 56492b8 - feat: promised vs real by stop + neighborhood rankings + weekly card
 * 77b5951 - feat: promised vs real by line (official PDF parse + hourly gap)
 * 414d9e6 - feat: trust mix badge across map, stop, line, reports
 * de4df0e - feat: system status dashboard in admin
 * a490a94 - chore: automate supabase migrations via github actions
-* ab3a095 - feat: partner funnel analytics
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -25,6 +25,8 @@ Gerado em: 2026-02-21T23:51:31.593Z
 - /admin/parceiros
 - /admin/pontos
 - /admin/status
+- /bairro/[slug]
+- /bairros
 - /boletim
 - /como-usar
 - /linha/[id]
@@ -57,6 +59,8 @@ Gerado em: 2026-02-21T23:51:31.593Z
 - /api/line/detail
 - /api/line/promised-vs-real
 - /api/map/stops
+- /api/neighborhood/detail
+- /api/neighborhoods
 - /api/partner-request
 - /api/point/detail
 - /api/qr/validate
@@ -103,6 +107,7 @@ Gerado em: 2026-02-21T23:51:31.593Z
 - 0027_stopline_real_hourly.sql
 - 0028_stop_promised_vs_real.sql
 - 0029_rankings_stop_neighborhood.sql
+- 0030_neighborhood_detail_views.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

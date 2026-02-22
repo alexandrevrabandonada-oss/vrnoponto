@@ -48,6 +48,15 @@ Ranking dos 50 piores pontos por `worst_delta_min` (max atraso prometido vs real
 ### `vw_worst_neighborhoods_30d` (migration 0029)
 Ranking dos piores bairros por `avg_delta_min`, agregando a média dos pontos do bairro.
 
+### `vw_neighborhood_detail_30d` (migration 0030)
+Sumário agregado por bairro: `avg_delta_min`, `stops_count`, `samples_total`, `pct_verified_avg` (ponderado).
+
+### `vw_neighborhood_top_stops_30d` (migration 0030)
+Top 20 piores pontos por bairro, ranqueados por `worst_delta_min`. Inclui `pct_verified_avg`.
+
+### `vw_neighborhood_top_lines_30d` (migration 0030)
+Top 10 piores linhas por bairro, ranqueadas por `avg_delta_min`. Enriquecido com `line_code`/`line_name` via API.
+
 ## Automação
 
 O job de alertas é executado diariamente via GitHub Actions (`run-alerts.yml`), acionando o endpoint protegido:

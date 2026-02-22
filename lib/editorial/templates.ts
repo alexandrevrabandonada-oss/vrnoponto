@@ -187,3 +187,68 @@ export function generatePromisedVsRealCaption(data: { line: { id: string, code: 
         cta: "Compare a tabela oficial: vrnoponto.vercel.app/linha/" + line.id
     };
 }
+
+/**
+ * Neighborhood Top Listing Template (/bairros)
+ */
+export function generateNeighborhoodTopCaption(data: { neighborhoods: { neighborhood: string, avg_delta_min: number, stops_count: number }[] }, tone: EditorialTone): CaptionOutput {
+    const top3 = data.neighborhoods.slice(0, 3);
+
+    const headlines = {
+        direct: `Os bairros em estado de emergência no transporte de VR.`,
+        explanatory: `Ranking de Bairros: Onde o ônibus mais atrasa em Volta Redonda.`,
+        convocatory: `Seu bairro está na lista? Confira os piores do transporte público.`
+    };
+
+    let body = '';
+    if (top3.length > 0) {
+        const items = top3.map((n, i) => `${i + 1}º ${n.neighborhood}: +${n.avg_delta_min}min de atraso médio (${n.stops_count} pontos)`).join('\n');
+        if (tone === 'direct') {
+            body = `Os dados da auditoria popular revelam:\n${items}\n\nEsses bairros sofrem sistematicamente com atrasos acima da tabela oficial.`;
+        } else if (tone === 'explanatory') {
+            body = `Com base nos últimos 30 dias de coleta, os bairros com maior defasagem entre o prometido e o realizado são:\n${items}`;
+        } else {
+            body = `Moradores destes bairros precisam se unir:\n${items}\n\nCompartilhe e cobre da prefeitura!`;
+        }
+    } else {
+        body = 'Ainda não temos dados suficientes para criar o ranking. Registre suas viagens no VR no Ponto!';
+    }
+
+    return {
+        caption: `${headlines[tone]}\n\n${body}`,
+        shortCaption: top3.length > 0 ? `Pior bairro: ${top3[0].neighborhood} (+${top3[0].avg_delta_min}min de atraso).` : 'Ranking de bairros em construção.',
+        hashtags: '#VRnoPonto #BairrosDeVR #TransporteUrbano #AuditoriaPopular',
+        cta: 'Veja o ranking completo: vrnoponto.vercel.app/bairros'
+    };
+}
+
+/**
+ * Neighborhood Detail Template (/bairro/[slug])
+ */
+export function generateNeighborhoodDetailCaption(data: { neighborhood: string, avg_delta_min: number | null, stops_count: number, samples_total: number, pct_verified_avg: number, topStop?: { stop_name: string, worst_delta_min: number } | null }, tone: EditorialTone): CaptionOutput {
+    const { neighborhood, avg_delta_min, stops_count, topStop } = data;
+
+    const headlines = {
+        direct: `${neighborhood}: O bairro que a prefeitura esqueceu no transporte.`,
+        explanatory: `Diagnóstico do transporte no bairro ${neighborhood}.`,
+        convocatory: `Moradores do ${neighborhood}: os dados provam o descaso.`
+    };
+
+    let body = '';
+    if (tone === 'direct') {
+        body = `O bairro ${neighborhood} registra atraso médio de +${avg_delta_min}min contra a tabela oficial em ${stops_count} pontos monitorados.`;
+        if (topStop) body += ` O pior ponto é "${topStop.stop_name}" com +${topStop.worst_delta_min}min de defasagem.`;
+    } else if (tone === 'explanatory') {
+        body = `A auditoria popular monitorou ${stops_count} pontos no ${neighborhood}. A defasagem média entre o horário prometido e o realizado é de +${avg_delta_min} minutos.`;
+    } else {
+        body = `O ${neighborhood} merece transporte digno. São ${stops_count} pontos onde o ônibus atrasa em média +${avg_delta_min}min além do prometido. Compartilhe para pressionar!`;
+    }
+
+    return {
+        caption: `${headlines[tone]}\n\n${body}`,
+        shortCaption: `${neighborhood}: +${avg_delta_min}min de atraso médio em ${stops_count} pontos.`,
+        hashtags: `#VRnoPonto #${neighborhood.replace(/\s+/g, '')} #TransporteVR #AuditoriaPopular`,
+        cta: `Detalhes do bairro: vrnoponto.vercel.app/bairro/${encodeURIComponent(neighborhood)}`
+    };
+}
+
