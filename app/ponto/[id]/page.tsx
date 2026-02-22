@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, Share2, TrendingDown, TrendingUp, Users, MapPin, ShieldAlert, BadgeAlert, AlertCircle } from 'lucide-react';
 import { Sparkline } from '@/components/metrics/Sparkline';
-import { TrustMixBadge } from '@/components/TrustMixBadge';
 import { StopPromisedVsRealCard } from '@/components/StopPromisedVsRealCard';
 import Link from 'next/link';
 import { EditorialCard } from '@/components/editorial/EditorialCard';

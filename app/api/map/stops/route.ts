@@ -13,7 +13,7 @@ export async function GET(req: Request) {
         // 1. Busca paradas e métricas de trust em paralelo
         const [
             { data: stops, error: dbError },
-            { data: trustMix, error: trustError }
+            { data: trustMix }
         ] = await Promise.all([
             supabase.from('vw_stop_wait_30d').select('*'),
             supabase.from('vw_trust_mix_stop_30d').select('stop_id, total_events, pct_verified')

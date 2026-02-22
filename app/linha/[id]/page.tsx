@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { Sparkline } from '@/components/metrics/Sparkline';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
-import { AlertCircle, TrendingUp, TrendingDown, ArrowLeft } from 'lucide-react';
+import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateLineCaption } from '@/lib/editorial/templates';
 import { PromisedVsRealCard } from '@/components/PromisedVsRealCard';
