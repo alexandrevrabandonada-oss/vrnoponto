@@ -19,6 +19,7 @@
   --animate-fade-in-up: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-scale-in: scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-float: float 4s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.5s infinite linear;
 
   @keyframes fade-in-up {
     from {
@@ -55,6 +56,16 @@
       transform: translateY(-12px);
     }
   }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
+  }
 }
 
 /* Motion Accessibility: prefers-reduced-motion overrides */
@@ -63,6 +74,7 @@
     --animate-fade-in-up: fade-in 0.5s ease-out !important;
     --animate-scale-in: fade-in 0.3s ease-out !important;
     --animate-float: none !important;
+    --animate-shimmer: none !important;
   }
 
   @keyframes fade-in {
@@ -81,6 +93,49 @@
   --foreground: #F2F2F2;
   --glass-bg: rgba(17, 17, 17, 0.75);
   --glass-border: rgba(255, 255, 255, 0.08);
+  --spacing-base-mul: 1;
+
+  /* UI Preferences Defaults */
+  --font-scale: 1;
+  --radius-scale: 1;
+  --glass-blur: 12px;
+  --space-scale: 1;
+  --btn-py: 12px;
+  --btn-px: 16px;
+  --field-py: 12px;
+  --field-px: 14px;
+  --card-pad: 16px;
+}
+
+/* UI Preferences: High Contrast */
+html[data-contrast="high"] {
+  --color-brand: #FFFF00;
+  --color-muted: #FFFFFF;
+  --color-surface: #000000;
+  --color-surface-2: #090909;
+  --glass-bg: rgba(0, 0, 0, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+/* UI Preferences: Compact Density */
+html[data-density="compact"] {
+  --spacing-base-mul: 0.75;
+  --space-scale: 0.94;
+  --card-pad: 14px;
+}
+
+/* UI Preferences: Legible Mode */
+html[data-ui="legivel"] {
+  --font-scale: 1.10;
+  --space-scale: 1.08;
+  --glass-blur: 0px;
+  --btn-py: 14px;
+  --field-py: 14px;
+  --card-pad: 18px;
+}
+
+html {
+  font-size: calc(16px * var(--font-scale));
 }
 
 body {
@@ -127,8 +182,8 @@ h3,
 /* Industrial Utility Classes */
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
 }
 

@@ -43,6 +43,7 @@ export const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, Bu
                     ref={ref as React.Ref<HTMLAnchorElement>}
                     href={href}
                     className={`${baseStyles} ${variants[variant]} ${className}`}
+                    style={{ padding: 'var(--btn-py) var(--btn-px)' }}
                     {...linkRest}
                 >
                     {content}
@@ -56,6 +57,7 @@ export const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, Bu
             <button
                 ref={ref as React.Ref<HTMLButtonElement>}
                 className={`${baseStyles} ${variants[variant]} ${className}`}
+                style={{ padding: 'var(--btn-py) var(--btn-px)' }}
                 disabled={loading || buttonRest.disabled}
                 {...buttonRest}
             >

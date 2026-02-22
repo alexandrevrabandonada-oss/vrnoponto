@@ -12,8 +12,9 @@ import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateNeighborhoodDetailCaption } from '@/lib/editorial/templates';
 import {
     AppShell, PageHeader, Button, Card, Divider,
-    EmptyState, SkeletonCard, SkeletonList, ListItem, MetricRow
+    EmptyState, SkeletonBlock, SkeletonCard, SkeletonList, ListItem, MetricRow
 } from '@/components/ui';
+import { t } from '@/lib/copy';
 
 type Summary = { neighborhood: string; avg_delta_min: number | null; stops_count: number; samples_total: number; pct_verified_avg: number };
 type StopRow = { stop_id: string; stop_name: string; worst_delta_min: number; avg_delta_min: number; samples_total: number; pct_verified_avg: number };
@@ -63,7 +64,7 @@ export default function BairroDetailPage() {
         return (
             <AppShell title="DIAGNÓSTICO">
                 <div className="space-y-8">
-                    <div className="h-12 w-2/3 bg-white/5 rounded-xl animate-pulse" />
+                    <SkeletonBlock className="!h-12 w-2/3 !rounded-xl" />
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <SkeletonCard />
                         <SkeletonCard />
@@ -119,7 +120,7 @@ export default function BairroDetailPage() {
                     <Card className="text-center transition-all border-white/5">
                         <Users size={16} className="mx-auto mb-2 text-muted" />
                         <div className="text-2xl font-industrial text-white">{summary.samples_total}</div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Amostras</div>
+                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Auditado</div>
                     </Card>
                     <Card className="text-center transition-all border-emerald-500/10 bg-emerald-500/5">
                         <ShieldCheck size={16} className="mx-auto mb-2 text-emerald-500/50" />
@@ -143,9 +144,12 @@ export default function BairroDetailPage() {
                     </div>
                     <div className="divide-y divide-white/5">
                         {history.length === 0 ? (
-                            <div className="p-12 text-center text-[11px] font-bold text-muted uppercase opacity-40">
-                                Sem dados históricos consolidados.
-                            </div>
+                            <EmptyState
+                                icon={HistoryIcon}
+                                title="Sem Histórico"
+                                description="Não há dados consolidados suficientes para este bairro."
+                                className="!py-12"
+                            />
                         ) : (
                             history.slice(-6).reverse().map((h: MonthlyHistoryItem, i: number) => {
                                 const prev = history[history.length - (history.length > 6 ? 6 - i : history.length - i) - 1];
@@ -157,11 +161,9 @@ export default function BairroDetailPage() {
                                         key={h.month_start}
                                         label={`${monthName} / ${new Date(h.month_start).getFullYear()}`}
                                         value={`+${h.avg_delta_min}`}
-                                        unit="min"
-                                        trend={diff !== null && diff !== 0 ? {
-                                            value: `${Math.abs(diff).toFixed(1)}m`,
-                                            isPositive: diff < 0 // No atraso, negativo é bom (isPositive = melhora)
-                                        } : undefined}
+                                        sublabel="min"
+                                        delta={diff && diff < 0 ? 'positive' : diff && diff > 0 ? 'negative' : 'neutral'}
+                                        deltaLabel={diff ? `${Math.abs(diff).toFixed(1)}m` : 'estável'}
                                     />
                                 );
                             })
@@ -182,16 +184,17 @@ export default function BairroDetailPage() {
                         topStops.slice(0, 5).map((s, i) => (
                             <ListItem
                                 key={s.stop_id}
-                                icon={<span className="font-industrial text-[10px] opacity-40">#{i + 1}</span>}
+                                leftIcon={<span className="font-industrial text-[10px] opacity-40">#{i + 1}</span>}
                                 title={s.stop_name}
-                                subtitle={`${s.samples_total} registros comunitários`}
-                                extra={
+                                description={`${s.samples_total} ${t('samples.total')}`}
+                                tone="danger"
+                                rightElement={
                                     <div className="text-right">
-                                        <div className="text-lg font-industrial text-danger italic leading-none">+{s.worst_delta_min}m</div>
-                                        <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">Pior Atraso</div>
+                                        <div className="text-lg font-industrial italic leading-none">+{s.worst_delta_min}m</div>
+                                        <div className="text-[8px] font-black uppercase tracking-tight opacity-40">{t('metric.worst')}</div>
                                     </div>
                                 }
-                                onClick={() => window.location.href = `/ponto/${s.stop_id}`}
+                                href={`/ponto/${s.stop_id}`}
                             />
                         ))
                     )}
@@ -210,15 +213,15 @@ export default function BairroDetailPage() {
                         topLines.map((l, i) => (
                             <ListItem
                                 key={l.line_id}
-                                icon={<span className="font-industrial text-[10px] opacity-40">L{l.line_code}</span>}
+                                leftIcon={<span className="font-industrial text-[10px] opacity-40">L{l.line_code}</span>}
                                 title={l.line_name}
-                                subtitle={`Média de +${l.avg_delta_min}m de atraso`}
-                                extra={
-                                    <div className="text-[10px] font-black text-brand bg-brand/5 px-2 py-1 rounded-lg border border-brand/10 uppercase">
-                                        {l.samples_total} amostras
+                                description={`Média de +${l.avg_delta_min}m de atraso`}
+                                rightElement={
+                                    <div className="text-[10px] font-black text-white bg-white/5 px-2 py-1 rounded-lg border border-white/10 uppercase">
+                                        {l.samples_total} {t('samples.total')}
                                     </div>
                                 }
-                                onClick={() => window.location.href = `/linha/${l.line_id}`}
+                                href={`/linha/${l.line_id}`}
                             />
                         ))
                     )}

@@ -3,11 +3,74 @@
 > eslint
 
 
-C:\Projetos\vrnoponto\app\admin\status\page.tsx
-   12:85  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
-   13:82  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
-   14:85  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
-   45:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+C:\Projetos\vrnoponto\app\admin\layout.tsx
+  2:10  warning  'AppShell' is defined but never used  @typescript-eslint/no-unused-vars
+  3:20  warning  'LogOut' is defined but never used    @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\bairro\[slug]\page.tsx
+    8:5   warning  'TrendingUp' is defined but never used    @typescript-eslint/no-unused-vars
+    8:17  warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
+  212:42  warning  'i' is defined but never used             @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\bairros\historico\page.tsx
+  4:10  warning  'ArrowLeft' is defined but never used    @typescript-eslint/no-unused-vars
+  4:58  warning  'HistoryIcon' is defined but never used  @typescript-eslint/no-unused-vars
+  4:86  warning  'Calendar' is defined but never used     @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\bairros\page.tsx
+  4:10  warning  'MapPin' is defined but never used        @typescript-eslint/no-unused-vars
+  4:18  warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
+  4:74  warning  'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
+  7:55  warning  'MetricRow' is defined but never used     @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\linha\[id]\page.tsx
+  7:29  warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
+  7:50  warning  'ShieldCheck' is defined but never used   @typescript-eslint/no-unused-vars
+  7:81  warning  'Download' is defined but never used      @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\no-ponto\page.tsx
+  6:35  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+  9:20  warning  'InlineAlert' is defined but never used   @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\painel\page.tsx
+   5:22  warning  'AlertTriangle' is defined but never used                                                                        @typescript-eslint/no-unused-vars
+   5:37  warning  'Filter' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+   5:56  warning  'TrendingUp' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+   5:68  warning  'TrendingDown' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+   5:82  warning  'MapPin' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+   7:27  warning  'Button' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+   8:58  warning  'ListItem' is defined but never used                                                                             @typescript-eslint/no-unused-vars
+  12:11  warning  'WaitMetric' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+  13:11  warning  'HeadwayMetric' is defined but never used                                                                        @typescript-eslint/no-unused-vars
+  82:8   warning  React Hook useEffect has a missing dependency: 'lines.length'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Projetos\vrnoponto\app\parceiros\entrar\page.tsx
+  6:16  warning  'Store' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\ponto\[id]\page.tsx
+   6:12  warning  'Share2' is defined but never used        @typescript-eslint/no-unused-vars
+   6:20  warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
+   6:53  warning  'MapPin' is defined but never used        @typescript-eslint/no-unused-vars
+   7:5   warning  'ShieldAlert' is defined but never used   @typescript-eslint/no-unused-vars
+  14:42  warning  'Button' is defined but never used        @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\PromisedVsRealCard.tsx
+  4:10  warning  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\RatingModal.tsx
+  6:10  warning  'Info' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\admin\PdfParserCard.tsx
+  4:24  warning  'Divider' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\ui\InlineAlert.tsx
+  4:44  warning  'XCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\ui\Input.tsx
+  10:24  warning  'variant' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\hooks\useUIPreferences.ts
+  18:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
 
 Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
 * Update external systems with the latest state from React.
@@ -15,89 +78,14 @@ Effects are intended to synchronize state between React and external systems suc
 
 Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
 
-C:\Projetos\vrnoponto\app\admin\status\page.tsx:45:13
-  43 |         if (stored) {
-  44 |             const val = stored.split('=')[1];
-> 45 |             setToken(val);
-     |             ^^^^^^^^ Avoid calling setState() directly within an effect
-  46 |             fetchStatus(val);
-  47 |         } else {
-  48 |             setLoading(false);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-hooks/set-state-in-effect
-  111:30  error  Error: Cannot create components during render
+C:\Projetos\vrnoponto\hooks\useUIPreferences.ts:18:9
+  16 |         const currentDensity = document.documentElement.getAttribute('data-density') as UIDensity || 'comfortable';
+  17 |         const currentContrast = document.documentElement.getAttribute('data-contrast') as UIContrast || 'normal';
+> 18 |         setDensityState(currentDensity);
+     |         ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  19 |         setContrastState(currentContrast);
+  20 |     }, []);
+  21 |  react-hooks/set-state-in-effect
 
-Components created during render will reset their state each time they are created. Declare components outside of render.
-
-C:\Projetos\vrnoponto\app\admin\status\page.tsx:111:30
-  109 |                         <div className="flex justify-between items-center text-sm">
-  110 |                             <span className="text-gray-600">API Health</span>
-> 111 |                             <StatusBadge status={health.api_health} />
-      |                              ^^^^^^^^^^^ This component is created during render
-  112 |                         </div>
-  113 |                         <div className="flex justify-between items-center text-sm">
-  114 |                             <span className="text-gray-600">Env Audit</span>
-
-C:\Projetos\vrnoponto\app\admin\status\page.tsx:76:25
-  74 |     const { health, jobs, dataFreshness, migrations } = statusData;
-  75 |
-> 76 |     const StatusBadge = ({ status, stale }: { status: string, stale?: boolean }) => {
-     |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 77 |         if (stale) return <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><AlertTriangle size={12} /> STALE</span>;
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 78 |         if (status === 'OK') return <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><CheckCircle2 size={12} /> OK</span>;
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 79 |         if (status === 'WARN') return <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><AlertTriangle size={12} /> WARN</span>;
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 80 |         if (status === 'RUNNING') return <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> RUNNING</span>;
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 81 |         return <span className="bg-red-100 text-red-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><XCircle size={12} /> FAIL</span>;
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 82 |     };
-     | ^^^^^^ The component is created during render here
-  83 |
-  84 |     const formatDate = (d: string | null) => {
-  85 |         if (!d) return 'Nunca';  react-hooks/static-components
-  115:30  error  Error: Cannot create components during render
-
-Components created during render will reset their state each time they are created. Declare components outside of render.
-
-C:\Projetos\vrnoponto\app\admin\status\page.tsx:115:30
-  113 |                         <div className="flex justify-between items-center text-sm">
-  114 |                             <span className="text-gray-600">Env Audit</span>
-> 115 |                             <StatusBadge status={health.env_audit} />
-      |                              ^^^^^^^^^^^ This component is created during render
-  116 |                         </div>
-  117 |                     </div>
-  118 |                 </div>
-
-C:\Projetos\vrnoponto\app\admin\status\page.tsx:76:25
-  74 |     const { health, jobs, dataFreshness, migrations } = statusData;
-  75 |
-> 76 |     const StatusBadge = ({ status, stale }: { status: string, stale?: boolean }) => {
-     |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 77 |         if (stale) return <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><AlertTriangle size={12} /> STALE</span>;
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 78 |         if (status === 'OK') return <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><CheckCircle2 size={12} /> OK</span>;
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 79 |         if (status === 'WARN') return <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><AlertTriangle size={12} /> WARN</span>;
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 80 |         if (status === 'RUNNING') return <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> RUNNING</span>;
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 81 |         return <span className="bg-red-100 text-red-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><XCircle size={12} /> FAIL</span>;
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 82 |     };
-     | ^^^^^^ The component is created during render here
-  83 |
-  84 |     const formatDate = (d: string | null) => {
-  85 |         if (!d) return 'Nunca';                                                                                                                   react-hooks/static-components
-
-C:\Projetos\vrnoponto\app\api\admin\sync-official\route.ts
-   4:20  warning  'finishRun' is defined but never used       @typescript-eslint/no-unused-vars
-  54:15  warning  'runId' is assigned a value but never used  @typescript-eslint/no-unused-vars
-
-C:\Projetos\vrnoponto\lib\systemRuns.ts
-  18:67  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  48:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  80:91  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-Ô£û 11 problems (9 errors, 2 warnings)
+Ô£û 39 problems (1 error, 38 warnings)
 

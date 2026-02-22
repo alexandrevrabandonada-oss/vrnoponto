@@ -10,7 +10,7 @@ const REQUIRED_DEVICES_FOR_L3 = 3;
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { deviceId, stopId, lineId, eventType } = body;
+        const { deviceId, stopId, lineId, eventType, clientEventId } = body;
 
         if (!deviceId || !stopId || !lineId || !eventType) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         if (recentEvents && recentEvents.length > 0) {
             return NextResponse.json(
                 { error: 'Rate limit exceeded for this event type on this line.' },
-                { status: 429 }
+                { status: 429 } // This 429 status code is watched by offline sync hook
             );
         }
 
@@ -83,21 +83,41 @@ export async function POST(req: NextRequest) {
             initialMethod = 'TRAJETO';
         }
 
-        const { data: newEvent, error: insertError } = await supabase
-            .from('stop_events')
-            .insert({
-                device_id: deviceId,
-                stop_id: stopId,
-                line_id: lineId,
-                event_type: eventType,
-                trust_level: initialTrust,
-                trust_method: initialMethod,
-                meta: trajectoryMeta
-            })
-            .select()
-            .single();
-
-        if (insertError) throw insertError;
+        let newEvent;
+        if (clientEventId) {
+            const { data, error: insertError } = await supabase
+                .from('stop_events')
+                .upsert({
+                    client_event_id: clientEventId,
+                    device_id: deviceId,
+                    stop_id: stopId,
+                    line_id: lineId,
+                    event_type: eventType,
+                    trust_level: initialTrust,
+                    trust_method: initialMethod,
+                    meta: trajectoryMeta
+                }, { onConflict: 'client_event_id' })
+                .select()
+                .single();
+            if (insertError) throw insertError;
+            newEvent = data;
+        } else {
+            const { data, error: insertError } = await supabase
+                .from('stop_events')
+                .insert({
+                    device_id: deviceId,
+                    stop_id: stopId,
+                    line_id: lineId,
+                    event_type: eventType,
+                    trust_level: initialTrust,
+                    trust_method: initialMethod,
+                    meta: trajectoryMeta
+                })
+                .select()
+                .single();
+            if (insertError) throw insertError;
+            newEvent = data;
+        }
 
         // If promoted via trajectory, also promote the boarding event
         if (trajectoryL3 && trajectoryMeta.boarding_event_id) {

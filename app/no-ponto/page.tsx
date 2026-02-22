@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { HelpModal } from '@/components/HelpModal';
-import { MapPin, Navigation, Bus, CheckCircle2, AlertCircle } from 'lucide-react';
+import { MapPin, Navigation, Bus, AlertCircle } from 'lucide-react';
 import {
     AppShell, PageHeader, Card, Divider, Button,
     Field, Select, InlineAlert
 } from '@/components/ui';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { enqueueEvent } from '@/lib/offlineQueue';
 
 // IDs mockados (vindos da migration 0002_seed.sql)
 const MOCK_LINE_ID = '11111111-1111-1111-1111-111111111111';
@@ -24,6 +26,8 @@ export default function NoPonto() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState('');
     const [isLoadingStops, setIsLoadingStops] = useState(false);
+
+    const { isOnline, isSyncing, pendingCount, syncNow, refreshPending } = useOfflineSync();
 
     // Efeito para GPS
     useEffect(() => {
@@ -79,16 +83,36 @@ export default function NoPonto() {
             return;
         }
 
+        const eventId = crypto.randomUUID();
+        const payload = {
+            deviceId,
+            stopId: selectedStop,
+            lineId: selectedLine,
+            eventType: 'arrived'
+        };
+
         try {
+            if (!isOnline) {
+                // Fila Offline
+                await enqueueEvent({
+                    id: eventId,
+                    payload,
+                    status: 'PENDING',
+                    created_at: Date.now(),
+                    retry_count: 0
+                });
+                await refreshPending();
+
+                fetch('/api/telemetry', { method: 'POST', body: JSON.stringify({ event: 'offline_queue_enqueued' }) }).catch(() => { });
+                setMessage("SALVO OFFLINE (SERÁ ENVIADO QUANDO HOUVER REDE)");
+                setIsSubmitting(false);
+                return;
+            }
+
             const res = await fetch('/api/events/record', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    deviceId,
-                    stopId: selectedStop,
-                    lineId: selectedLine,
-                    eventType: 'arrived'
-                })
+                body: JSON.stringify({ ...payload, clientEventId: eventId })
             });
 
             const data = await res.json();
@@ -112,6 +136,36 @@ export default function NoPonto() {
             />
 
             <div className="space-y-6">
+                {/* Offline Queue UI */}
+                {(!isOnline || pendingCount > 0) && (
+                    <InlineAlert
+                        variant={isOnline ? "warning" : "error"}
+                        title={isOnline ? "Fila Aguardando Sincronismo" : "Conexão Instável (Offline)"}
+                    >
+                        <div className="flex flex-col gap-3 mt-1">
+                            <p className="text-xs">
+                                {!isOnline
+                                    ? "Você está offline. O check-in será salvo e enviado automaticamente quando a conexão voltar."
+                                    : "A rede voltou. Você possui check-ins salvos precisando ser despachados."}
+                            </p>
+                            {pendingCount > 0 && (
+                                <div className="flex items-center justify-between">
+                                    <span className="font-mono text-xs font-bold bg-black/20 px-2 py-1 rounded">PENDENTES: {pendingCount}</span>
+                                    <Button
+                                        variant="secondary"
+                                        disabled={!isOnline || isSyncing}
+                                        onClick={syncNow}
+                                        loading={isSyncing}
+                                        className="h-8 !text-xs !px-3"
+                                    >
+                                        Sincronizar Agora
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </InlineAlert>
+                )}
+
                 {/* Status GPS */}
                 <Card variant="surface2" className="border-brand/10 bg-brand/5">
                     <div className="flex items-center gap-3">

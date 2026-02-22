@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { RefreshCw, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
-import { Card, Button, Divider } from '@/components/ui';
+import { Card, Button, Divider, InlineAlert } from '@/components/ui';
 
 type ScheduleDocs = {
     id: string;
@@ -15,6 +15,7 @@ export function PdfParserCard() {
     const [schedules, setSchedules] = useState<ScheduleDocs[]>([]);
     const [loading, setLoading] = useState(true);
     const [parsingId, setParsingId] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         loadSchedules();
@@ -39,6 +40,7 @@ export function PdfParserCard() {
 
     async function handleParse(scheduleId: string) {
         setParsingId(scheduleId);
+        setError(null);
         try {
             const adminToken = localStorage.getItem('admin_token') || prompt('Digite o token de ADMIN:');
             if (adminToken) localStorage.setItem('admin_token', adminToken);
@@ -53,7 +55,7 @@ export function PdfParserCard() {
 
             loadSchedules();
         } catch (err: unknown) {
-            alert('Erro no parse: ' + (err instanceof Error ? err.message : String(err)));
+            setError('Erro no parse: ' + (err instanceof Error ? err.message : String(err)));
         } finally {
             setParsingId(null);
         }
@@ -70,6 +72,12 @@ export function PdfParserCard() {
             <p className="text-[10px] text-muted font-bold uppercase tracking-widest mb-8 opacity-60">
                 Auditoria de processamento de PDFs oficiais.
             </p>
+
+            {error && (
+                <InlineAlert variant="error" className="mb-6" title="Falha ao extrair PDF">
+                    {error}
+                </InlineAlert>
+            )}
 
             <div className="space-y-4">
                 {schedules.map(doc => {

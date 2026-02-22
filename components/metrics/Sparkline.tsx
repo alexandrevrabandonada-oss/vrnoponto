@@ -6,7 +6,7 @@ interface SparklineData {
     p90?: number;
 }
 
-export function Sparkline({ data, height = 40, width = 200, color = '#6366f1' }: {
+export function Sparkline({ data, height = 40, width = 200, color = '#facc15' }: {
     data: SparklineData[],
     height?: number,
     width?: number,

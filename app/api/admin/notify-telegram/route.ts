@@ -51,6 +51,22 @@ export async function POST(req: Request) {
             return NextResponse.json({ sent: 0, skipped: 0, message: 'No new alerts to notify' });
         }
 
+        // Fetch IMMEDIATE subscribers
+        const { data: subs, error: subsError } = await supabase
+            .from('telegram_subscriptions')
+            .select('*')
+            .eq('is_active', true)
+            .eq('mode', 'IMMEDIATE');
+
+        if (subsError) throw subsError;
+
+        // Fallback to env chat_id if no subs (for backward compatibility before users subscribe)
+        const activeSubs = subs && subs.length > 0 ? subs : [];
+        const fallbackChatId = process.env.TELEGRAM_CHAT_ID;
+        if (activeSubs.length === 0 && fallbackChatId) {
+            activeSubs.push({ chat_id: fallbackChatId, severity_min: 'WARN', lines: [], neighborhoods_norm: [] });
+        }
+
         const results: TelegramResult = { sent: 0, failed: 0, details: [] };
 
         for (const alert of alerts) {
@@ -59,6 +75,25 @@ export async function POST(req: Request) {
             const typeLabel = isLine ? 'LINHA' : 'PONTO';
             const name = alert.target_name || 'Desconhecido';
             const changeLabel = alert.delta_pct > 0 ? 'Piorou' : 'Melhorou';
+
+            // Filter subscribers for this alert
+            const validSubs = activeSubs.filter(sub => {
+                if (sub.severity_min === 'CRIT' && alert.severity !== 'CRIT') return false;
+                if (isLine && sub.lines && sub.lines.length > 0 && !sub.lines.includes(alert.line_code)) return false;
+                if (!isLine && sub.neighborhoods_norm && sub.neighborhoods_norm.length > 0 && !sub.neighborhoods_norm.includes(alert.neighborhood)) return false;
+                return true;
+            });
+
+            if (validSubs.length === 0) {
+                // Mark as OK even if nobody received it so we don't spam later, or leave it?
+                // Just mark it as processed and skipped.
+                await supabase.from('alert_notifications').insert({
+                    alert_id: alert.id,
+                    channel: 'telegram',
+                    status: 'SKIPPED'
+                });
+                continue;
+            }
 
             // Format message
             let message = `${emoji} *ALERTA DE DESEMPENHO*\n\n`;
@@ -74,31 +109,32 @@ export async function POST(req: Request) {
 
             message += `🔗 [Ver detalhes](${link})`;
 
-            const telegramRes = await sendTelegramMessage(message);
+            let allFailed = true;
+            for (const sub of validSubs) {
+                const telegramRes = await sendTelegramMessage(message, { chat_id: sub.chat_id });
+                if (telegramRes.success) {
+                    allFailed = false;
+                    results.sent++;
+                } else {
+                    results.failed++;
+                    results.details.push({ id: alert.id, error: telegramRes.error });
+                }
+            }
 
-            if (telegramRes.success) {
+            if (!allFailed) {
                 await supabase.from('alert_notifications').insert({
                     alert_id: alert.id,
                     channel: 'telegram',
                     status: 'OK'
                 });
-                results.sent++;
             } else {
                 await supabase.from('alert_notifications').insert({
                     alert_id: alert.id,
                     channel: 'telegram',
                     status: 'FAIL',
-                    error: telegramRes.error
+                    error: 'All deliveries failed'
                 });
-                results.failed++;
-                results.details.push({ id: alert.id, error: telegramRes.error });
             }
-        }
-
-        // Summary message if many sent
-        if (results.sent >= 3) {
-            const summary = `📊 *RESUMO DO DIA*\n\nEnviamos ${results.sent} notificações de performance hoje. Confira o painel completo: ${baseUrl}/admin/status`;
-            await sendTelegramMessage(summary);
         }
 
         return NextResponse.json(results);

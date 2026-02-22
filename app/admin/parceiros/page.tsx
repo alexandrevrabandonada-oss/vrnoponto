@@ -174,8 +174,8 @@ export default async function AdminParceiros({ searchParams }: { searchParams: P
                     <div className="border-l border-gray-100 pl-6">
                         <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Enviaram PENDENTE</div>
                         <div className="flex items-end gap-2">
-                            <span className="text-2xl font-black text-indigo-600">{funnel.total_requests_created || 0}</span>
-                            <span className="text-xs font-bold bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full mb-1">{funnel.apply_rate_pct}% conversão</span>
+                            <span className="text-2xl font-black text-brand">{funnel.total_requests_created || 0}</span>
+                            <span className="text-xs font-bold bg-brand/10 text-brand px-2 py-0.5 rounded-full mb-1">{funnel.apply_rate_pct}% conversão</span>
                         </div>
                     </div>
                     <div className="border-l border-gray-100 pl-6">
@@ -250,7 +250,7 @@ export default async function AdminParceiros({ searchParams }: { searchParams: P
                                 </div>
                             </div>
                             <div className="flex items-end">
-                                <button type="submit" className="w-full bg-indigo-600 text-white px-6 py-2 rounded-md font-medium hover:bg-indigo-700 transition h-[42px]">
+                                <button type="submit" className="w-full bg-brand text-black px-6 py-2 rounded-md font-medium hover:bg-brand/90 transition h-[42px]">
                                     Cadastrar Parceiro
                                 </button>
                             </div>

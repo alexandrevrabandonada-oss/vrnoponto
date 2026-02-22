@@ -106,6 +106,18 @@ export async function GET(req: Request) {
             .eq('status', 'OK')
             .gte('sent_at', yesterday);
 
+        // 5. Telegram Subscriptions Summary
+        const { data: subsData } = await supabase
+            .from('telegram_subscriptions')
+            .select('mode, severity_min')
+            .eq('is_active', true);
+
+        const subs = subsData || [];
+        const subsCount = subs.length;
+        const digestCount = subs.filter(s => s.mode === 'DIGEST').length;
+        const immediateCount = subs.filter(s => s.mode === 'IMMEDIATE').length;
+        const critMinCount = subs.filter(s => s.severity_min === 'CRIT').length;
+
         return NextResponse.json({
             health: {
                 api_health: apiHealth,
@@ -124,7 +136,13 @@ export async function GET(req: Request) {
             telegram: {
                 last_sent_at: latestNotification?.sent_at || null,
                 last_status: latestNotification?.status || 'UNKNOWN',
-                count_24h: telegramCount24h || 0
+                count_24h: telegramCount24h || 0,
+                subscriptions: {
+                    total: subsCount,
+                    digest: digestCount,
+                    immediate: immediateCount,
+                    crit_only: critMinCount
+                }
             },
             migrations
         });

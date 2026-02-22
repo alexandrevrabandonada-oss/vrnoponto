@@ -19,12 +19,12 @@ const formatPct = (p: number | null) => p !== null ? `${p > 0 ? '+' : ''}${p.toF
 /**
  * Weekly Bulletin Templates
  */
-export function generateBulletinCaption(data: { summary: { total: number, CRIT: number, WARN: number }, worstStops: { stop_name: string, p50_wait_min: number }[], worstLines: { line_id: string, p50_headway_min: number }[] }, tone: EditorialTone): CaptionOutput {
+export function generateBulletinCaption(data: { summary: { total: number, crit_count: number, warn_count: number }, worstStops: { stop_name: string, p50_wait_min: number }[], worstLines: { line_id: string, p50_headway_min: number }[] }, tone: EditorialTone): CaptionOutput {
     const { summary, worstStops, worstLines } = data;
     const isSmallSample = summary.total < 5;
 
     const headlines = {
-        direct: `A realidade das ruas não mente: ${summary.CRIT} alertas críticos de transporte esta semana.`,
+        direct: `A realidade das ruas não mente: ${summary.crit_count} alertas críticos de transporte esta semana.`,
         explanatory: `O balanço semanal do VR no Ponto registrou ${summary.total} ocorrências de irregularidade.`,
         convocatory: `Precisamos falar sobre as linhas que estão deixando a gente na mão.`
     };
@@ -36,9 +36,9 @@ export function generateBulletinCaption(data: { summary: { total: number, CRIT: 
     if (tone === 'direct') {
         body = `O serviço em Volta Redonda continua castigando quem depende do ônibus. O ponto "${worstStop?.stop_name}" registrou espera mediana de ${formatMin(worstStop?.p50_wait_min)}, enquanto a linha ${worstLine?.line_id} opera com intervalos abusivos de ${formatMin(worstLine?.p50_headway_min)}.`;
     } else if (tone === 'explanatory') {
-        body = `Nossa auditoria popular consolidou ${summary.CRIT} situações de alto atraso e ${summary.WARN} avisos de irregularidade. Destaque negativo para o bairro ${worstStop?.stop_name?.split('-')?.[0] || ''}, com as maiores esperas do período.`;
+        body = `Nossa auditoria popular consolidou ${summary.crit_count} situações de alto atraso e ${summary.warn_count} avisos de irregularidade. Destaque negativo para o bairro ${worstStop?.stop_name?.split('-')?.[0] || ''}, com as maiores esperas do período.`;
     } else {
-        body = `Não dá pra aceitar o descaso. O boletim mostra ${summary.CRIT} pontos críticos que precisam de intervenção imediata. O ponto "${worstStop?.stop_name}" é hoje o símbolo da falta de pontualidade.`;
+        body = `Não dá pra aceitar o descaso. O boletim mostra ${summary.crit_count} pontos críticos que precisam de intervenção imediata. O ponto "${worstStop?.stop_name}" é hoje o símbolo da falta de pontualidade.`;
     }
 
     if (isSmallSample) {
@@ -47,7 +47,7 @@ export function generateBulletinCaption(data: { summary: { total: number, CRIT: 
 
     return {
         caption: `${headlines[tone]}\n\n${body}`,
-        shortCaption: `${summary.CRIT} alertas críticos em VR esta semana. Pior ponto: ${worstStop?.stop_name || '--'}.`,
+        shortCaption: `${summary.crit_count} alertas críticos em VR esta semana. Pior ponto: ${worstStop?.stop_name || '--'}.`,
         hashtags: "#VRnoPonto #VoltaRedonda #TransportePublico #MobilidadeUrbana",
         cta: "Confira o boletim completo em vrnoponto.vercel.app/boletim"
     };

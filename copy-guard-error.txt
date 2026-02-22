@@ -1,0 +1,46 @@
+ÔØî Prohibited UI term "CRIT" found in C:\Projetos\vrnoponto\app\api\bulletin\card\route.tsx on line 108
+   > <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#f87171' }}>Alertas CRIT</div>
+ÔØî Prohibited UI term "WARN" found in C:\Projetos\vrnoponto\app\api\bulletin\card\route.tsx on line 121
+   > <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#fb923c' }}>Alertas WARN</div>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\api\bulletin\worst-neighborhoods-card\route.tsx on line 40
+   > <span style={{ fontSize: '20px', color: '#9ca3af', marginTop: '4px' }}>{n.stops_count} pontos ┬À {n.samples_total} amostras</span>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\api\bulletin\worst-neighborhoods-map-card\route.tsx on line 30
+   > <span style={{ fontSize: '18px', color: '#9ca3af', marginTop: '2px' }}>{n.stops_count} pontos ┬À {n.samples_total} amostras</span>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\api\report\monthly.csv\route.ts on line 42
+   > csvContent += `METODOLOGIA: Mediana (p50) e P90 em minutos baseadas em crowdsourcing (minimo 3 amostras)\n\n`;
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\api\report\monthly.csv\route.ts on line 46
+   > csvContent += `TIPO,ID,NOME,AMOSTRAS,MEDIANA_MIN,P90_MIN,VAR_MES_ANT_PCT\n`;
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\api\report\monthly.csv\route.ts on line 63
+   > csvContent += `TIPO,ID,COD_LINHA,NOME_LINHA,AMOSTRAS,MEDIANA_MIN,P90_MIN,VAR_MES_ANT_PCT\n`;
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\bairros\page.tsx on line 91
+   > <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Amostras</div>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\bairros\page.tsx on line 111
+   > subtitle={`${n.stops_count} pontos monitorados ÔÇó ${n.samples_total} amostras`}
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\linha\[id]\page.tsx on line 166
+   > <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Amostras</div>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\linha\[id]\page.tsx on line 208
+   > description="N├úo h├í amostras suficientes para gerar o gr├ífico de tend├¬ncia desta linha."
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\linha\[id]\page.tsx on line 218
+   > value: `${w.samples} amostras`,
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\mapa\bairros\page.tsx on line 65
+   > <span>{n.samples_total} amostras</span>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\painel\page.tsx on line 191
+   > value: `${stop.total_samples} amostras`,
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\ponto\[id]\opengraph-image.tsx on line 71
+   > <div style={{ fontSize: '24px', color: '#94a3b8' }}>Amostras</div>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\ponto\[id]\page.tsx on line 167
+   > <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Amostras</div>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\ponto\[id]\page.tsx on line 201
+   > description="N├úo h├í amostras suficientes para gerar o gr├ífico de tend├¬ncia deste ponto."
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\ponto\[id]\page.tsx on line 211
+   > value: `${w.samples} amostras`,
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\app\relatorio\mensal\page.tsx on line 262
+   > <li>Apenas pontos/linhas com <strong>M├¡nimo de 3 amostras</strong> validadas no m├¬s aparecem na consolida├º├úo final.</li>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\components\DelayMap.tsx on line 150
+   > <span className="text-gray-500 flex items-center gap-1"><Users size={14} /> Amostras</span>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\components\NeighborhoodMap.tsx on line 67
+   > <span className="text-gray-500">Amostras</span>
+ÔØî Prohibited UI term "Amostras" found in C:\Projetos\vrnoponto\components\NeighborhoodMap.tsx on line 131
+   > <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Amostras</span><span>${p.samples_total}</span></div>
+
+ÔØî UI Copy Guard failed. Please use lib/copy.ts dictionary keys `t()` instead of hardcoded internal terms.

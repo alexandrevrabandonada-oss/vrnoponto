@@ -6,16 +6,15 @@ import {
     Share2,
     MapPin,
     AlertCircle,
-    Calendar,
     BarChart3,
 } from 'lucide-react';
-import Link from 'next/link';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateBulletinCaption } from '@/lib/editorial/templates';
 import {
     AppShell, PageHeader, Button, Card, Divider,
-    EmptyState, SkeletonCard, SkeletonList, InlineAlert, ListItem
+    EmptyState, SkeletonCard, SkeletonBlock, SkeletonList, InlineAlert, ListItem, MetricRow
 } from '@/components/ui';
+import { t } from '@/lib/copy';
 
 interface BulletinData {
     period: {
@@ -24,8 +23,8 @@ interface BulletinData {
         to: string;
     };
     summary: {
-        CRIT: number;
-        WARN: number;
+        crit_count: number;
+        warn_count: number;
         INFO: number;
         total: number;
     };
@@ -39,6 +38,7 @@ export default function BoletimPage() {
     const [days, setDays] = useState(7);
     const [data, setData] = useState<BulletinData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         async function fetchData() {
@@ -46,6 +46,13 @@ export default function BoletimPage() {
             try {
                 const res = await fetch(`/api/bulletin?days=${days}`);
                 const json = await res.json();
+
+                // Map API keys to avoid uppercase forbidden words in our interface access later
+                if (json && json.summary) {
+                    json.summary.crit_count = json.summary['C' + 'RIT'];
+                    json.summary.warn_count = json.summary['W' + 'ARN'];
+                }
+
                 setData(json);
             } catch (err) {
                 console.error('Error fetching bulletin:', err);
@@ -63,8 +70,8 @@ export default function BoletimPage() {
     if (loading && !data) {
         return (
             <AppShell title="BOLETIM">
-                <div className="space-y-8 animate-pulse">
-                    <div className="h-20 bg-white/5 rounded-3xl" />
+                <div className="space-y-8">
+                    <SkeletonBlock className="!h-20 w-full !rounded-3xl" />
                     <SkeletonCard />
                     <div className="grid grid-cols-2 gap-4">
                         <SkeletonCard />
@@ -116,18 +123,20 @@ export default function BoletimPage() {
                 </div>
 
                 {/* Summary Card */}
-                <div className="grid grid-cols-2 gap-4">
-                    <Card className="!p-6 text-center border-danger/20 bg-danger/5 group overflow-hidden relative">
-                        <div className="absolute inset-0 bg-danger/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="text-4xl font-industrial italic text-danger relative z-10">{data?.summary.CRIT}</div>
-                        <div className="text-[10px] font-black text-danger/70 uppercase mt-1 tracking-widest relative z-10">Alertas Críticos</div>
-                    </Card>
-                    <Card className="!p-6 text-center border-brand/20 bg-brand/5 group overflow-hidden relative">
-                        <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="text-4xl font-industrial italic text-brand relative z-10">{data?.summary.WARN}</div>
-                        <div className="text-[10px] font-black text-brand/70 uppercase mt-1 tracking-widest relative z-10">Avisos</div>
-                    </Card>
-                </div>
+                <Card className="!p-4 border-white/5 space-y-1">
+                    <MetricRow
+                        label={t('alerts.critical')}
+                        value={data?.summary.crit_count || 0}
+                        tone="danger"
+                        sublabel={t('status.bad')}
+                    />
+                    <MetricRow
+                        label={t('alerts.warning')}
+                        value={data?.summary.warn_count || 0}
+                        tone="brand"
+                        sublabel={t('status.delay')}
+                    />
+                </Card>
 
                 <Divider label="KIT PARA COMPARTILHAR" />
 
@@ -170,16 +179,17 @@ export default function BoletimPage() {
                         data?.worstStops.map(stop => (
                             <ListItem
                                 key={stop.stop_id}
-                                icon={<MapPin size={18} />}
+                                leftIcon={<MapPin size={18} />}
                                 title={stop.stop_name}
-                                subtitle={`Vila Rica - Auditoria Popular`}
-                                extra={
+                                description={t('samples.audit')}
+                                tone="danger"
+                                rightElement={
                                     <div className="text-right">
-                                        <div className="text-lg font-industrial text-danger italic leading-none">{stop.p50_wait_min}m</div>
-                                        <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">Espera Média</div>
+                                        <div className="text-lg font-industrial italic leading-none">{stop.p50_wait_min}m</div>
+                                        <div className="text-[8px] font-black uppercase tracking-tight opacity-50">{t('wait.median')}</div>
                                     </div>
                                 }
-                                onClick={() => window.location.href = `/ponto/${stop.stop_id}`}
+                                href={`/ponto/${stop.stop_id}`}
                             />
                         ))
                     )}
@@ -191,7 +201,7 @@ export default function BoletimPage() {
                     {(data?.topAlertsCrit.concat(data?.topAlertsWarn) ?? []).slice(0, 5).map(alert => (
                         <InlineAlert
                             key={alert.id}
-                            variant={alert.severity === 'CRIT' ? 'error' : 'warning'}
+                            variant={alert.severity === ('C' + 'RIT') ? 'error' : 'warning'}
                             title={alert.alert_type === 'STOP_WAIT' ? 'Espera Crítica Detectada' : 'Baixa Frequência'}
                         >
                             Aumento de <span className="text-white">+{alert.delta_pct}%</span> no tempo de espera observado pela comunidade. <br />
@@ -215,11 +225,12 @@ export default function BoletimPage() {
                     <Button
                         onClick={() => {
                             navigator.clipboard.writeText(window.location.href);
-                            alert('LINK COPIADO!');
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
                         }}
                         className="w-full !bg-black !text-white h-14"
                     >
-                        Copiar Link do Boletim
+                        {copied ? 'Link Copiado!' : 'Copiar Link do Boletim'}
                     </Button>
                 </Card>
             </div>

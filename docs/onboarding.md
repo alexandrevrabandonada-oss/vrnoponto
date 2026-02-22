@@ -11,7 +11,7 @@ Guia para novos usuários do VR no Ponto, explicando o fluxo de participação e
 ## Os 3 Passos
 
 1. **Cheguei no ponto** — Abre `/no-ponto`, GPS captura automaticamente o ponto mais próximo (~5s)
-2. **Ônibus passou / Entrei** — 1 toque em "Ônibus Passou" ou "Entrei" em `/registrar`
+2. **Ônibus passou / Entrei** — 1 toque em "Ônibus Passou" ou "Entrei" em `/registrar`. *(Funciona mesmo sem internet/sinal graças à nossa Fila Offline Nativa)*
 3. **Desci + avalia (opcional)** — Marca "Desci" ao chegar no destino → gera Prova de Trajeto (L3)
 
 ## CTA na Home
@@ -42,8 +42,8 @@ cta_click | 2026-02-21 | 42
 ```
 
 - Sem IP, sem user-agent, sem dados pessoais
-- API: `POST /api/telemetry` body `{event: "cta_click"}`
-- Eventos permitidos: `cta_click`, `pageview_como_usar`, `pageview_no_ponto`, `pageview_registrar`
+- API: `POST /api/telemetry` body `{event: "cta_click"}` ou `{metrics: ["metric_1"]}`
+- Eventos permitidos: `cta_click`, `pageview_como_usar`, `pageview_no_ponto`, `pageview_registrar`, `offline_queue_enqueued`, e outras métricas invisíveis associadas à fila.
 
 Card no admin `/admin` mostra **cliques hoje** e **cliques nos últimos 7 dias**.
 

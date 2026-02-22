@@ -1,0 +1,19 @@
+Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 4.4s
+  Running TypeScript ...
+  Collecting page data using 11 workers ...
+ÔÜá Using edge runtime on a page currently disables static generation for that page
+  Generating static pages using 11 workers (0/38) ...
+Error occurred prerendering page "/bairros/historico". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server". Or maybe you meant to call this function rather than return it.
+  {$$typeof: ..., render: function, displayName: ...}
+                          ^^^^^^^^
+    at stringify (<anonymous>) {
+  digest: '1736920874'
+}
+Export encountered an error on /bairros/historico/page: /bairros/historico, exiting the build.
+Ô¿» Next.js build worker exited with code: 1 and signal: null

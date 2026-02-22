@@ -7,11 +7,12 @@ export interface TelegramOptions {
     parse_mode?: 'Markdown' | 'HTML' | 'MarkdownV2';
     disable_web_page_preview?: boolean;
     disable_notification?: boolean;
+    chat_id?: string;
 }
 
 export async function sendTelegramMessage(text: string, options: TelegramOptions = {}) {
     const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    const chatId = options.chat_id || process.env.TELEGRAM_CHAT_ID;
 
     if (!token || !chatId) {
         console.warn('Telegram Bot Token or Chat ID missing. Skipping notification.');

@@ -12,14 +12,18 @@ const ALLOWED_EVENTS = new Set([
     'page_view_partner_apply',
     'click_partner_apply_submit',
     'partner_kit_generated',
+    'offline_queue_enqueued',
+    'offline_queue_synced',
+    'offline_queue_failed'
 ]);
 
 export async function POST(req: Request) {
     try {
-        const { event } = await req.json();
+        const body = await req.json();
+        const metrics: string[] = body.metrics || (body.event ? [body.event] : []);
 
-        if (!event || !ALLOWED_EVENTS.has(event)) {
-            return NextResponse.json({ error: 'Invalid event' }, { status: 400 });
+        if (metrics.length === 0) {
+            return NextResponse.json({ error: 'Missing metrics' }, { status: 400 });
         }
 
         const supabase = createClient(
@@ -29,18 +33,21 @@ export async function POST(req: Request) {
 
         const today = new Date().toISOString().slice(0, 10);
 
-        // Upsert: insert or increment
-        const { error } = await supabase.rpc('increment_telemetry', {
-            p_event_key: event,
-            p_date: today,
-        });
+        for (const m of metrics) {
+            if (!ALLOWED_EVENTS.has(m)) continue;
 
-        if (error) {
-            // Fallback: manual upsert if RPC not available
-            await supabase.from('telemetry_counts').upsert(
-                { event_key: event, date: today, count: 1 },
-                { onConflict: 'event_key,date', ignoreDuplicates: false }
-            );
+            // Upsert: insert or increment
+            const { error } = await supabase.rpc('increment_telemetry', {
+                p_event_key: m,
+                p_date: today,
+            });
+
+            if (error) {
+                await supabase.from('telemetry_counts').upsert(
+                    { event_key: m, date: today, count: 1 },
+                    { onConflict: 'event_key,date', ignoreDuplicates: false }
+                );
+            }
         }
 
         return NextResponse.json({ ok: true });

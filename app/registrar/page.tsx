@@ -6,7 +6,9 @@ import { RatingModal } from '@/components/RatingModal';
 import { QRScanner } from '@/components/QRScanner';
 import { ShieldCheck, QrCode } from 'lucide-react';
 import { HelpModal } from '@/components/HelpModal';
-import { AppShell, PageHeader, Button, Card, Divider, Field, Textarea } from '@/components/ui';
+import { AppShell, PageHeader, Button, Card, Divider, Field, Textarea, InlineAlert } from '@/components/ui';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { enqueueEvent } from '@/lib/offlineQueue';
 
 const MOCK_LINE_ID = '11111111-1111-1111-1111-111111111111';
 const MOCK_STOP_ID = '22222222-2222-2222-2222-222222222222';
@@ -22,6 +24,8 @@ export default function Registrar() {
     const [lastMethod, setLastMethod] = useState<string | null>(null);
     const [observation, setObservation] = useState('');
 
+    const { isOnline, isSyncing, pendingCount, syncNow, refreshPending } = useOfflineSync();
+
     const registerEvent = async (eventType: string) => {
         if (!deviceId) return;
 
@@ -30,17 +34,44 @@ export default function Registrar() {
         setLastTrust(null);
         setLastMethod(null);
 
+        const eventId = crypto.randomUUID();
+        const payload = {
+            deviceId,
+            stopId: MOCK_STOP_ID,
+            lineId: MOCK_LINE_ID,
+            eventType,
+            metadata: observation ? { observation } : undefined
+        };
+
         try {
+            if (!isOnline) {
+                // Fila Offline
+                await enqueueEvent({
+                    id: eventId,
+                    payload,
+                    status: 'PENDING',
+                    created_at: Date.now(),
+                    retry_count: 0
+                });
+                await refreshPending();
+
+                // Telemetry (silent fire and forget, likely to fail since offline but worth queuing if possible - actually telemetry here will just fail silently)
+                fetch('/api/telemetry', { method: 'POST', body: JSON.stringify({ event: 'offline_queue_enqueued' }) }).catch(() => { });
+
+                setMessage("SALVO OFFLINE (SERÁ ENVIADO QUANDO HOUVER REDE)");
+
+                if (eventType === 'boarding' || eventType === 'passed_by') {
+                    setIsModalOpen(true);
+                }
+                setIsSubmitting(false);
+                return;
+            }
+
+            // Envio Direto Online
             const res = await fetch('/api/events/record', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    deviceId,
-                    stopId: MOCK_STOP_ID,
-                    lineId: MOCK_LINE_ID,
-                    eventType,
-                    metadata: observation ? { observation } : undefined
-                })
+                body: JSON.stringify({ ...payload, clientEventId: eventId })
             });
 
             const data = await res.json();
@@ -76,6 +107,35 @@ export default function Registrar() {
             />
 
             <div className="space-y-6">
+                {(!isOnline || pendingCount > 0) && (
+                    <InlineAlert
+                        variant={isOnline ? "warning" : "error"}
+                        title={isOnline ? "Fila Aguardando Sincronismo" : "Conexão Instável (Offline)"}
+                    >
+                        <div className="flex flex-col gap-3 mt-1">
+                            <p className="text-xs">
+                                {!isOnline
+                                    ? "Você está offline. Novos registros serão salvos e enviados automaticamente quando a conexão voltar."
+                                    : "A rede voltou. Você possui relatos salvos precisando ser despachados."}
+                            </p>
+                            {pendingCount > 0 && (
+                                <div className="flex items-center justify-between">
+                                    <span className="font-mono text-xs font-bold bg-black/20 px-2 py-1 rounded">PENDENTES: {pendingCount}</span>
+                                    <Button
+                                        variant="secondary"
+                                        disabled={!isOnline || isSyncing}
+                                        onClick={syncNow}
+                                        loading={isSyncing}
+                                        className="h-8 !text-xs !px-3"
+                                    >
+                                        Sincronizar Agora
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </InlineAlert>
+                )}
+
                 <Card variant="surface2" className="border-brand/10 bg-brand/5">
                     <p className="text-xs font-black uppercase tracking-tight text-brand/80 leading-relaxed italic">
                         Ponto Detectado: <span className="text-white">Centro (PT-001)</span> <br />

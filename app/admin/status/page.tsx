@@ -23,6 +23,12 @@ interface SystemStatus {
         last_sent_at: string | null;
         last_status: string;
         count_24h: number;
+        subscriptions?: {
+            total: number;
+            digest: number;
+            immediate: number;
+            crit_only: number;
+        };
     };
     migrations: { version: string, checked_at: string };
 }
@@ -31,7 +37,7 @@ const StatusBadge = ({ status, stale }: { status: string, stale?: boolean }) => 
     if (stale) return <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><AlertTriangle size={12} /> STALE</span>;
     if (status === 'OK') return <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><CheckCircle2 size={12} /> OK</span>;
     if (status === 'WARN') return <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><AlertTriangle size={12} /> WARN</span>;
-    if (status === 'RUNNING') return <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> RUNNING</span>;
+    if (status === 'RUNNING') return <span className="bg-cyan-100 text-cyan-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> RUNNING</span>;
     return <span className="bg-red-100 text-red-700 px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1"><XCircle size={12} /> FAIL</span>;
 };
 
@@ -191,6 +197,22 @@ export default function StatusDashboard() {
                             <span className="font-bold text-gray-900">{statusData.telegram.count_24h}</span>
                         </div>
                     </div>
+                    {statusData.telegram.subscriptions && (
+                        <div className="space-y-3 pt-3 border-t border-gray-100">
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-600">Inscritos Ativos</span>
+                                <span className="font-bold text-gray-900">{statusData.telegram.subscriptions.total}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-600">Modo: Digest / Imediato</span>
+                                <span className="text-gray-900 font-mono text-xs">{statusData.telegram.subscriptions.digest} / {statusData.telegram.subscriptions.immediate}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-600">Somente Críticos</span>
+                                <span className="text-gray-900 font-mono text-xs">{statusData.telegram.subscriptions.crit_only}</span>
+                            </div>
+                        </div>
+                    )}
                     <button
                         onClick={() => triggerAction('telegram', '/api/admin/notify-telegram')}
                         disabled={actionLoading === 'telegram'}

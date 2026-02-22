@@ -17,7 +17,8 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         return (
             <div
                 ref={ref}
-                className={`rounded-2xl border p-6 relative overflow-hidden transition-all duration-300 ${variants[variant]} ${hasTexture ? 'industrial-texture' : ''} ${className}`}
+                className={`rounded-2xl border relative overflow-hidden transition-all duration-300 ${variants[variant]} ${hasTexture ? 'industrial-texture' : ''} ${className}`}
+                style={{ padding: 'var(--card-pad)' }}
                 {...props}
             >
                 {/* Subtle Industrial Detail (Micro-border accent) */}

@@ -62,13 +62,13 @@ export default function AdminHome() {
             <p className="text-gray-600">Bem-vindo ao painel de controle do VR no Ponto.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-                <a href="/admin/linhas" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-indigo-100 hover:border-indigo-200 transition-all">
-                    <div className="bg-indigo-50 text-indigo-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
+                <a href="/admin/linhas" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-zinc-200 hover:border-zinc-300 transition-all">
+                    <div className="bg-zinc-100 text-brand w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
                         <Bus size={20} />
                     </div>
                     <div className="flex justify-between items-end">
                         <h2 className="text-lg font-bold text-gray-900 leading-tight">Linhas de Ônibus</h2>
-                        <span className="text-2xl font-black text-indigo-600/20">{stats?.lines ?? '..'}</span>
+                        <span className="text-2xl font-black text-brand/20">{stats?.lines ?? '..'}</span>
                     </div>
                 </a>
 
@@ -92,8 +92,8 @@ export default function AdminHome() {
                     </div>
                 </a>
 
-                <div className="p-5 bg-white rounded-2xl border border-indigo-100 shadow-sm">
-                    <div className="bg-indigo-50 text-indigo-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-xl">
+                <div className="p-5 bg-white rounded-2xl border border-zinc-200 shadow-sm">
+                    <div className="bg-zinc-100 text-brand w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-xl">
                         <Zap size={20} />
                     </div>
                     <div className="flex justify-between items-end">
@@ -104,11 +104,11 @@ export default function AdminHome() {
                     </div>
                     <div className="flex gap-4 mt-3">
                         <div>
-                            <div className="text-2xl font-black text-indigo-600">{telemetry?.today ?? '–'}</div>
+                            <div className="text-2xl font-black text-brand">{telemetry?.today ?? '–'}</div>
                             <div className="text-[10px] text-gray-400 uppercase font-bold">Hoje</div>
                         </div>
                         <div>
-                            <div className="text-2xl font-black text-indigo-600/50">{telemetry?.week ?? '–'}</div>
+                            <div className="text-2xl font-black text-brand/50">{telemetry?.week ?? '–'}</div>
                             <div className="text-[10px] text-gray-400 uppercase font-bold">7 dias</div>
                         </div>
                     </div>

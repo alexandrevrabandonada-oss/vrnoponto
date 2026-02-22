@@ -66,7 +66,7 @@ export default function PontoDetailPage() {
                 if (weeklyRes.ok) setWeekly(await weeklyRes.json());
                 if (alertsRes.ok) {
                     const allAlerts = await alertsRes.json();
-                    setAlerts(allAlerts.filter((a: any) => a.target_id === stopId && a.alert_type === 'STOP_WAIT'));
+                    setAlerts(allAlerts.filter((a: { target_id: string; alert_type: string; }) => a.target_id === stopId && a.alert_type === 'STOP_WAIT'));
                 }
             } catch (err) {
                 console.error('Error fetching point details:', err);

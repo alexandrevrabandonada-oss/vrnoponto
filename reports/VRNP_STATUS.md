@@ -125,6 +125,8 @@ Gerado em: 2026-02-22T03:01:18.859Z
 - 0035_neighborhood_norm_columns.sql
 - 0036_neighborhood_monthly_timeseries.sql
 - 0037_telegram_notifications.sql
+- 0038_alert_prefs.sql
+- 0039_client_event_id.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

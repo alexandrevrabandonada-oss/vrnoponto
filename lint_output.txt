@@ -3,30 +3,84 @@
 > eslint
 
 
-C:\Projetos\vrnoponto\app\boletim\page.tsx
-   5:5   warning  'AlertTriangle' is defined but never used  @typescript-eslint/no-unused-vars
-  10:5   warning  'AlertCircle' is defined but never used    @typescript-eslint/no-unused-vars
-  12:16  warning  'HistoryIcon' is defined but never used    @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\admin\layout.tsx
+  2:10  warning  'AppShell' is defined but never used  @typescript-eslint/no-unused-vars
+  3:20  warning  'LogOut' is defined but never used    @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\app\mapa\page.tsx
-    4:41  warning  'MenuSquare' is defined but never used    @typescript-eslint/no-unused-vars
-    4:53  warning  'Zap' is defined but never used           @typescript-eslint/no-unused-vars
-    7:46  warning  'Divider' is defined but never used       @typescript-eslint/no-unused-vars
-    7:55  warning  'IconButton' is defined but never used    @typescript-eslint/no-unused-vars
-   91:58  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   92:63  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   93:63  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  107:64  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+C:\Projetos\vrnoponto\app\bairro\[slug]\page.tsx
+    8:5   warning  'TrendingUp' is defined but never used    @typescript-eslint/no-unused-vars
+    8:17  warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
+  213:42  warning  'i' is defined but never used             @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\components\ui\AppShell.tsx
-  4:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\bairros\historico\page.tsx
+  4:10  warning  'ArrowLeft' is defined but never used    @typescript-eslint/no-unused-vars
+  4:58  warning  'HistoryIcon' is defined but never used  @typescript-eslint/no-unused-vars
+  4:86  warning  'Calendar' is defined but never used     @typescript-eslint/no-unused-vars
+  6:10  warning  't' is defined but never used            @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\components\ui\Button.tsx
-   4:10   warning  'LucideIcon' is defined but never used     @typescript-eslint/no-unused-vars
-  20:111  warning  'rest' is assigned a value but never used  @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\bairros\page.tsx
+  4:10  warning  'MapPin' is defined but never used        @typescript-eslint/no-unused-vars
+  4:18  warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
+  4:74  warning  'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
+  7:55  warning  'MetricRow' is defined but never used     @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\components\ui\IconButton.tsx
-  4:10  warning  'LucideIcon' is defined but never used  @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\linha\[id]\page.tsx
+  7:29  warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
+  7:50  warning  'ShieldCheck' is defined but never used   @typescript-eslint/no-unused-vars
+  7:81  warning  'Download' is defined but never used      @typescript-eslint/no-unused-vars
 
-Ô£û 15 problems (4 errors, 11 warnings)
+C:\Projetos\vrnoponto\app\no-ponto\page.tsx
+  6:35  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\painel\page.tsx
+   5:22  warning  'AlertTriangle' is defined but never used                                                                        @typescript-eslint/no-unused-vars
+   5:37  warning  'Filter' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+   5:56  warning  'TrendingUp' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+   5:68  warning  'TrendingDown' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+   5:82  warning  'MapPin' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+   7:27  warning  'Button' is defined but never used                                                                               @typescript-eslint/no-unused-vars
+   8:58  warning  'ListItem' is defined but never used                                                                             @typescript-eslint/no-unused-vars
+  12:11  warning  'WaitMetric' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+  13:11  warning  'HeadwayMetric' is defined but never used                                                                        @typescript-eslint/no-unused-vars
+  82:8   warning  React Hook useEffect has a missing dependency: 'lines.length'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Projetos\vrnoponto\app\parceiros\entrar\page.tsx
+  6:16  warning  'Store' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\ponto\[id]\page.tsx
+   6:12  warning  'Share2' is defined but never used        @typescript-eslint/no-unused-vars
+   6:20  warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
+   6:53  warning  'MapPin' is defined but never used        @typescript-eslint/no-unused-vars
+   7:5   warning  'ShieldAlert' is defined but never used   @typescript-eslint/no-unused-vars
+  14:42  warning  'Button' is defined but never used        @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\PromisedVsRealCard.tsx
+  4:10  warning  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\RatingModal.tsx
+  6:10  warning  'Info' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\admin\PdfParserCard.tsx
+  4:24  warning  'Divider' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\ui\InlineAlert.tsx
+  4:44  warning  'XCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\ui\Input.tsx
+  10:24  warning  'variant' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\hooks\useOfflineSync.ts
+  76:26  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\hooks\useUIPreferences.ts
+  20:9  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+
+C:\Projetos\vrnoponto\lib\offlineQueue.ts
+  12:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projetos\vrnoponto\lib\useUiPrefs.ts
+  19:9  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+
+Ô£û 42 problems (1 error, 41 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
 

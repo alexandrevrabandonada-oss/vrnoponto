@@ -48,7 +48,7 @@ export default function LinhaDetails() {
     const [weekly, setWeekly] = useState<WeeklyHeadway[]>([]);
     const [alerts, setAlerts] = useState<Alert[]>([]);
     const [trustMix, setTrustMix] = useState<{ total_events: number; pct_verified: number } | null>(null);
-    const [schedules, setSchedules] = useState<any[]>([]);
+    const [schedules, setSchedules] = useState<{ id: string; title?: string; valid_from?: string; doc_type?: string; pdf_path?: string }[]>([]);
 
     useEffect(() => {
         if (!lineId) return;
@@ -68,7 +68,7 @@ export default function LinhaDetails() {
                 if (weeklyRes.ok) setWeekly(await weeklyRes.json());
                 if (alertsRes.ok) {
                     const allAlerts = await alertsRes.json();
-                    setAlerts(allAlerts.filter((a: any) => a.target_id === lineId && a.alert_type === 'LINE_HEADWAY'));
+                    setAlerts(allAlerts.filter((a: { target_id: string; alert_type: string; }) => a.target_id === lineId && a.alert_type === 'LINE_HEADWAY'));
                 }
                 if (trustMixRes.ok) setTrustMix(await trustMixRes.json());
                 if (schedulesRes.ok) setSchedules(await schedulesRes.json());

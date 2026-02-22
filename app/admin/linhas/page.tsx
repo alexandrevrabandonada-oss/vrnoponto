@@ -42,7 +42,7 @@ export default async function AdminLinhas() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">Nome (Ex: Vila Rica / Centro)</label>
                         <input type="text" name="name" required className="w-full p-2 border rounded-md" />
                     </div>
-                    <button type="submit" className="bg-indigo-600 text-white px-6 py-2 rounded-md font-medium hover:bg-indigo-700 transition">
+                    <button type="submit" className="bg-brand text-black px-6 py-2 rounded-md font-medium hover:bg-brand/90 transition">
                         Salvar
                     </button>
                 </form>

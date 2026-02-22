@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { X, Camera } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { InlineAlert } from '@/components/ui';
 
 export function QRScanner({ onClose }: { onClose: () => void }) {
     const router = useRouter();
     const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         // Initialize scanner
@@ -29,8 +31,8 @@ export function QRScanner({ onClose }: { onClose: () => void }) {
                     const token = decodedText.split('/qr/')[1];
                     router.push(`/qr/${token}`);
                 } else {
-                    alert("QR Code inválido: " + decodedText);
-                    onClose();
+                    setError("QR inválido ou não suportado (" + decodedText + ")");
+                    setTimeout(() => setError(null), 4000);
                 }
             }).catch(err => console.error("Error clearing scanner", err));
         }, () => {
@@ -62,8 +64,13 @@ export function QRScanner({ onClose }: { onClose: () => void }) {
 
                 <div id="reader" className="w-full aspect-square bg-black"></div>
 
-                <div className="p-6 text-center">
+                <div className="p-6 text-center space-y-4">
                     <p className="text-zinc-500 text-sm font-medium">Aponte a câmera para o QR Code impresso no ponto ou estabelecimento.</p>
+                    {error && (
+                        <InlineAlert variant="error" title="Leitura Recusada">
+                            {error}
+                        </InlineAlert>
+                    )}
                 </div>
             </div>
         </div>

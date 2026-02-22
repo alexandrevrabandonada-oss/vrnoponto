@@ -125,6 +125,16 @@ export async function POST(req: Request) {
         const runStatus = results.errors.length > 0 ? 'WARN' : 'OK';
         await finishRun(runId, runStatus, results);
 
+        // Auto-trigger digest for daily alert aggregation
+        try {
+            const baseUrl = req.url.split('/api/')[0];
+            await fetch(`${baseUrl}/api/admin/telegram/digest?days=1&t=${process.env.ADMIN_TOKEN}`);
+        } catch (err: unknown) {
+            console.error('Failed to trigger digest:', err);
+            results.errors.push(`Digest trigger failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+            await finishRun(runId, 'WARN', results);
+        }
+
         return NextResponse.json(results);
     } catch (err: unknown) {
         return NextResponse.json({ error: err instanceof Error ? err.message : 'Unknown error' }, { status: 500 });

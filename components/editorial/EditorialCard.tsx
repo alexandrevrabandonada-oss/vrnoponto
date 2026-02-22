@@ -53,7 +53,7 @@ export function EditorialCard<T>({ data, generator, title = "Kit Editorial: Lege
 
     const toneConfig = {
         direct: { icon: Zap, label: "Militante", color: "text-red-600 bg-red-50 border-red-100" },
-        explanatory: { icon: BookOpen, label: "Explicativo", color: "text-blue-600 bg-blue-50 border-blue-100" },
+        explanatory: { icon: BookOpen, label: "Explicativo", color: "text-cyan-600 bg-cyan-50 border-cyan-100" },
         convocatory: { icon: Megaphone, label: "Convocatório", color: "text-brand bg-brand/10 border-brand/20" }
     };
 

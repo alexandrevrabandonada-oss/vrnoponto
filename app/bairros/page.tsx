@@ -6,6 +6,7 @@ import {
     AppShell, PageHeader, Button, Card, Divider,
     EmptyState, SkeletonCard, SkeletonList, ListItem, MetricRow
 } from '@/components/ui';
+import { t } from '@/lib/copy';
 
 type NeighborhoodRow = {
     neighborhood: string;
@@ -88,7 +89,7 @@ export default function BairrosPage() {
                         <div className="text-2xl font-industrial text-white">
                             {neighborhoods.reduce((a, b) => a + b.samples_total, 0)}
                         </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Amostras</div>
+                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">{t('samples.audit')}</div>
                     </Card>
                 </div>
 
@@ -108,7 +109,7 @@ export default function BairrosPage() {
                                 key={n.neighborhood}
                                 icon={<span className="font-industrial text-[10px] opacity-40">#{i + 1}</span>}
                                 title={n.neighborhood}
-                                subtitle={`${n.stops_count} pontos monitorados • ${n.samples_total} amostras`}
+                                subtitle={`${n.stops_count} pontos monitorados • ${n.samples_total} ${t('samples.total')}`}
                                 extra={
                                     <div className="text-right">
                                         <div className="text-lg font-industrial text-brand italic leading-none">+{n.avg_delta_min}m</div>
