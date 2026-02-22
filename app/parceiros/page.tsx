@@ -8,6 +8,7 @@ import type { PartnerMapItem } from '@/components/DelayMap';
 import Link from 'next/link';
 import { getWhatsAppShort, getInstagramDM } from '@/lib/editorial/partner_invite';
 import { TelemetryTracker } from '@/components/TelemetryTracker';
+import { InvitePartnerCard } from '@/components/InvitePartnerCard';
 
 // Import map dynamically for Client Side
 const DelayMap = dynamic(() => import('@/components/DelayMap'), {
@@ -90,18 +91,9 @@ export default function ParceirosPage() {
                     <ArrowRight size={20} className="text-black" />
                 </Link>
 
-                {/* Invite Copy Buttons */}
-                <div className="flex gap-2">
-                    <button onClick={() => copyInvite('whatsapp')}
-                        className="flex-1 flex items-center justify-center gap-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-100 dark:border-green-900/50 px-3 py-2.5 rounded-2xl text-xs font-bold transition hover:bg-green-100 active:scale-95">
-                        {copiedInvite === 'whatsapp' ? <Check size={14} className="text-current" /> : <Copy size={14} />}
-                        Copiar convite WhatsApp
-                    </button>
-                    <button onClick={() => copyInvite('instagram')}
-                        className="flex-1 flex items-center justify-center gap-2 bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-400 border border-pink-100 dark:border-pink-900/50 px-3 py-2.5 rounded-2xl text-xs font-bold transition hover:bg-pink-100 active:scale-95">
-                        {copiedInvite === 'instagram' ? <Check size={14} className="text-current" /> : <MessageCircle size={14} />}
-                        Copiar convite Instagram
-                    </button>
+                {/* Invite A/B Test Card */}
+                <div className="mt-4">
+                    <InvitePartnerCard />
                 </div>
                 {/* Map Section */}
                 <div className="h-[300px] w-full bg-gray-200 dark:bg-gray-800 rounded-2xl overflow-hidden shadow-inner border dark:border-gray-700 relative z-0">

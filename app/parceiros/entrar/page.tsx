@@ -11,6 +11,7 @@ import {
     AppShell, PageHeader, Button, Card, Divider,
     Field, Input, Select, Textarea, Switch
 } from '@/components/ui';
+import { InvitePartnerCard } from '@/components/InvitePartnerCard';
 
 const CATEGORIES = [
     { value: 'comercio', label: 'Comércio' },
@@ -41,6 +42,7 @@ export default function ParceirosEntrarPage() {
         message: '',
         authorized: false,
         website: '',
+        variantKey: undefined as string | undefined,
     });
 
     const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
@@ -123,6 +125,10 @@ export default function ParceirosEntrarPage() {
                 title="Novo Parceiro"
                 subtitle="Leva menos de 2 minutos e não tem custo."
             />
+
+            <div className="mb-8">
+                <InvitePartnerCard onVariantAssigned={(k) => setForm(p => ({ ...p, variantKey: k }))} />
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-8 pb-10">
                 <input type="text" name="website" value={form.website} onChange={set('website')} className="hidden" aria-hidden="true" tabIndex={-1} autoComplete="off" />

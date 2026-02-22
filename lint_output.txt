@@ -1,8 +1,4 @@
 
-> vrnoponto@0.1.0 lint
-> eslint
-
-
 C:\Projetos\vrnoponto\app\admin\layout.tsx
   2:10  warning  'AppShell' is defined but never used  @typescript-eslint/no-unused-vars
   3:20  warning  'LogOut' is defined but never used    @typescript-eslint/no-unused-vars
@@ -29,9 +25,6 @@ C:\Projetos\vrnoponto\app\linha\[id]\page.tsx
   7:50  warning  'ShieldCheck' is defined but never used   @typescript-eslint/no-unused-vars
   7:81  warning  'Download' is defined but never used      @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\app\no-ponto\page.tsx
-  6:35  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
-
 C:\Projetos\vrnoponto\app\painel\page.tsx
    5:22  warning  'AlertTriangle' is defined but never used                                                                        @typescript-eslint/no-unused-vars
    5:37  warning  'Filter' is defined but never used                                                                               @typescript-eslint/no-unused-vars
@@ -47,6 +40,13 @@ C:\Projetos\vrnoponto\app\painel\page.tsx
 C:\Projetos\vrnoponto\app\parceiros\entrar\page.tsx
   6:16  warning  'Store' is defined but never used  @typescript-eslint/no-unused-vars
 
+C:\Projetos\vrnoponto\app\parceiros\page.tsx
+   6:45  warning  'Copy' is defined but never used                   @typescript-eslint/no-unused-vars
+   6:51  warning  'Check' is defined but never used                  @typescript-eslint/no-unused-vars
+   6:58  warning  'MessageCircle' is defined but never used          @typescript-eslint/no-unused-vars
+  38:12  warning  'copiedInvite' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  40:11  warning  'copyInvite' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
 C:\Projetos\vrnoponto\app\ponto\[id]\page.tsx
    6:12  warning  'Share2' is defined but never used        @typescript-eslint/no-unused-vars
    6:20  warning  'TrendingDown' is defined but never used  @typescript-eslint/no-unused-vars
@@ -54,11 +54,22 @@ C:\Projetos\vrnoponto\app\ponto\[id]\page.tsx
    7:5   warning  'ShieldAlert' is defined but never used   @typescript-eslint/no-unused-vars
   14:42  warning  'Button' is defined but never used        @typescript-eslint/no-unused-vars
 
+C:\Projetos\vrnoponto\components\InvitePartnerCard.tsx
+  104:17  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  104:35  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
 C:\Projetos\vrnoponto\components\PromisedVsRealCard.tsx
   4:10  warning  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Projetos\vrnoponto\components\RatingModal.tsx
   6:10  warning  'Info' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\admin\InviteABDashboard.tsx
+    5:10  warning  'PieChart' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+   44:8   warning  React Hook useEffect has a missing dependency: 'fetchStats'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   62:18  warning  'e' is defined but never used                                                                                  @typescript-eslint/no-unused-vars
+  128:29  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                react/no-unescaped-entities
+  128:41  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                react/no-unescaped-entities
 
 C:\Projetos\vrnoponto\components\admin\PdfParserCard.tsx
   4:24  warning  'Divider' is defined but never used  @typescript-eslint/no-unused-vars
@@ -69,18 +80,12 @@ C:\Projetos\vrnoponto\components\ui\InlineAlert.tsx
 C:\Projetos\vrnoponto\components\ui\Input.tsx
   10:24  warning  'variant' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\hooks\useOfflineSync.ts
-  76:26  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
-
 C:\Projetos\vrnoponto\hooks\useUIPreferences.ts
   20:9  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
-
-C:\Projetos\vrnoponto\lib\offlineQueue.ts
-  12:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 C:\Projetos\vrnoponto\lib\useUiPrefs.ts
   19:9  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
 
-Ô£û 42 problems (1 error, 41 warnings)
+Ô£û 51 problems (4 errors, 47 warnings)
   0 errors and 2 warnings potentially fixable with the `--fix` option.
 

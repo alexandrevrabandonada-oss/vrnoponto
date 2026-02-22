@@ -40,7 +40,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ ok: true }); // Silently discard
         }
 
-        const { name, neighborhood, contact_phone, contact_instagram, category, address, lat, lng, message, contact_name } = body;
+        const { name, neighborhood, contact_phone, contact_instagram, category, address, lat, lng, message, contact_name, variantKey } = body;
 
         // Minimum validation: name + neighborhood + at least one contact
         if (!name || !neighborhood || (!contact_phone && !contact_instagram)) {
@@ -74,7 +74,14 @@ export async function POST(req: Request) {
         // Success — log telemetry
         try {
             const today = new Date().toISOString().slice(0, 10);
+
+            // Standard generic track
             await supabase.rpc('increment_telemetry', { p_event_key: 'partner_request_created', p_date: today });
+
+            // Variant specific track
+            if (variantKey && ['A', 'B'].includes(variantKey)) {
+                await supabase.rpc('increment_telemetry', { p_event_key: `partner_request_created_${variantKey}`, p_date: today });
+            }
         } catch { }
 
         return NextResponse.json({ ok: true });

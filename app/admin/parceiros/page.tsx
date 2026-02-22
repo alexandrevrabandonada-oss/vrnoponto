@@ -4,6 +4,7 @@ import { QRGenerator } from '@/components/admin/QRGenerator';
 import { PartnerKitModal } from '@/components/admin/PartnerKitModal';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { CheckCircle, XCircle, UserPlus, FileDown, PieChart } from 'lucide-react';
+import { InviteABDashboard } from '@/components/admin/InviteABDashboard';
 
 interface PartnerRequest {
     id: string;
@@ -194,6 +195,9 @@ export default async function AdminParceiros({ searchParams }: { searchParams: P
                     </div>
                 </div>
             </div>
+
+            {/* A/B Invite Metrics */}
+            <InviteABDashboard adminToken={process.env.ADMIN_TOKEN} />
 
             {/* Tabs */}
             <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">

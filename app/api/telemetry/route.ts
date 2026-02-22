@@ -14,7 +14,13 @@ const ALLOWED_EVENTS = new Set([
     'partner_kit_generated',
     'offline_queue_enqueued',
     'offline_queue_synced',
-    'offline_queue_failed'
+    'offline_queue_failed',
+    'invite_impression_A',
+    'invite_impression_B',
+    'invite_click_A',
+    'invite_click_B',
+    'partner_request_created_A',
+    'partner_request_created_B'
 ]);
 
 export async function POST(req: Request) {
