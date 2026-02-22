@@ -1,18 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { HelpModal } from '@/components/HelpModal';
-import { MapPin, Navigation, Bus, AlertCircle } from 'lucide-react';
+import { MapPin, Navigation, Bus, AlertCircle, ArrowRight } from 'lucide-react';
 import {
     AppShell, PageHeader, Card, Divider, Button,
     Field, Select, InlineAlert
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { enqueueEvent } from '@/lib/offlineQueue';
-
-// IDs mockados (vindos da migration 0002_seed.sql)
-const MOCK_LINE_ID = '11111111-1111-1111-1111-111111111111';
+import { OneTapCard } from '@/components/OneTapCard';
+import Link from 'next/link';
 
 export default function NoPonto() {
     const deviceId = useDeviceId();
@@ -22,12 +21,21 @@ export default function NoPonto() {
     const [nearestStops, setNearestStops] = useState<{ id: string, name: string, distance_m: number }[]>([]);
 
     const [selectedStop, setSelectedStop] = useState('');
-    const [selectedLine, setSelectedLine] = useState(MOCK_LINE_ID); // Manteremos a linha mockada pro MVP
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState('');
     const [isLoadingStops, setIsLoadingStops] = useState(false);
+    const [hasArrived, setHasArrived] = useState(false);
 
     const { isOnline, isSyncing, pendingCount, syncNow, refreshPending } = useOfflineSync();
+
+    // Telemetry helper
+    const trackTelemetry = useCallback((event: string) => {
+        fetch('/api/telemetry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event })
+        }).catch(() => { /* silent */ });
+    }, []);
 
     // Efeito para GPS
     useEffect(() => {
@@ -87,13 +95,12 @@ export default function NoPonto() {
         const payload = {
             deviceId,
             stopId: selectedStop,
-            lineId: selectedLine,
+            lineId: selectedStop, // arrived events use stop as line context
             eventType: 'arrived'
         };
 
         try {
             if (!isOnline) {
-                // Fila Offline
                 await enqueueEvent({
                     id: eventId,
                     payload,
@@ -103,8 +110,9 @@ export default function NoPonto() {
                 });
                 await refreshPending();
 
-                fetch('/api/telemetry', { method: 'POST', body: JSON.stringify({ event: 'offline_queue_enqueued' }) }).catch(() => { });
+                trackTelemetry('offline_queue_enqueued');
                 setMessage("SALVO OFFLINE (SERÁ ENVIADO QUANDO HOUVER REDE)");
+                setHasArrived(true);
                 setIsSubmitting(false);
                 return;
             }
@@ -120,6 +128,7 @@ export default function NoPonto() {
                 throw new Error(data.error || 'Erro desconhecido');
             }
             setMessage('PRESENÇA REGISTRADA! NÍVEL: ' + (data.event?.trust_level || 'L1'));
+            setHasArrived(true);
         } catch (err: unknown) {
             const errMessage = err instanceof Error ? err.message : 'Erro desconhecido';
             setMessage('ERRO NO REGISTRO: ' + errMessage.toUpperCase());
@@ -127,6 +136,8 @@ export default function NoPonto() {
             setIsSubmitting(false);
         }
     };
+
+    const currentStop = nearestStops.find(s => s.id === selectedStop);
 
     return (
         <AppShell title="CHECK-IN NO PONTO">
@@ -184,76 +195,100 @@ export default function NoPonto() {
                 </Card>
 
                 {/* Seleção de Parada Dinâmica */}
-                <div className="space-y-6">
-                    <Field
-                        label="Onde você está?"
-                        hint={isLoadingStops ? "Buscando pontos próximos..." : "Selecione o ponto correto para validar"}
-                    >
-                        {nearestStops.length > 0 ? (
-                            <Select
-                                id="stop"
-                                value={selectedStop}
-                                onChange={(e) => setSelectedStop(e.target.value)}
-                                icon={<MapPin size={16} />}
-                            >
-                                {nearestStops.map((stop) => (
-                                    <option key={stop.id} value={stop.id} className="bg-zinc-900">
-                                        {stop.name} ({stop.distance_m}m)
-                                    </option>
-                                ))}
-                            </Select>
-                        ) : (
-                            <div className="p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01] text-center space-y-2">
-                                <AlertCircle size={24} className="mx-auto text-white/20" />
-                                <p className="text-[10px] text-muted font-black uppercase tracking-tight leading-relaxed">
-                                    {location ? "Nenhum ponto localizado no seu perímetro." : "Aguardando GPS para listar pontos..."}
-                                </p>
-                            </div>
-                        )}
-                    </Field>
-
-                    <Field label="Linha pretendida" hint="Qual ônibus você vai pegar?">
-                        <Select
-                            id="line"
-                            value={selectedLine}
-                            onChange={(e) => setSelectedLine(e.target.value)}
-                            icon={<Bus size={16} />}
+                {!hasArrived && (
+                    <div className="space-y-6">
+                        <Field
+                            label="Onde você está?"
+                            hint={isLoadingStops ? "Buscando pontos próximos..." : "Selecione o ponto correto para validar"}
                         >
-                            <option value={MOCK_LINE_ID} className="bg-zinc-900">P200 - Vila Rica / Centro</option>
-                        </Select>
-                    </Field>
-                </div>
+                            {nearestStops.length > 0 ? (
+                                <Select
+                                    id="stop"
+                                    value={selectedStop}
+                                    onChange={(e) => setSelectedStop(e.target.value)}
+                                    icon={<MapPin size={16} />}
+                                >
+                                    {nearestStops.map((stop) => (
+                                        <option key={stop.id} value={stop.id} className="bg-zinc-900">
+                                            {stop.name} ({stop.distance_m}m)
+                                        </option>
+                                    ))}
+                                </Select>
+                            ) : (
+                                <div className="p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01] text-center space-y-2">
+                                    <AlertCircle size={24} className="mx-auto text-white/20" />
+                                    <p className="text-[10px] text-muted font-black uppercase tracking-tight leading-relaxed">
+                                        {location ? "Nenhum ponto localizado no seu perímetro." : "Aguardando GPS para listar pontos..."}
+                                    </p>
+                                </div>
+                            )}
+                        </Field>
 
-                <Divider label="AÇÃO DE AUDITORIA" />
+                        <Divider label="AÇÃO DE AUDITORIA" />
 
-                <div className="space-y-4">
-                    <Button
-                        onClick={handleArrived}
-                        loading={isSubmitting}
-                        disabled={!deviceId || !selectedStop}
-                        className="w-full h-20 !text-xl !bg-brand !text-black hover:!scale-[1.02] active:!scale-[0.98] transition-all"
-                        icon={<MapPin size={24} />}
-                        iconPosition="right"
-                    >
-                        ESTOU NO PONTO
-                    </Button>
-
-                    {message && (
-                        <div className={`p-6 rounded-2xl text-center font-industrial text-lg tracking-widest animate-scale-in border ${message.includes('ERRO')
-                            ? 'bg-danger/10 border-danger/20 text-danger'
-                            : 'bg-brand/10 border-brand/20 text-brand'
-                            }`}>
-                            {message}
+                        <div className="space-y-4">
+                            <Button
+                                onClick={handleArrived}
+                                loading={isSubmitting}
+                                disabled={!deviceId || !selectedStop}
+                                className="w-full h-20 !text-xl !bg-brand !text-black hover:!scale-[1.02] active:!scale-[0.98] transition-all"
+                                icon={<MapPin size={24} />}
+                                iconPosition="right"
+                            >
+                                ESTOU NO PONTO
+                            </Button>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
 
-                <Divider label="MEIOS DE PROVA" />
-                <Card className="!p-4 bg-white/[0.02] border-white/5">
-                    <p className="text-[11px] text-muted font-bold leading-relaxed uppercase tracking-tight">
-                        💡 <strong className="text-brand">Check-in:</strong> Fazer check-in no ponto aumenta sua reputação de auditor e ajuda a penalizar atrasos fantasmas.
-                    </p>
-                </Card>
+                {/* Feedback da Chegada */}
+                {message && (
+                    <div className={`p-6 rounded-2xl text-center font-industrial text-lg tracking-widest animate-scale-in border ${message.includes('ERRO')
+                        ? 'bg-danger/10 border-danger/20 text-danger'
+                        : 'bg-brand/10 border-brand/20 text-brand'
+                        }`}>
+                        {message}
+                    </div>
+                )}
+
+                {/* 1-Tap Section (after arrival) */}
+                {hasArrived && selectedStop && (
+                    <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
+                        <Divider label="QUER REGISTRAR AGORA?" />
+
+                        <OneTapCard
+                            stopId={selectedStop}
+                            stopName={currentStop?.name || 'Ponto Selecionado'}
+                            mode="no-ponto"
+                        />
+
+                        <Link
+                            href={`/registrar?stopId=${selectedStop}`}
+                            onClick={() => trackTelemetry('no_ponto_to_registrar_clicked')}
+                            className="flex items-center justify-between w-full p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group"
+                        >
+                            <div className="flex items-center gap-3">
+                                <Bus size={18} className="text-brand opacity-60" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-white/50 group-hover:text-white/70">
+                                    Ir para registrar completo
+                                </span>
+                            </div>
+                            <ArrowRight size={16} className="text-brand" />
+                        </Link>
+                    </div>
+                )}
+
+                {/* Tips Section */}
+                {!hasArrived && (
+                    <>
+                        <Divider label="MEIOS DE PROVA" />
+                        <Card className="!p-4 bg-white/[0.02] border-white/5">
+                            <p className="text-[11px] text-muted font-bold leading-relaxed uppercase tracking-tight">
+                                💡 <strong className="text-brand">Check-in:</strong> Fazer check-in no ponto aumenta sua reputação de auditor e ajuda a penalizar atrasos fantasmas.
+                            </p>
+                        </Card>
+                    </>
+                )}
             </div>
 
             <HelpModal
@@ -261,7 +296,7 @@ export default function NoPonto() {
                 tips={[
                     "O GPS é capturado automáticamente ao abrir a página.",
                     "Sempre selecione o ponto correto da lista para que seu dado seja computado.",
-                    "Este check-in é o primeiro passo para uma auditoria L3 (Trajeto).",
+                    "Após fazer check-in, você pode registrar passagem ou embarque com 1 toque.",
                 ]}
             />
         </AppShell>
