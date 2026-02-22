@@ -30,7 +30,7 @@ export default async function Image() {
     return new ImageResponse(
         (
             <div style={{
-                background: 'linear-gradient(to bottom, #1e1b4b, #0f172a)',
+                background: 'linear-gradient(to bottom, #18181b, #09090b)',
                 width: '100%',
                 height: '100%',
                 display: 'flex',
@@ -42,12 +42,12 @@ export default async function Image() {
                 padding: '60px',
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
-                    <div style={{ width: '30px', height: '30px', backgroundColor: '#4f46e5', borderRadius: '8px' }} />
+                    <div style={{ width: '30px', height: '30px', backgroundColor: '#facc15', borderRadius: '8px' }} />
                     <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#94a3b8' }}>VR NO PONTO</div>
                 </div>
 
                 <div style={{ fontSize: '72px', fontWeight: '900', textAlign: 'center', marginBottom: '40px' }}>
-                    BOLETIM DE <span style={{ color: '#4f46e5' }}>TRANSPARÊNCIA</span>
+                    BOLETIM DE <span style={{ color: '#facc15' }}>TRANSPARÊNCIA</span>
                 </div>
 
                 <div style={{ display: 'flex', gap: '40px' }}>

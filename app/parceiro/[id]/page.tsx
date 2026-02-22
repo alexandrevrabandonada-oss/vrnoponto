@@ -42,7 +42,7 @@ export default function PartnerPublicPage(props: { params: Promise<{ id: string 
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="animate-spin text-indigo-600" size={40} />
+                <Loader2 className="animate-spin text-brand" size={40} />
             </div>
         );
     }
@@ -55,7 +55,7 @@ export default function PartnerPublicPage(props: { params: Promise<{ id: string 
                 </div>
                 <h1 className="text-2xl font-black text-gray-900 leading-tight">Parceiro não encontrado</h1>
                 <p className="text-gray-500 mt-2">{error || 'Este local não está cadastrado ou está inativo.'}</p>
-                <Link href="/parceiros" className="mt-8 text-indigo-600 font-bold flex items-center gap-2">
+                <Link href="/parceiros" className="mt-8 text-brand font-bold flex items-center gap-2">
                     <ArrowRight size={16} className="rotate-180" /> Voltar para a lista
                 </Link>
             </div>
@@ -65,20 +65,20 @@ export default function PartnerPublicPage(props: { params: Promise<{ id: string 
     return (
         <main className="min-h-screen bg-gray-50 pb-20">
             {/* Header Hero */}
-            <header className="bg-indigo-900 text-white pt-12 pb-16 px-6 relative rounded-b-[40px] overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-8 opacity-10">
+            <header className="bg-zinc-900 border-b border-brand/20 text-white pt-12 pb-16 px-6 relative rounded-b-[40px] overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-8 opacity-5 text-brand">
                     <ShieldCheck size={120} />
                 </div>
 
                 <div className="max-w-2xl mx-auto relative z-10">
                     <div className="flex items-center gap-2 mb-4">
-                        <span className="bg-indigo-500/30 text-indigo-200 text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded">
+                        <span className="bg-brand/20 text-brand border border-brand/30 text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded">
                             {partner.category} Verificado
                         </span>
                     </div>
-                    <h1 className="text-4xl font-black leading-[1.1] mb-2">{partner.name}</h1>
-                    <div className="flex items-center gap-2 text-indigo-200/80 font-medium">
-                        <MapPin size={16} />
+                    <h1 className="text-4xl font-black font-industrial uppercase tracking-tight leading-[1.1] mb-2">{partner.name}</h1>
+                    <div className="flex items-center gap-2 text-white/70 font-medium">
+                        <MapPin size={16} className="text-brand" />
                         <span>{partner.neighborhood}{partner.address ? ` • ${partner.address}` : ''}</span>
                     </div>
                 </div>
@@ -87,7 +87,7 @@ export default function PartnerPublicPage(props: { params: Promise<{ id: string 
             {/* Content Card */}
             <div className="max-w-xl mx-auto px-6 -mt-8 space-y-6">
                 {/* Validation CTA */}
-                <div className="bg-white p-8 rounded-3xl shadow-xl shadow-indigo-900/5 border border-white">
+                <div className="bg-white p-8 rounded-3xl shadow-xl shadow-zinc-200 border border-zinc-100">
                     <div className="flex items-center gap-4 mb-8">
                         <div className="bg-emerald-100 p-3 rounded-2xl">
                             <ShieldCheck className="text-emerald-600" size={32} />
@@ -101,7 +101,7 @@ export default function PartnerPublicPage(props: { params: Promise<{ id: string 
                     {qrToken ? (
                         <Link
                             href={`/qr/${qrToken}`}
-                            className="block w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center py-5 rounded-2xl font-black text-lg shadow-xl shadow-indigo-200 active:scale-95 transition-all"
+                            className="block w-full bg-brand hover:brightness-110 text-black text-center py-5 rounded-2xl font-black text-lg active:scale-95 transition-all"
                         >
                             Validar Presença Agora
                         </Link>
@@ -122,7 +122,7 @@ export default function PartnerPublicPage(props: { params: Promise<{ id: string 
                             { step: '03', title: 'Ganhe Trust L3', desc: 'Seus relatos recentes serão automaticamente promovidos.' }
                         ].map((item, i) => (
                             <div key={i} className="flex gap-4 p-5 bg-white rounded-2xl border border-gray-100">
-                                <span className="text-indigo-600 font-black text-xs mt-1">{item.step}</span>
+                                <span className="text-brand font-black text-xs mt-1">{item.step}</span>
                                 <div>
                                     <h4 className="font-bold text-gray-900 leading-tight">{item.title}</h4>
                                     <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
@@ -133,11 +133,11 @@ export default function PartnerPublicPage(props: { params: Promise<{ id: string 
                 </section>
 
                 {/* Transparency */}
-                <section className="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100 space-y-3">
-                    <div className="flex items-center gap-2 text-indigo-900 font-black uppercase text-[10px] tracking-widest">
+                <section className="bg-brand/10 p-6 rounded-3xl border border-brand/20 space-y-3">
+                    <div className="flex items-center gap-2 text-brand font-black uppercase text-[10px] tracking-widest">
                         <Info size={14} /> Transparência ao Cidadão
                     </div>
-                    <p className="text-indigo-900/70 text-sm leading-relaxed font-medium">
+                    <p className="text-zinc-700 text-sm leading-relaxed font-medium">
                         Os **Pontos Parceiros** são locais físicos autorizados pela comunidade para expandir a auditoria urbana.
                         Este local não é necessariamente um ponto de ônibus, mas um local seguro onde você pode confirmar sua identidade civil no sistema sem a necessidade de colagem de adesivos em patrimônio público.
                     </p>

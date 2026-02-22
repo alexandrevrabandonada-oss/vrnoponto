@@ -65,14 +65,14 @@ export async function GET(req: Request) {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundColor: '#1e1b4b', // Indigo 950
+                    backgroundColor: '#09090b', // Zinc 950
                     fontFamily: 'sans-serif',
                     color: 'white',
                     padding: isStory ? '80px 60px' : '60px',
                 }}>
                     {/* Header */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '40px' }}>
-                        <div style={{ width: '40px', height: '40px', backgroundColor: '#4f46e5', borderRadius: '10px' }} />
+                        <div style={{ width: '40px', height: '40px', backgroundColor: '#facc15', borderRadius: '10px' }} />
                         <div style={{ fontSize: '32px', fontWeight: 'bold' }}>VR no Ponto</div>
                     </div>
 
@@ -85,7 +85,7 @@ export async function GET(req: Request) {
                         marginBottom: '20px',
                         letterSpacing: '-2px'
                     }}>
-                        BOLETIM <br /> <span style={{ color: '#4f46e5' }}>SEMANAL</span>
+                        BOLETIM <br /> <span style={{ color: '#facc15' }}>SEMANAL</span>
                     </div>
 
                     <div style={{ fontSize: '24px', color: '#94a3b8', marginBottom: '60px' }}>
@@ -149,7 +149,7 @@ export async function GET(req: Request) {
 
                     {/* Footer */}
                     <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ fontSize: '20px', color: '#4f46e5', fontWeight: 'bold' }}>vrnoponto.vercel.app</div>
+                        <div style={{ fontSize: '20px', color: '#facc15', fontWeight: 'bold' }}>vrnoponto.vercel.app</div>
                         <div style={{ fontSize: '16px', color: '#4b5563', marginTop: '10px' }}>Dados baseados em auditoria popular colaborativa</div>
                     </div>
                 </div>

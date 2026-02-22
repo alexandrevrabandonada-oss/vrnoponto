@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { LucideIcon } from 'lucide-react';
 
 type BaseProps = {
     variant?: 'primary' | 'secondary' | 'ghost';
@@ -17,7 +16,7 @@ type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
 export const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
     (props, ref) => {
-        const { className = '', variant = 'primary', icon: Icon, iconPosition = 'left', loading, children, ...rest } = props;
+        const { className = '', variant = 'primary', icon: Icon, iconPosition = 'left', loading, children } = props;
 
         const baseStyles = 'inline-flex items-center justify-center gap-2 px-6 py-4 font-industrial text-lg uppercase tracking-tight transition-all active:scale-95 focus-ring disabled:opacity-50 disabled:pointer-events-none rounded-xl';
 

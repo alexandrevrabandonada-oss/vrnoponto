@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AlertCircle, ChevronDown, Clock } from 'lucide-react';
+import { AlertCircle, ChevronDown, Clock, BarChart3 } from 'lucide-react';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
+import { Card, InlineAlert, SkeletonMetric, EmptyState } from '@/components/ui';
 
 type HourlyGap = {
     hour: number;
@@ -14,6 +15,25 @@ type HourlyGap = {
     delta_min: number | null;
     delta_pct: number | null;
     pct_verified: number;
+};
+
+type StopHourlyGap = {
+    line_code: string;
+    line_name: string;
+    has_promise: boolean;
+    samples_total: number;
+    avg_delta: number;
+    pct_verified_avg: number;
+    hours: {
+        hour: number;
+        promised_headway_min: number | null;
+        real_p50_headway_min: number | null;
+        delta_min: number | null;
+        delta_pct: number | null;
+        samples: number;
+        pct_verified: number;
+        meta: string;
+    }[];
 };
 
 export function PromisedVsRealCard({ lineId }: { lineId: string }) {
@@ -45,100 +65,85 @@ export function PromisedVsRealCard({ lineId }: { lineId: string }) {
         .slice(0, 3);
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 className="text-xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
-                        <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Prometido vs Real
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Comparação entre a tabela oficial de horários e a realidade dos últimos 30 dias.
-                    </p>
+        <Card className="!p-6 border-white/5 bg-white/[0.02]">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div className="space-y-1">
+                    <h3 className="font-industrial text-sm tracking-widest uppercase text-white/80 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-brand" /> Prometido vs Real
+                    </h3>
+                    <p className="text-[10px] text-muted font-bold uppercase tracking-widest">Conformidade com a tabela oficial (30 dias)</p>
                 </div>
-                <div className="relative">
+
+                <div className="relative group">
                     <select
                         value={dayGroup}
                         onChange={(e) => {
                             setDayGroup(e.target.value as 'WEEKDAY' | 'SAT' | 'SUN');
-                            setLoading(true); // Loading explicitly managed here
+                            setLoading(true);
                         }}
-                        className="appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-lg block w-full pl-3 pr-8 py-2.5 font-medium focus:ring-indigo-500 focus:border-indigo-500"
+                        className="appearance-none bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-xl pl-4 pr-10 py-2.5 hover:border-brand/40 transition-colors focus:ring-1 focus:ring-brand cursor-pointer outline-none"
                     >
-                        <option value="WEEKDAY">Dias Úteis</option>
-                        <option value="SAT">Sábados</option>
-                        <option value="SUN">Domingos e Feriados</option>
+                        <option value="WEEKDAY" className="bg-gray-900">Dias Úteis</option>
+                        <option value="SAT" className="bg-gray-900">Sábados</option>
+                        <option value="SUN" className="bg-gray-900">Domingos/Feriados</option>
                     </select>
-                    <ChevronDown className="w-4 h-4 absolute right-3 top-3 text-gray-500 pointer-events-none" />
+                    <ChevronDown className="w-3 h-3 absolute right-3 top-1/2 -translate-y-1/2 text-muted group-hover:text-brand transition-colors pointer-events-none" />
                 </div>
             </div>
 
             {loading ? (
-                <div className="py-12 flex justify-center text-gray-400 text-sm">Carregando dados horários...</div>
-            ) : data.length === 0 ? (
-                <div className="py-8 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
-                    Nenhum horário prometido para {dayGroup === 'WEEKDAY' ? 'Dias Úteis' : dayGroup === 'SAT' ? 'Sábados' : 'Domingos/Feriados'} localizado no último PDF oficial.
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <SkeletonMetric />
+                    <SkeletonMetric />
                 </div>
+            ) : data.length === 0 ? (
+                <EmptyState
+                    icon={BarChart3}
+                    title="Sem dados oficiais"
+                    description="Não há dados oficiais para este período."
+                />
             ) : (
-                <>
+                <div className="space-y-6">
                     {/* Alertas Rápidos */}
                     {worstHours.length > 0 && (
-                        <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border-l-4 border-amber-500 rounded-r-lg">
-                            <h3 className="text-sm font-bold text-amber-900 dark:text-amber-400 flex items-center gap-2">
-                                <AlertCircle className="w-4 h-4" /> Horários de Pico Afetados
-                            </h3>
-                            <ul className="mt-2 space-y-1">
-                                {worstHours.map(w => (
-                                    <li key={w.hour} className="text-sm text-amber-800 dark:text-amber-300">
-                                        Às <strong>{w.hour}h</strong> o intervalo é {Math.round(w.delta_pct!)}% maior do que o prometido (Promete {w.promised_headway_min}m, Faz {w.real_p50_headway_min}m)
-                                    </li>
-                                ))}
-                            </ul>
+                        <div className="space-y-2">
+                            {worstHours.map(w => (
+                                <InlineAlert key={w.hour} variant="warning">
+                                    Às <span className="text-white">{w.hour}h</span> o intervalo é <span className="text-white">{Math.round(w.delta_pct!)}% maior</span> do que o prometido.
+                                </InlineAlert>
+                            ))}
                         </div>
                     )}
 
-                    {/* Tabela de Gaps */}
-                    <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                <tr>
-                                    <th className="px-4 py-3">Hora</th>
-                                    <th className="px-4 py-3 font-semibold text-right">Prometido (m)</th>
-                                    <th className="px-4 py-3 font-semibold text-right">Real (m)</th>
-                                    <th className="px-4 py-3 font-semibold text-right">Pior (p90)</th>
-                                    <th className="px-4 py-3 font-semibold text-center">Déficit</th>
-                                    <th className="px-4 py-3 font-semibold text-center">Confiabilidade</th>
+                    {/* Tabela de Gaps Industrial */}
+                    <div className="overflow-x-auto rounded-2xl border border-white/5 bg-black/20">
+                        <table className="w-full text-left text-[11px]">
+                            <thead>
+                                <tr className="border-b border-white/5 bg-white/[0.02]">
+                                    <th className="px-4 py-3 font-black text-muted uppercase tracking-widest">Hora</th>
+                                    <th className="px-4 py-3 font-black text-muted uppercase tracking-widest text-right">Prometido</th>
+                                    <th className="px-4 py-3 font-black text-muted uppercase tracking-widest text-right">Vida Real</th>
+                                    <th className="px-4 py-3 font-black text-muted uppercase tracking-widest text-center">Déficit</th>
+                                    <th className="px-4 py-3 font-black text-muted uppercase tracking-widest text-center">Audit</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody className="divide-y divide-white/[0.02]">
                                 {data.map((row) => (
-                                    <tr key={row.hour} className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <td className="px-4 py-3 font-bold text-gray-900 dark:text-white">{row.hour}h</td>
-                                        <td className="px-4 py-3 text-right">
-                                            {row.promised_headway_min ? (
-                                                <span className="text-gray-600 dark:text-gray-300">{row.promised_headway_min}</span>
-                                            ) : (
-                                                <span className="text-gray-400 italic font-light text-xs">N/A</span>
-                                            )}
+                                    <tr key={row.hour} className="hover:bg-white/[0.01] transition-colors">
+                                        <td className="px-4 py-3 font-industrial text-brand italic">{row.hour}h</td>
+                                        <td className="px-4 py-3 text-right font-bold text-white/40">
+                                            {row.promised_headway_min ? `${row.promised_headway_min}m` : '--'}
                                         </td>
-                                        <td className="px-4 py-3 text-right">
-                                            {row.real_p50_headway_min ? (
-                                                <span className="font-bold text-gray-900 dark:text-white">{row.real_p50_headway_min}</span>
-                                            ) : (
-                                                <span className="text-gray-400 italic font-light text-xs">0 avistamentos</span>
-                                            )}
+                                        <td className="px-4 py-3 text-right font-industrial text-base italic text-white/80">
+                                            {row.real_p50_headway_min ? `${row.real_p50_headway_min}m` : '--'}
                                         </td>
-                                        <td className="px-4 py-3 text-right text-gray-500">{row.real_p90_headway_min || '--'}</td>
-
-                                        <td className="px-4 py-3 font-black text-center">
+                                        <td className="px-4 py-3 font-industrial text-center">
                                             {row.delta_pct !== null ? (
-                                                <span className={row.delta_pct > 20 ? 'text-red-600 dark:text-red-400' : row.delta_pct < -10 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-600 dark:text-gray-400'}>
+                                                <span className={row.delta_pct > 20 ? 'text-danger' : row.delta_pct < -10 ? 'text-emerald-500' : 'text-white/40'}>
                                                     {row.delta_pct > 0 ? '+' : ''}{Math.round(row.delta_pct)}%
                                                 </span>
-                                            ) : (
-                                                <span className="text-gray-400 font-normal italic text-xs">--</span>
-                                            )}
+                                            ) : '--'}
                                         </td>
-
                                         <td className="px-4 py-3 text-center">
                                             <TrustMixBadge total={row.samples} pctVerified={row.pct_verified} />
                                         </td>
@@ -147,8 +152,142 @@ export function PromisedVsRealCard({ lineId }: { lineId: string }) {
                             </tbody>
                         </table>
                     </div>
-                </>
+                </div>
             )}
-        </div>
+        </Card>
+    );
+}
+
+export function StopPromisedVsRealCard({ stopId }: { stopId: string }) {
+    const [dayGroup, setDayGroup] = useState<'WEEKDAY' | 'SAT' | 'SUN'>('WEEKDAY');
+    const [data, setData] = useState<StopHourlyGap[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        fetch(`/api/stop/promised-vs-real?stop_id=${stopId}&day=${dayGroup}`)
+            .then(res => res.json())
+            .then(json => {
+                if (isMounted) {
+                    setData(json.data || []);
+                    setLoading(false);
+                }
+            })
+            .catch(() => {
+                if (isMounted) setLoading(false);
+            });
+
+        return () => { isMounted = false; };
+    }, [stopId, dayGroup]);
+
+    const worstLines = [...data]
+        .filter(d => d.has_promise && d.avg_delta > 10 && d.samples_total >= 5)
+        .sort((a, b) => b.avg_delta - a.avg_delta)
+        .slice(0, 3);
+
+    return (
+        <Card className="!p-6 border-white/5 bg-white/[0.02]">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div className="space-y-1">
+                    <h3 className="font-industrial text-sm tracking-widest uppercase text-white/80 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-brand" /> Prometido vs Real (PONTO)
+                    </h3>
+                    <p className="text-[10px] text-muted font-bold uppercase tracking-widest">Performance de todas as linhas neste local</p>
+                </div>
+
+                <div className="relative group">
+                    <select
+                        value={dayGroup}
+                        onChange={(e) => {
+                            setDayGroup(e.target.value as 'WEEKDAY' | 'SAT' | 'SUN');
+                            setLoading(true);
+                        }}
+                        className="appearance-none bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-xl pl-4 pr-10 py-2.5 hover:border-brand/40 transition-colors focus:ring-1 focus:ring-brand cursor-pointer outline-none"
+                    >
+                        <option value="WEEKDAY" className="bg-gray-900">Dias Úteis</option>
+                        <option value="SAT" className="bg-gray-900">Sábados</option>
+                        <option value="SUN" className="bg-gray-900">Domingos/Feriados</option>
+                    </select>
+                    <ChevronDown className="w-3 h-3 absolute right-3 top-1/2 -translate-y-1/2 text-muted group-hover:text-brand transition-colors pointer-events-none" />
+                </div>
+            </div>
+
+            {loading ? (
+                <div className="space-y-4">
+                    <SkeletonMetric />
+                    <SkeletonMetric />
+                </div>
+            ) : data.length === 0 ? (
+                <EmptyState
+                    icon={BarChart3}
+                    title="Sem Correlações"
+                    description="Não há dados suficientes para montar a comparação prometido vs real neste ponto."
+                />
+            ) : (
+                <div className="space-y-8">
+                    {/* Alertas Críticos */}
+                    {worstLines.length > 0 && (
+                        <div className="space-y-2">
+                            {worstLines.map(w => (
+                                <InlineAlert key={w.line_code} variant="error" title="Linha Crítica">
+                                    A <span className="text-white">Linha {w.line_code}</span> atrasa em média <span className="text-white">+{Math.round(w.avg_delta)} min</span> comparada à Tabela Oficial.
+                                </InlineAlert>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Tabela de Top Linhas no Ponto */}
+                    <div className="space-y-6">
+                        {data.slice(0, 5).map((lineData) => (
+                            <div key={lineData.line_code} className="rounded-2xl border border-white/5 overflow-hidden bg-black/20">
+                                <div className="bg-white/[0.03] px-4 py-3 border-b border-white/5 flex justify-between items-center">
+                                    <h4 className="font-industrial text-xs italic text-white/80 flex items-center gap-2">
+                                        <span className="bg-brand text-black font-black px-2 py-0.5 rounded text-[10px] not-italic">{lineData.line_code}</span>
+                                        {lineData.line_name}
+                                    </h4>
+                                    <TrustMixBadge total={lineData.samples_total} pctVerified={lineData.pct_verified_avg} />
+                                </div>
+
+                                {lineData.has_promise ? (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-[10px]">
+                                            <thead className="bg-white/[0.01] border-b border-white/5">
+                                                <tr className="text-muted font-black uppercase tracking-widest">
+                                                    <th className="px-4 py-2">Hora</th>
+                                                    <th className="px-4 py-2 text-right">Prometido</th>
+                                                    <th className="px-4 py-2 text-right">Real Médio</th>
+                                                    <th className="px-4 py-2 text-center">Déficit</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/[0.02]">
+                                                {lineData.hours.map((h) => (
+                                                    <tr key={h.hour} className="hover:bg-white/[0.01] transition-colors">
+                                                        <td className="px-4 py-2 font-industrial text-brand italic">{h.hour}h</td>
+                                                        <td className="px-4 py-2 text-right text-white/30">{h.promised_headway_min ? `${h.promised_headway_min}m` : '--'}</td>
+                                                        <td className="px-4 py-2 text-right font-industrial text-white/80">{h.real_p50_headway_min}m</td>
+                                                        <td className="px-4 py-2 text-center font-industrial text-base">
+                                                            {h.delta_min !== null ? (
+                                                                <span className={h.delta_min > 5 ? 'text-danger' : h.delta_min < -2 ? 'text-emerald-500' : 'text-white/40'}>
+                                                                    {h.delta_min > 0 ? '+' : ''}{h.delta_min}m
+                                                                </span>
+                                                            ) : '--'}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <div className="p-6 text-center">
+                                        <p className="text-[10px] text-muted font-black uppercase tracking-widest opacity-40">Sem tabela oficial parseada</p>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </Card>
     );
 }

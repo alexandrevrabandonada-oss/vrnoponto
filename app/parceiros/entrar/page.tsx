@@ -2,11 +2,15 @@
 
 import { useState } from 'react';
 import {
-    Phone, Instagram, Home, MessageSquare,
-    CheckCircle2, Loader2, ArrowLeft, Navigation, Store, ShieldCheck
+    CheckCircle2, Navigation, ShieldCheck,
+    ArrowLeft, Store, Info
 } from 'lucide-react';
 import Link from 'next/link';
 import { TelemetryTracker } from '@/components/TelemetryTracker';
+import {
+    AppShell, PageHeader, Button, Card, Divider,
+    Field, Input, Select, Textarea, Switch
+} from '@/components/ui';
 
 const CATEGORIES = [
     { value: 'comercio', label: 'Comércio' },
@@ -36,7 +40,6 @@ export default function ParceirosEntrarPage() {
         lng: '',
         message: '',
         authorized: false,
-        // Honeypot — never shown to user, set by bots
         website: '',
     });
 
@@ -59,7 +62,6 @@ export default function ParceirosEntrarPage() {
         e.preventDefault();
         setError(null);
 
-        // Fire click track asynchronously
         fetch('/api/telemetry', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -67,7 +69,7 @@ export default function ParceirosEntrarPage() {
         }).catch(() => { });
 
         if (!form.authorized) {
-            setError('Você precisa confirmar que tem autorização para instalar o material no local.');
+            setError('VOCÊ PRECISA CONFIRMAR A AUTORIZAÇÃO PARA PROSSEGUIR.');
             return;
         }
 
@@ -90,166 +92,197 @@ export default function ParceirosEntrarPage() {
 
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-emerald-50 dark:bg-gray-900 p-6">
-                <div className="max-w-md text-center space-y-6">
-                    <div className="w-20 h-20 mx-auto bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
-                        <CheckCircle2 size={48} className="text-emerald-500" />
+            <AppShell title="PEDIDO ENVIADO">
+                <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-6">
+                    <div className="w-24 h-24 bg-brand/10 border border-brand/20 rounded-full flex items-center justify-center animate-scale-in">
+                        <CheckCircle2 size={48} className="text-brand" />
                     </div>
-                    <h1 className="text-2xl font-black text-gray-900 dark:text-white">Pedido enviado!</h1>
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                        Recebemos seu pedido de adesão. Nossa equipe vai entrar em contato em breve pelo WhatsApp ou Instagram que você indicou.
+                    <h1 className="text-2xl font-black uppercase tracking-tighter text-white">
+                        Solicitação Enviada!
+                    </h1>
+                    <p className="text-muted font-medium leading-relaxed max-w-xs">
+                        Nossa equipe entrará em contato em breve via WhatsApp ou Instagram.
                     </p>
-                    <Link href="/parceiros" className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition">
-                        Ver Pontos Parceiros
+                    <Link href="/parceiros" className="w-full max-w-xs">
+                        <Button className="w-full">Voltar para Parceiros</Button>
                     </Link>
                 </div>
-            </div>
+            </AppShell>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+        <AppShell title="ADESÃO PARCEIRO">
             <TelemetryTracker eventName="page_view_partner_apply" />
-            {/* Header */}
-            <header className="bg-indigo-900 text-white p-6 rounded-b-3xl shadow-xl">
-                <Link href="/parceiros" className="flex items-center gap-2 text-indigo-200 text-sm mb-4 hover:text-white transition">
-                    <ArrowLeft size={16} /> Voltar para Parceiros
-                </Link>
-                <div className="flex items-center gap-3">
-                    <div className="bg-indigo-700/50 p-2.5 rounded-2xl backdrop-blur">
-                        <Store size={24} className="text-indigo-100" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black tracking-tight">Quero ser Parceiro</h1>
-                        <p className="text-indigo-200 text-sm mt-0.5">Leva menos de 2 minutos. Sem custo.</p>
-                    </div>
-                </div>
-            </header>
 
-            <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-5 space-y-5 mt-4">
-                {/* Honeypot - hidden from users */}
+            <Link href="/parceiros" className="inline-flex items-center gap-2 text-brand text-[10px] font-black uppercase tracking-widest mb-6 hover:opacity-80 transition">
+                <ArrowLeft size={14} /> Voltar
+            </Link>
+
+            <PageHeader
+                title="Novo Parceiro"
+                subtitle="Leva menos de 2 minutos e não tem custo."
+            />
+
+            <form onSubmit={handleSubmit} className="space-y-8 pb-10">
                 <input type="text" name="website" value={form.website} onChange={set('website')} className="hidden" aria-hidden="true" tabIndex={-1} autoComplete="off" />
 
-                {/* Local Info */}
-                <section className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-4">
-                    <h2 className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-widest flex items-center gap-2">
-                        <Home size={16} className="text-indigo-600" /> Sobre o Local
-                    </h2>
+                <div className="space-y-6">
+                    <Divider label="SOBRE O LOCAL" />
 
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1.5">Nome do local *</label>
-                        <input required value={form.name} onChange={set('name')} type="text"
-                            placeholder="Ex: Padaria da Vila, Sindicato dos Metroviários..."
-                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition" />
-                    </div>
+                    <Field
+                        label="Nome do Estabelecimento / Entidade"
+                        hint="Como as pessoas conhecem este lugar?"
+                        error={error?.includes('nome') ? error : undefined}
+                    >
+                        <Input
+                            id="name"
+                            required
+                            value={form.name}
+                            onChange={set('name')}
+                            placeholder="Ex: Padaria da Vila, Sindicato..."
+                        />
+                    </Field>
 
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1.5">Bairro *</label>
-                            <input required value={form.neighborhood} onChange={set('neighborhood')} type="text"
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <Field label="Bairro" hint="Onde fica?">
+                            <Input
+                                id="neighborhood"
+                                required
+                                value={form.neighborhood}
+                                onChange={set('neighborhood')}
                                 placeholder="Vila Rica, Centro..."
-                                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1.5">Categoria</label>
-                            <select value={form.category} onChange={set('category')}
-                                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition">
-                                {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                            </select>
-                        </div>
+                            />
+                        </Field>
+
+                        <Field label="Categoria" hint="Tipo de local">
+                            <Select
+                                id="category"
+                                value={form.category}
+                                onChange={set('category')}
+                            >
+                                {CATEGORIES.map(c => <option key={c.value} value={c.value} className="bg-zinc-900">{c.label}</option>)}
+                            </Select>
+                        </Field>
                     </div>
 
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1.5">Endereço (opcional)</label>
-                        <input value={form.address} onChange={set('address')} type="text"
+                    <Field label="Endereço (Opcional)" hint="Rua e número aproximado">
+                        <Input
+                            id="address"
+                            value={form.address}
+                            onChange={set('address')}
                             placeholder="Rua 33, nº 10"
-                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition" />
-                    </div>
+                        />
+                    </Field>
 
-                    {/* GPS */}
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1.5">Localização GPS (opcional)</label>
-                        <div className="flex items-center gap-3">
-                            <button type="button" onClick={getLocation} disabled={gettingLocation}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl text-sm font-bold hover:bg-indigo-100 transition disabled:opacity-50">
-                                {gettingLocation ? <Loader2 size={16} className="animate-spin" /> : <Navigation size={16} />}
-                                Usar minha localização
-                            </button>
-                            {form.lat && <span className="text-xs text-emerald-600 font-bold flex items-center gap-1"><CheckCircle2 size={14} /> GPS capturado</span>}
+                    <Field label="Localização GPS" hint="Ajuda na precisão do mapa">
+                        <div className="flex items-center gap-4">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={getLocation}
+                                loading={gettingLocation}
+                                className="flex-1 h-12 !text-xs"
+                                icon={<Navigation size={14} />}
+                            >
+                                Capturar GPS
+                            </Button>
+                            {form.lat && (
+                                <div className="flex items-center gap-2 text-brand font-black text-[10px] uppercase">
+                                    <CheckCircle2 size={14} /> Ativado
+                                </div>
+                            )}
                         </div>
+                    </Field>
+                </div>
+
+                <div className="space-y-6">
+                    <Divider label="CONTATO" />
+
+                    <Field label="Responsável" hint="Com quem falaremos?">
+                        <Input
+                            id="contact_name"
+                            value={form.contact_name}
+                            onChange={set('contact_name')}
+                            placeholder="Seu nome"
+                        />
+                    </Field>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <Field label="WhatsApp" hint="Número com DDD">
+                            <Input
+                                id="contact_phone"
+                                type="tel"
+                                value={form.contact_phone}
+                                onChange={set('contact_phone')}
+                                placeholder="(24) 9 9999-9999"
+                            />
+                        </Field>
+                        <Field label="Instagram" hint="@perfil">
+                            <Input
+                                id="contact_instagram"
+                                value={form.contact_instagram}
+                                onChange={set('contact_instagram')}
+                                placeholder="@local_ou_seu"
+                            />
+                        </Field>
                     </div>
-                </section>
+                </div>
 
-                {/* Contact Info */}
-                <section className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-4">
-                    <h2 className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-widest flex items-center gap-2">
-                        <Phone size={16} className="text-indigo-600" /> Contato
-                    </h2>
-                    <p className="text-xs text-gray-500">Preencha pelo menos um campo de contato.</p>
+                <div className="space-y-6">
+                    <Divider label="MENSAGEM EXTRA" />
+                    <Field label="Motivação" hint="Opcional: conte algo sobre seu local">
+                        <Textarea
+                            id="message"
+                            value={form.message}
+                            onChange={set('message')}
+                            placeholder="Ex: Gostaria de ajudar a vizinhança..."
+                        />
+                    </Field>
+                </div>
 
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1.5">Seu nome (pessoa responsável)</label>
-                        <input value={form.contact_name} onChange={set('contact_name')} type="text"
-                            placeholder="João Silva"
-                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition" />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="relative">
-                            <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input value={form.contact_phone} onChange={set('contact_phone')} type="tel"
-                                placeholder="WhatsApp: (24) 9 9999-9999"
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                <div className="space-y-4">
+                    <Card variant="surface2" className="border-brand/10">
+                        <div className="flex items-start gap-4">
+                            <Switch
+                                id="authorized"
+                                checked={form.authorized}
+                                onChange={(val) => setForm(p => ({ ...p, authorized: val }))}
+                            />
+                            <div className="flex-1 space-y-1">
+                                <label
+                                    htmlFor="authorized"
+                                    className="block text-xs font-black uppercase tracking-tight text-white leading-tight"
+                                >
+                                    Autorizo a Instalação
+                                </label>
+                                <p className="text-[10px] font-medium text-muted uppercase tracking-tight opacity-70">
+                                    Confirmo que tenho permissão para expor o material informativo no local indicado.
+                                </p>
+                            </div>
                         </div>
-                        <div className="relative">
-                            <Instagram size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input value={form.contact_instagram} onChange={set('contact_instagram')} type="text"
-                                placeholder="@instagram"
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                    </Card>
+
+                    {error && (
+                        <div className="bg-danger/10 border border-danger/20 p-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2">
+                            <Info size={16} className="text-danger shrink-0" />
+                            <p className="text-[11px] font-bold text-danger uppercase tracking-tight leading-tight">
+                                {error}
+                            </p>
                         </div>
-                    </div>
-                </section>
+                    )}
 
-                {/* Message */}
-                <section className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-4">
-                    <h2 className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-widest flex items-center gap-2">
-                        <MessageSquare size={16} className="text-indigo-600" /> Mensagem (opcional)
-                    </h2>
-                    <textarea value={form.message} onChange={set('message')} rows={3}
-                        placeholder="Algo que queira nos contar sobre o local ou sua motivação..."
-                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition resize-none" />
-                </section>
-
-                {/* Authorization Checkbox */}
-                <label className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 p-4 rounded-2xl cursor-pointer">
-                    <input type="checkbox" checked={form.authorized} onChange={e => setForm(p => ({ ...p, authorized: e.target.checked }))}
-                        className="mt-0.5 w-5 h-5 rounded accent-indigo-600 flex-shrink-0" />
-                    <div>
-                        <span className="font-bold text-sm text-amber-900 dark:text-amber-200">
-                            Tenho autorização para expor um cartaz/QR Code no meu local
-                        </span>
-                        <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
-                            Confirmo que o local me pertence ou tenho permissão do responsável.
-                        </p>
-                    </div>
-                </label>
-
-                {error && (
-                    <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-100 dark:border-red-900/30 px-4 py-3 rounded-2xl text-sm font-medium">
-                        {error}
-                    </div>
-                )}
-
-                <button type="submit" disabled={loading}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white font-black py-4 rounded-3xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
-                    {loading ? <Loader2 size={20} className="animate-spin" /> : <ShieldCheck size={20} />}
-                    {loading ? 'Enviando...' : 'Enviar Pedido de Adesão'}
-                </button>
-
-                <p className="text-center text-xs text-gray-400">
-                    Seus dados são usados somente para contato e não são exibidos publicamente.
-                </p>
+                    <Button
+                        type="submit"
+                        loading={loading}
+                        className="w-full h-16 !text-lg shadow-xl shadow-brand/10"
+                        icon={<ShieldCheck size={20} />}
+                        iconPosition="right"
+                    >
+                        Solicitar Adesão
+                    </Button>
+                </div>
             </form>
-        </div>
+        </AppShell>
     );
 }

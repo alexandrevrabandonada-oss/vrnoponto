@@ -53,12 +53,12 @@ export default async function HistoricoBairrosPage() {
             {/* Header */}
             <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
                 <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-                    <Link href="/bairros" className="flex items-center gap-2 text-gray-500 hover:text-indigo-600 transition-colors">
+                    <Link href="/bairros" className="flex items-center gap-2 text-gray-500 hover:text-brand transition-colors">
                         <ArrowLeft size={20} />
                         <span className="font-medium hidden sm:inline">Voltar</span>
                     </Link>
                     <div className="flex items-center gap-2">
-                        <span className="bg-indigo-600 text-white text-[10px] font-black px-2 py-0.5 rounded tracking-tighter">HISTÓRICO MENSAL</span>
+                        <span className="bg-brand text-black text-[10px] font-black px-2 py-0.5 rounded tracking-tighter">HISTÓRICO MENSAL</span>
                     </div>
                 </div>
             </div>
@@ -66,7 +66,7 @@ export default async function HistoricoBairrosPage() {
             <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
                 <header className="space-y-2">
                     <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
-                        <HistoryIcon className="text-indigo-600" /> Histórico de Bairros
+                        <HistoryIcon className="text-brand" /> Histórico de Bairros
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400">
                         Comparativo mensal de desempenho e tendências de atraso em Volta Redonda.
@@ -126,7 +126,7 @@ export default async function HistoricoBairrosPage() {
                 {/* Full Historical Table */}
                 <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
                     <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
-                        <Calendar size={20} className="text-indigo-600" />
+                        <Calendar size={20} className="text-brand" />
                         <h2 className="text-lg font-black text-gray-900 dark:text-white">Linha do Tempo por Bairro</h2>
                     </div>
                     <div className="overflow-x-auto">
@@ -151,7 +151,7 @@ export default async function HistoricoBairrosPage() {
                                         <tr key={`${c.month_start}-${c.neighborhood_norm}`} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                             <td className="px-5 py-4 font-bold text-gray-500 capitalize">{formatDate(c.month_start)}</td>
                                             <td className="px-5 py-4">
-                                                <Link href={`/bairro/${encodeURIComponent(c.neighborhood_norm)}`} className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                                <Link href={`/bairro/${encodeURIComponent(c.neighborhood_norm)}`} className="font-bold text-brand dark:text-brand hover:underline">
                                                     {c.neighborhood_norm}
                                                 </Link>
                                             </td>
@@ -178,12 +178,12 @@ export default async function HistoricoBairrosPage() {
                 </div>
 
                 {/* Call to Action */}
-                <div className="bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 p-6 rounded-r-2xl">
+                <div className="bg-brand/10 border-l-4 border-brand p-6 rounded-r-2xl">
                     <div className="flex items-start gap-4">
-                        <AlertTriangle className="text-indigo-600 flex-shrink-0" size={28} />
+                        <AlertTriangle className="text-brand flex-shrink-0" size={28} />
                         <div>
-                            <h3 className="text-indigo-900 dark:text-indigo-400 font-black text-lg">Os dados mostram a evolução do serviço.</h3>
-                            <p className="text-indigo-800 dark:text-indigo-300 text-sm leading-relaxed mt-1">
+                            <h3 className="text-white font-black text-lg font-industrial uppercase tracking-tight">Os dados mostram a evolução do serviço.</h3>
+                            <p className="text-zinc-400 text-sm leading-relaxed mt-1">
                                 Pioras constantes em determinados bairros indicam necessidade de revisão de frota ou itinerário pelas autoridades.
                             </p>
                         </div>

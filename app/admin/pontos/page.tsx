@@ -57,7 +57,7 @@ export default async function AdminPontos() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
                         <input type="number" step="any" name="lng" required className="w-full p-2 border rounded-md" placeholder="-44.123" />
                     </div>
-                    <button type="submit" className="bg-indigo-600 text-white px-6 py-2 rounded-md font-medium hover:bg-indigo-700 transition h-[42px]">
+                    <button type="submit" className="bg-brand text-black px-6 py-2 rounded-md font-bold hover:brightness-110 transition h-[42px]">
                         Salvar
                     </button>
                 </form>

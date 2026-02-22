@@ -25,12 +25,12 @@ export default async function OGImage(props: { params: Promise<{ slug: string }>
     return new ImageResponse(
         (
             <div style={{
-                background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #000 100%)',
+                background: 'linear-gradient(135deg, #18181b 0%, #09090b 50%, #000 100%)',
                 width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
                 justifyContent: 'center', padding: '80px', fontFamily: 'sans-serif',
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
-                    <span style={{ fontSize: '24px', fontWeight: 'bold', backgroundColor: '#4f46e5', padding: '6px 16px', borderRadius: '8px', color: 'white' }}>VR NO PONTO</span>
+                    <span style={{ fontSize: '24px', fontWeight: 'bold', backgroundColor: '#facc15', padding: '6px 16px', borderRadius: '8px', color: 'black' }}>VR NO PONTO</span>
                     <span style={{ fontSize: '24px', color: '#9ca3af' }}>Diagnóstico de Bairro</span>
                 </div>
 

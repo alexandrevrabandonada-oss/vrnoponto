@@ -40,11 +40,11 @@ export async function GET(request: Request) {
         return new ImageResponse(
             (
                 <div style={{
-                    background: 'linear-gradient(to bottom right, #0f172a, #000)', width: '100%', height: '100%',
+                    background: 'linear-gradient(to bottom right, #18181b, #000)', width: '100%', height: '100%',
                     display: 'flex', flexDirection: 'column', padding: '60px', fontFamily: 'sans-serif',
                 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                        <span style={{ fontSize: '26px', fontWeight: 'bold', backgroundColor: '#4f46e5', padding: '8px 16px', borderRadius: '8px', color: 'white' }}>VR NO PONTO</span>
+                        <span style={{ fontSize: '26px', fontWeight: 'bold', backgroundColor: '#facc15', padding: '8px 16px', borderRadius: '8px', color: 'black' }}>VR NO PONTO</span>
                         <span style={{ color: '#9ca3af', fontSize: '22px' }}>Mapa Semanal de Bairros</span>
                     </div>
                     <h1 style={{ color: 'white', fontSize: '48px', fontWeight: '900', margin: '0 0 12px 0' }}>Top {limit} Bairros — Atraso no Mapa</h1>

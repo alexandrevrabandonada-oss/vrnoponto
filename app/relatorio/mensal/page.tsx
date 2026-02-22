@@ -79,7 +79,7 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                                     name="m"
                                     onChange={(e) => e.target.form?.submit()}
                                     defaultValue={currentMonth}
-                                    className="pl-9 pr-8 py-2 w-full appearance-none bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium shadow-sm focus:ring-2 focus:ring-indigo-500"
+                                    className="pl-9 pr-8 py-2 w-full appearance-none bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-medium shadow-sm focus:ring-2 focus:ring-brand"
                                 >
                                     {months.map(m => (
                                         <option key={m} value={m}>{formatMonthLabel(m)}</option>
@@ -88,10 +88,10 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                             </form>
                         </div>
                         <div className="flex gap-2">
-                            <a href={`/api/report/monthly.csv?month=${currentMonth}`} download className="flex-1 sm:flex-none inline-flex justify-center items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <a href={`/api/report/monthly.csv?month=${currentMonth}`} download className="flex-1 sm:flex-none inline-flex justify-center items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-medium text-black dark:text-white shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-700 transition">
                                 <Download size={16} /> JSON/CSV
                             </a>
-                            <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Confira o relatório do VR no Ponto deste mês: ${reportUrl}`)}`} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-none inline-flex justify-center items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm transition">
+                            <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Confira o relatório do VR no Ponto deste mês: ${reportUrl}`)}`} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-none inline-flex justify-center items-center gap-2 px-4 py-2 bg-brand hover:brightness-110 text-black rounded-lg font-bold shadow-sm transition">
                                 <Share2 size={16} /> Compartilhar
                             </a>
                         </div>
@@ -250,7 +250,7 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                 )}
 
                 {/* Aviso / Footer */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 rounded-xl p-6 flex flex-col sm:flex-row gap-4">
+                <div className="bg-brand/10 text-brand rounded-xl p-6 flex flex-col sm:flex-row gap-4 border border-brand/20">
                     <Info className="flex-shrink-0" size={24} />
                     <div className="text-sm space-y-2 leading-relaxed">
                         <p>

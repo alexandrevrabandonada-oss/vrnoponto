@@ -86,7 +86,7 @@ export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, 
             <button
                 onClick={generateQR}
                 disabled={loading}
-                className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-100 transition disabled:opacity-50"
+                className="flex items-center gap-2 bg-brand/20 text-brand px-3 py-1.5 rounded-lg font-bold hover:bg-brand/30 transition disabled:opacity-50"
             >
                 {loading ? <Loader2 className="animate-spin" size={16} /> : <QrCode size={16} />}
                 Gerar QR
@@ -127,7 +127,7 @@ export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, 
                                 </button>
                                 <button
                                     onClick={printQR}
-                                    className="flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100"
+                                    className="flex items-center justify-center gap-2 bg-brand text-black py-3 rounded-xl font-bold hover:brightness-110 transition shadow-none"
                                 >
                                     <Printer size={18} />
                                     Imprimir A4

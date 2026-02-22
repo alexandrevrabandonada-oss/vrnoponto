@@ -115,9 +115,9 @@ export default function StatusDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                 {/* Health Card */}
                 <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-                    <div className="flex items-center gap-3 text-indigo-900 border-b border-gray-100 pb-3">
+                    <div className="flex items-center gap-3 text-brand border-b border-zinc-800 pb-3">
                         <Activity size={20} />
-                        <h2 className="font-bold">Saúde do Deploy</h2>
+                        <h2 className="font-bold text-white">Saúde do Deploy</h2>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm">
@@ -133,9 +133,9 @@ export default function StatusDashboard() {
 
                 {/* Data Card */}
                 <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-                    <div className="flex items-center gap-3 text-indigo-900 border-b border-gray-100 pb-3">
+                    <div className="flex items-center gap-3 text-brand border-b border-zinc-800 pb-3">
                         <Database size={20} />
-                        <h2 className="font-bold">Dados & Alertas</h2>
+                        <h2 className="font-bold text-white">Dados & Alertas</h2>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm">
@@ -155,9 +155,9 @@ export default function StatusDashboard() {
 
                 {/* DB Card */}
                 <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-                    <div className="flex items-center gap-3 text-indigo-900 border-b border-gray-100 pb-3">
+                    <div className="flex items-center gap-3 text-brand border-b border-zinc-800 pb-3">
                         <Server size={20} />
-                        <h2 className="font-bold">Banco de Dados</h2>
+                        <h2 className="font-bold text-white">Banco de Dados</h2>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm">
@@ -173,9 +173,9 @@ export default function StatusDashboard() {
 
                 {/* Telegram Card */}
                 <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-                    <div className="flex items-center gap-3 text-indigo-900 border-b border-gray-100 pb-3">
+                    <div className="flex items-center gap-3 text-brand border-b border-zinc-800 pb-3">
                         <MessageSquare size={20} />
-                        <h2 className="font-bold">Notificações Telegram</h2>
+                        <h2 className="font-bold text-white">Notificações Telegram</h2>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm">
@@ -194,7 +194,7 @@ export default function StatusDashboard() {
                     <button
                         onClick={() => triggerAction('telegram', '/api/admin/notify-telegram')}
                         disabled={actionLoading === 'telegram'}
-                        className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-2 bg-brand hover:brightness-110 text-black px-3 py-2 rounded-xl text-xs font-bold transition disabled:opacity-50"
                     >
                         {actionLoading === 'telegram' ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                         Notificar Agora
@@ -204,9 +204,9 @@ export default function StatusDashboard() {
 
             {/* Jobs Card */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-gray-100 flex items-center gap-3 text-indigo-900">
+                <div className="p-5 border-b border-zinc-800 flex items-center gap-3 text-brand">
                     <Clock size={20} />
-                    <h2 className="font-bold">Cronjobs (GitHub Actions)</h2>
+                    <h2 className="font-bold text-white">Cronjobs (GitHub Actions)</h2>
                 </div>
                 <div className="divide-y divide-gray-100">
                     {[
@@ -232,7 +232,7 @@ export default function StatusDashboard() {
                             <button
                                 onClick={() => triggerAction(job.id, job.endpoint)}
                                 disabled={actionLoading === job.id}
-                                className="flex items-center justify-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl text-sm font-bold transition disabled:opacity-50"
+                                className="flex items-center justify-center gap-2 bg-brand/10 hover:bg-brand/20 text-brand px-4 py-2 rounded-xl text-sm font-bold transition disabled:opacity-50"
                             >
                                 {actionLoading === job.id ? <Loader2 size={16} className="animate-spin" /> : <PlayCircle size={16} />}
                                 {actionLoading === job.id ? 'Rodando...' : 'Rodar Agora'}
@@ -306,9 +306,9 @@ function NeighborhoodAuditCard({ token }: { token: string }) {
     return (
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                <div className="flex items-center gap-3 text-indigo-900">
+                <div className="flex items-center gap-3 text-brand">
                     <Database size={20} />
-                    <h2 className="font-bold">Bairros: Qualidade do Match</h2>
+                    <h2 className="font-bold text-white">Bairros: Qualidade do Match</h2>
                 </div>
                 <button onClick={refreshAudit} disabled={loading} className="text-sm text-gray-500 hover:text-gray-700">
                     <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
@@ -365,7 +365,7 @@ function NeighborhoodAuditCard({ token }: { token: string }) {
                         <button
                             onClick={runRenormalize}
                             disabled={renormLoading}
-                            className="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl text-sm font-bold transition disabled:opacity-50"
+                            className="flex items-center gap-2 bg-brand/10 hover:bg-brand/20 text-brand px-4 py-2 rounded-xl text-sm font-bold transition disabled:opacity-50"
                         >
                             {renormLoading ? <Loader2 size={14} className="animate-spin" /> : <PlayCircle size={14} />}
                             Re-normalizar Agora

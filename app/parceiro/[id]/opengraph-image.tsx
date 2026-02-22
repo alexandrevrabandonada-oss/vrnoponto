@@ -17,7 +17,7 @@ export default async function Image({ params }: { params: { id: string } }) {
             (
                 <div style={{
                     fontSize: 48,
-                    background: '#312e81',
+                    background: '#18181b',
                     width: '100%',
                     height: '100%',
                     display: 'flex',
@@ -53,11 +53,11 @@ export default async function Image({ params }: { params: { id: string } }) {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundColor: '#4f46e5',
+                    backgroundColor: '#facc15',
                     borderRadius: '40px',
                     padding: '60px',
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                    color: 'white',
+                    color: 'black',
                     width: '1000px',
                     border: '8px solid white',
                 }}>
@@ -67,7 +67,7 @@ export default async function Image({ params }: { params: { id: string } }) {
                         fontWeight: '900',
                         letterSpacing: '0.1em',
                         textTransform: 'uppercase',
-                        backgroundColor: 'rgba(255,255,255,0.2)',
+                        backgroundColor: 'rgba(0,0,0,0.1)',
                         padding: '10px 20px',
                         borderRadius: '12px',
                         marginBottom: '40px',

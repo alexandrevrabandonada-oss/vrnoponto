@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { Button, Field, RadioGroup, Card } from '@/components/ui';
+import { Info } from 'lucide-react';
 
 interface RatingModalProps {
     isOpen: boolean;
@@ -10,90 +12,97 @@ interface RatingModalProps {
     deviceId: string | null;
 }
 
+const CROWDING_OPTIONS = [
+    { value: '1', label: '1' },
+    { value: '2', label: '2' },
+    { value: '3', label: '3' },
+    { value: '4', label: '4' },
+    { value: '5', label: '5' },
+];
+
 export function RatingModal({ isOpen, onClose, lineId, deviceId }: RatingModalProps) {
     const supabase = createClient();
-    const [crowdingLevel, setCrowdingLevel] = useState<number>(3);
+    const [crowdingLevel, setCrowdingLevel] = useState<string>('3');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState('');
 
     if (!isOpen) return null;
 
     const handleSubmit = async () => {
-        if (!deviceId) return alert('Device ID não encontrado');
+        if (!deviceId) return;
         setIsSubmitting(true);
         setMessage('');
 
         const { error } = await supabase.from('bus_ratings').insert({
             line_id: lineId,
             device_id: deviceId,
-            crowding_level: crowdingLevel,
+            crowding_level: parseInt(crowdingLevel),
         });
 
         setIsSubmitting(false);
 
         if (error) {
-            setMessage('Erro ao salvar avaliação: ' + error.message);
+            setMessage('ERRO AO SALVAR: ' + error.message.toUpperCase());
         } else {
-            setMessage('Avaliação enviada! Obrigado.');
+            setMessage('AVALIAÇÃO RECEBIDA!');
             setTimeout(() => {
                 onClose();
                 setMessage('');
-                setCrowdingLevel(3);
-            }, 2000);
+                setCrowdingLevel('3');
+            }, 1000);
         }
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-sm space-y-6">
-                <h2 className="text-xl font-bold dark:text-white">Avaliar Lotação</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
+            <Card className="w-full max-w-[340px] space-y-6 border-brand/20 shadow-2xl shadow-brand/10">
+                <div className="space-y-1">
+                    <h2 className="text-xl font-black uppercase tracking-tighter text-white">Avaliar Lotação</h2>
+                    <p className="text-[10px] text-muted font-black uppercase tracking-widest opacity-60">Linha: P200 Vila Rica</p>
+                </div>
 
-                <div className="space-y-4">
-                    <label className="block text-sm font-medium dark:text-gray-200 text-center">
-                        Como está o ônibus? (1 = Vazio, 5 = Super Lotado)
-                    </label>
-                    <div className="flex justify-between items-center text-2xl">
-                        {[1, 2, 3, 4, 5].map((level) => (
-                            <button
-                                key={level}
-                                onClick={() => setCrowdingLevel(level)}
-                                className={
-                                    "w-12 h-12 rounded-full font-bold flex items-center justify-center transition-all " +
-                                    (crowdingLevel === level
-                                        ? "bg-indigo-600 text-white transform scale-110 shadow-lg"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300")
-                                }
-                            >
-                                {level}
-                            </button>
-                        ))}
-                    </div>
+                <div className="space-y-6">
+                    <Field
+                        label="Como está o ônibus agora?"
+                        hint="1 = Vazio | 5 = Crítico"
+                    >
+                        <RadioGroup
+                            id="crowding"
+                            name="crowding"
+                            orientation="horizontal"
+                            options={CROWDING_OPTIONS}
+                            value={crowdingLevel}
+                            onChange={setCrowdingLevel}
+                        />
+                    </Field>
                 </div>
 
                 {message && (
-                    <div className={"p-3 rounded-lg text-sm text-center font-medium " + (message.includes('Erro') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700')}>
+                    <div className={`p-4 rounded-xl text-[11px] font-bold text-center tracking-widest border animate-in slide-in-from-top-1 ${message.includes('ERRO')
+                            ? 'bg-danger/10 border-danger/20 text-danger'
+                            : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                        }`}>
                         {message}
                     </div>
                 )}
 
-                <div className="flex gap-3 justify-end pt-4">
-                    <button
-                        type="button"
+                <div className="flex gap-4 pt-2">
+                    <Button
+                        variant="ghost"
                         onClick={onClose}
-                        className="px-4 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        className="flex-1 !h-12 !text-[11px]"
                     >
-                        Pular
-                    </button>
-                    <button
-                        type="button"
-                        disabled={isSubmitting}
+                        DESCARTAR
+                    </Button>
+                    <Button
                         onClick={handleSubmit}
-                        className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-indigo-400 rounded-lg transition-colors font-semibold shadow-md"
+                        loading={isSubmitting}
+                        className="flex-1 !h-12 !text-[11px]"
                     >
-                        {isSubmitting ? 'Enviando...' : 'Avaliar'}
-                    </button>
+                        ENVIAR
+                    </Button>
                 </div>
-            </div>
+            </Card>
         </div>
     );
 }

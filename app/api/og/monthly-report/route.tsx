@@ -57,15 +57,15 @@ export async function GET(req: Request) {
                     }}
                 >
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-                        <div style={{ backgroundColor: '#4f46e5', width: '32px', height: '32px', borderRadius: '8px', marginRight: '16px' }}></div>
-                        <h2 style={{ color: '#818cf8', fontSize: 32, fontWeight: 700, margin: 0, letterSpacing: '-0.05em' }}>
+                        <div style={{ backgroundColor: '#facc15', width: '32px', height: '32px', borderRadius: '8px', marginRight: '16px' }}></div>
+                        <h2 style={{ color: '#facc15', fontSize: 32, fontWeight: 700, margin: 0, letterSpacing: '-0.05em' }}>
                             VR no Ponto <span style={{ color: '#4b5563', margin: '0 12px' }}>|</span> <span style={{ color: '#d1d5db' }}>Dados Abertos</span>
                         </h2>
                     </div>
 
                     <h1 style={{ color: '#ffffff', fontSize: 72, fontWeight: 900, lineHeight: 1.1, marginBottom: '60px', letterSpacing: '-0.05em' }}>
                         Relatório Mensal de Mobilidade<br />
-                        <span style={{ color: '#4f46e5' }}>{monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}</span>
+                        <span style={{ color: '#facc15' }}>{monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}</span>
                     </h1>
 
                     <div style={{ display: 'flex', width: '100%', gap: '40px' }}>

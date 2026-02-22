@@ -7,30 +7,24 @@
 
 ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 3.5s
+Ô£ô Compiled successfully in 3.9s
   Running TypeScript ...
   Collecting page data using 11 workers ...
 ÔÜá Using edge runtime on a page currently disables static generation for that page
-Warning: Cannot load "@napi-rs/canvas" package: "Error: Cannot find module '@napi-rs/canvas'
-Require stack:
-- C:\ROOT\node_modules\pdf-parse\dist\pdf-parse\cjs\index.cjs".
-Warning: Cannot polyfill `DOMMatrix`, rendering may be broken.
-Warning: Cannot polyfill `ImageData`, rendering may be broken.
-Warning: Cannot polyfill `Path2D`, rendering may be broken.
-ReferenceError: DOMMatrix is not defined
-    at module evaluation (C:\Projetos\vrnoponto\.next\server\chunks\[root-of-the-server]__11f6c897._.js:2:117830)
-    at instantiateModule (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:740:9)
-    at getOrInstantiateModuleFromParent (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:763:12)
-    at Context.commonJsRequire [as r] (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:249:12)
-    at module evaluation (C:\Projetos\vrnoponto\.next\server\chunks\[root-of-the-server]__11f6c897._.js:7:8264)
-    at instantiateModule (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:740:9)
-    at instantiateRuntimeModule (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:768:12)
-    at getOrInstantiateRuntimeModule (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:781:12)
-    at Object.m (C:\Projetos\vrnoponto\.next\server\chunks\[turbopack]_runtime.js:790:18)
-    at Object.<anonymous> (C:\Projetos\vrnoponto\.next\server\app\api\admin\oficial\parse\route.js:9:3)
-
-> Build error occurred
-Error: Failed to collect page data for /api/admin/oficial/parse
-    at ignore-listed frames {
-  type: 'Error'
-}
+  Generating static pages using 11 workers (0/34) ...
+  Generating static pages using 11 workers (8/34) 
+ÔÜá metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+Ô¿» useSearchParams() should be wrapped in a suspense boundary at page "/mapa". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at Q (C:\Projetos\vrnoponto\.next\server\chunks\ssr\_034bdeb9._.js:2:2111)
+    at o (C:\Projetos\vrnoponto\.next\server\chunks\ssr\_034bdeb9._.js:4:5284)
+    at o (C:\Projetos\vrnoponto\.next\server\chunks\ssr\[root-of-the-server]__3462cd7b._.js:1:11308)
+    at an (C:\Projetos\vrnoponto\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:84360)
+    at ai (C:\Projetos\vrnoponto\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:86179)
+    at al (C:\Projetos\vrnoponto\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:107953)
+    at as (C:\Projetos\vrnoponto\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:105368)
+    at aa (C:\Projetos\vrnoponto\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:84712)
+    at ai (C:\Projetos\vrnoponto\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:86228)
+    at ai (C:\Projetos\vrnoponto\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:104708)
+Error occurred prerendering page "/mapa". Read more: https://nextjs.org/docs/messages/prerender-error
+Export encountered an error on /mapa/page: /mapa, exiting the build.
+Ô¿» Next.js build worker exited with code: 1 and signal: null

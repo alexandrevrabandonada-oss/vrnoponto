@@ -1,10 +1,17 @@
-import { createClient } from '@/lib/supabase/server';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams as useNextParams } from 'next/navigation';
 import { Sparkline } from '@/components/metrics/Sparkline';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
-import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { Clock, TrendingUp, TrendingDown, Users, ShieldCheck, Zap, AlertCircle, Download, FileText, Bus, BarChart3 } from 'lucide-react';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateLineCaption } from '@/lib/editorial/templates';
 import { PromisedVsRealCard } from '@/components/PromisedVsRealCard';
+import {
+    AppShell, PageHeader, Card, Divider, Button,
+    SkeletonCard, SkeletonList, EmptyState, InlineAlert, ListItem, MetricRow, Skeleton
+} from '@/components/ui';
 
 type WeeklyHeadway = {
     week_start: string;
@@ -25,223 +32,253 @@ type Alert = {
     created_at: string;
 };
 
-export default async function LinhaDetails({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
-    const params = await paramsPromise;
-    const supabase = await createClient();
-    const lineId = params.id;
-    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000';
+interface Line {
+    id: string;
+    code: string;
+    name: string;
+    is_active: boolean;
+}
 
-    // Busca detalhes da linha
-    const { data: line } = await supabase
-        .from('lines')
-        .select('*')
-        .eq('id', lineId)
-        .single();
+export default function LinhaDetails() {
+    const params = useNextParams();
+    const lineId = params?.id as string;
 
-    if (!line) {
-        return <div className="p-8 text-center text-red-500 font-bold">Linha não encontrada.</div>;
+    const [loading, setLoading] = useState(true);
+    const [line, setLine] = useState<Line | null>(null);
+    const [weekly, setWeekly] = useState<WeeklyHeadway[]>([]);
+    const [alerts, setAlerts] = useState<Alert[]>([]);
+    const [trustMix, setTrustMix] = useState<{ total_events: number; pct_verified: number } | null>(null);
+    const [schedules, setSchedules] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (!lineId) return;
+
+        async function fetchData() {
+            setLoading(true);
+            try {
+                const [lineRes, weeklyRes, alertsRes, trustMixRes, schedulesRes] = await Promise.all([
+                    fetch(`/api/lines/${lineId}`),
+                    fetch(`/api/timeseries/line?line_id=${lineId}&weeks=8`),
+                    fetch(`/api/alerts?days=30`),
+                    fetch(`/api/trust-mix/line/${lineId}`),
+                    fetch(`/api/schedules/line/${lineId}`)
+                ]);
+
+                if (lineRes.ok) setLine(await lineRes.json());
+                if (weeklyRes.ok) setWeekly(await weeklyRes.json());
+                if (alertsRes.ok) {
+                    const allAlerts = await alertsRes.json();
+                    setAlerts(allAlerts.filter((a: any) => a.target_id === lineId && a.alert_type === 'LINE_HEADWAY'));
+                }
+                if (trustMixRes.ok) setTrustMix(await trustMixRes.json());
+                if (schedulesRes.ok) setSchedules(await schedulesRes.json());
+            } catch (err) {
+                console.error('Error fetching line details:', err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchData();
+    }, [lineId]);
+
+    if (loading && !line) {
+        return (
+            <AppShell title="ANÁLISE">
+                <div className="space-y-8 animate-pulse">
+                    <div className="h-12 w-1/3 bg-white/5 rounded-xl" />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <SkeletonCard />
+                        <SkeletonCard />
+                        <SkeletonCard />
+                        <SkeletonCard />
+                    </div>
+                    <Skeleton className="h-48 w-full rounded-3xl" />
+                    <SkeletonList items={5} />
+                </div>
+            </AppShell>
+        );
     }
 
-    // Busca dados semanais, alertas e trust mix
-    const [weeklyRes, alertsRes, trustMixRes] = await Promise.all([
-        fetch(`${baseUrl}/api/timeseries/line?line_id=${lineId}&weeks=8`, { cache: 'no-store' }),
-        fetch(`${baseUrl}/api/alerts?days=30`, { cache: 'no-store' }),
-        // Utilizando o Supabase Client para dar bypass numa chamada via fetch na TrustMix
-        supabase.from('vw_trust_mix_line_30d').select('total_events, pct_verified').eq('line_id', lineId).single()
-    ]);
-
-    const weekly: WeeklyHeadway[] = await weeklyRes.json().catch(() => []);
-    const allAlerts: Alert[] = await alertsRes.json().catch(() => []);
-    const alerts = allAlerts.filter(a => a.target_id === lineId && a.alert_type === 'LINE_HEADWAY');
-    const trustMix = trustMixRes.data;
+    if (!line) {
+        return (
+            <AppShell title="ANÁLISE">
+                <EmptyState
+                    icon={AlertCircle}
+                    title="Linha não encontrada"
+                    description="Não conseguimos localizar os registros desta linha no sistema."
+                    actionLabel="Ver Ranking"
+                    onAction={() => window.location.href = '/painel'}
+                />
+            </AppShell>
+        );
+    }
 
     const lastWeekly = weekly[weekly.length - 1];
     const prevWeekly = weekly[weekly.length - 2];
-    const hasTrend = !!(lastWeekly && prevWeekly);
-    const delta = hasTrend ? Math.round(((lastWeekly.p50_headway_min - prevWeekly.p50_headway_min) / prevWeekly.p50_headway_min) * 100) : null;
+    const delta = (lastWeekly && prevWeekly) ? Math.round(((lastWeekly.p50_headway_min - prevWeekly.p50_headway_min) / prevWeekly.p50_headway_min) * 100) : null;
     const isWorsening = delta !== null && delta > 0;
 
-    // Busca variantes pra podermos linkar a tabela
-    const { data: variants } = await supabase
-        .from('line_variants')
-        .select('id, name')
-        .eq('line_id', lineId);
-
-    const variantIds = variants?.map(v => v.id) || [];
-
-    // Busca Tabelas de Horários (PDFs manuais e automáticos da PMVR)
-    let schedules: { id: string, title: string, valid_from: string, pdf_path: string, doc_type?: string, meta?: Record<string, string> }[] = [];
-
-    // Constrói a query usando Variante (Upload Manual) OU Line Code (Crawler PMVR)
-    let orQuery = `line_code.eq.${line.code}`;
-    if (variantIds.length > 0) {
-        orQuery = `line_variant_id.in.(${variantIds.join(',')}),` + orQuery;
-    }
-
-    const { data: scheds } = await supabase
-        .from('official_schedules')
-        .select('id, title, valid_from, pdf_path, doc_type, meta')
-        .or(orQuery)
-        .order('id', { ascending: false });
-
-    if (scheds) schedules = scheds;
-
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-
     return (
-        <main className="flex min-h-screen flex-col items-center p-8 bg-gray-50 dark:bg-gray-900">
-            <div className="w-full max-w-3xl space-y-8">
-
-                {/* Header */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">VIAÇÃO SUL FLUMINENSE</p>
-                            <h1 className="text-3xl font-black text-gray-900 dark:text-white mt-1">
-                                {line.code} - {line.name}
-                            </h1>
-                            {trustMix && (
-                                <div className="mt-2">
-                                    <TrustMixBadge total={trustMix.total_events} pctVerified={trustMix.pct_verified} />
-                                </div>
-                            )}
-                        </div>
-                        <div className="text-right">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${line.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                {line.is_active ? 'Em Operação' : 'Desativada'}
-                            </span>
-                        </div>
-                    </div>
+        <AppShell
+            title="ANÁLISE DE LINHA"
+            actions={
+                <div className="flex items-center gap-2">
+                    {trustMix && <TrustMixBadge total={trustMix.total_events} pctVerified={trustMix.pct_verified} />}
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ${line.is_active ? 'bg-brand/20 text-brand' : 'bg-red-500/20 text-red-400'}`}>
+                        {line.is_active ? 'EM OPERAÇÃO' : 'DESATIVADA'}
+                    </span>
                 </div>
+            }
+        >
+            <PageHeader
+                title={line.code}
+                subtitle={line.name}
+            />
 
-                {/* Alerts Section */}
+            <div className="space-y-8">
+                {/* Active Alerts */}
                 {alerts.length > 0 && (
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                            <AlertCircle size={20} />
-                            <h2 className="text-lg font-black uppercase tracking-tight">Alertas de Confiabilidade</h2>
-                        </div>
-                        <div className="space-y-3">
-                            {alerts.map(alert => (
-                                <div key={alert.id} className={`p-4 rounded-xl border-l-4 ${alert.severity === 'CRIT' ? 'bg-red-50 dark:bg-red-950/20 border-red-600 text-red-900 dark:text-red-400' : 'bg-amber-50 dark:bg-amber-950/20 border-amber-600 text-amber-900 dark:text-amber-400'}`}>
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <p className="font-bold text-sm">Aumento no intervalo médio (Headway)</p>
-                                            <p className="text-xs opacity-80 mt-1">
-                                                Intervalo subiu <span className="font-black">{alert.delta_pct}%</span> nesta semana ({alert.metric_p50}m) vs anterior ({alert.prev_metric_p50}m).
-                                            </p>
-                                        </div>
-                                        <div className={`px-2 py-0.5 rounded text-[10px] font-black ${alert.severity === 'CRIT' ? 'bg-red-600 text-white' : 'bg-amber-600 text-white'}`}>
-                                            {alert.severity}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="space-y-3">
+                        {alerts.map(alert => (
+                            <InlineAlert
+                                key={alert.id}
+                                variant={alert.severity === 'CRIT' ? 'error' : 'warning'}
+                                title="Alerta de Confiabilidade"
+                            >
+                                Intervalo subiu <span className="text-white">+{alert.delta_pct}%</span> nesta semana ({alert.metric_p50}m) vs anterior.
+                            </InlineAlert>
+                        ))}
                     </div>
                 )}
 
-                {/* Editorial Kit */}
-                <EditorialCard
-                    data={{ line, metrics: lastWeekly }}
-                    generator={(d, t) => generateLineCaption(d.line, d.metrics, t)}
-                    title="Kit Editorial: Denúncia desta Linha"
-                />
+                {/* Performance Metrics */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <Card className="text-center group hover:border-brand/20 transition-all border-white/5">
+                        <Clock size={16} className="mx-auto mb-2 text-muted" />
+                        <div className="text-2xl font-industrial italic text-brand">
+                            {lastWeekly?.p50_headway_min ? `${lastWeekly.p50_headway_min}M` : '--'}
+                        </div>
+                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Intervalo P50</div>
+                    </Card>
+                    <Card className="text-center transition-all border-white/5">
+                        <Users size={16} className="mx-auto mb-2 text-muted" />
+                        <div className="text-2xl font-industrial text-white">{lastWeekly?.samples || 0}</div>
+                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Amostras</div>
+                    </Card>
+                    <Card className={`text-center transition-all border-white/5 ${isWorsening ? 'border-danger/20 bg-danger/5' : ''}`}>
+                        <TrendingUp size={16} className={`mx-auto mb-2 ${isWorsening ? 'text-danger' : 'text-emerald-500'}`} />
+                        <div className={`text-xl font-industrial italic ${isWorsening ? 'text-danger' : 'text-emerald-500'}`}>
+                            {delta !== null ? (delta > 0 ? `+${delta}%` : `${delta}%`) : 'Estável'}
+                        </div>
+                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Variação 7D</div>
+                    </Card>
+                    <Card className="text-center transition-all border-brand/10 bg-brand/5">
+                        <Zap size={16} className="mx-auto mb-2 text-brand" />
+                        <div className="text-2xl font-industrial text-brand">{line.is_active ? 'ATIVO' : 'STANDBY'}</div>
+                        <div className="text-[9px] font-black text-brand/40 uppercase tracking-widest mt-1">Status</div>
+                    </Card>
+                </div>
 
-                {/* Weekly Trends / Sparkline */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <Divider label="COMPARAÇÃO OFICIAL (DOMED)" />
+                <PromisedVsRealCard lineId={lineId} />
+
+                <Divider label="FLUXO DE INTERVALOS" />
+                <Card className="!p-0 border-white/5 overflow-hidden">
+                    <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
                         <div className="space-y-1">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Tendência de Intervalo (Headway)</h2>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Mediana de minutos entre ônibus nas últimas 8 semanas</p>
+                            <h3 className="font-industrial text-xs tracking-widest uppercase text-white/80">Monitoramento Temporal</h3>
+                            <p className="text-[9px] font-black text-muted uppercase">Baseado nas últimas 8 semanas de auditoria</p>
                         </div>
                         {weekly.length >= 2 && (
-                            <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                            <div className="bg-white/5 p-2 rounded-xl">
                                 <Sparkline
                                     data={weekly.map(w => ({ week_start: w.week_start, value: w.p50_headway_min, p90: w.p90_headway_min }))}
-                                    width={260}
-                                    height={50}
-                                    color={isWorsening ? '#ef4444' : '#10b981'}
+                                    width={120}
+                                    height={24}
+                                    color={isWorsening ? '#ef4444' : '#FFCC00'}
                                 />
                             </div>
                         )}
                     </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Último p50</p>
-                            <p className="text-2xl font-black text-gray-900 dark:text-white">{lastWeekly?.p50_headway_min || '--'}m</p>
-                        </div>
-                        <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Amostras Semana</p>
-                            <p className="text-2xl font-black text-gray-900 dark:text-white">{lastWeekly?.samples || 0}</p>
-                        </div>
-                        <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 col-span-2">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Variação 7d</p>
-                            <div className={`flex items-center gap-1 text-xl font-black ${delta === null ? 'text-gray-400' : isWorsening ? 'text-red-600' : 'text-emerald-600'}`}>
-                                {delta !== null ? (
-                                    <>
-                                        {isWorsening ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
-                                        <span>{isWorsening ? `+${delta}%` : `${delta}%`}</span>
-                                    </>
-                                ) : (
-                                    <span className="text-sm font-normal italic">N/A</span>
-                                )}
-                            </div>
-                        </div>
+                    <div className="divide-y divide-white/5">
+                        {weekly.length === 0 ? (
+                            <EmptyState
+                                icon={BarChart3}
+                                title="Histórico Vazio"
+                                description="Não há amostras suficientes para gerar o gráfico de tendência desta linha."
+                            />
+                        ) : (
+                            weekly.slice().reverse().map((w) => (
+                                <MetricRow
+                                    key={w.week_start}
+                                    label={new Date(w.week_start).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                                    value={w.p50_headway_min}
+                                    unit="min"
+                                    trend={{
+                                        value: `${w.samples} amostras`,
+                                        isPositive: w.samples > 50
+                                    }}
+                                />
+                            ))
+                        )}
                     </div>
-                </div>
+                </Card>
 
-                {/* Promised vs Real Hourly Gap */}
-                <PromisedVsRealCard lineId={lineId} />
-
-                {/* Tabelas de Horários Officiais */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Horários Oficiais</h2>
-
+                <Divider label="DOCUMENTAÇÃO OFICIAL" />
+                <div className="space-y-3">
                     {schedules.length === 0 ? (
-                        <p className="text-gray-500 dark:text-gray-400 text-sm">
-                            Nenhuma tabela de horário oficial foi disponibilizada para esta linha ainda.
-                        </p>
+                        <EmptyState
+                            icon={FileText}
+                            title="Sem Documentos"
+                            description="Nenhum quadro de horários oficial foi anexado para esta linha."
+                        />
                     ) : (
-                        <div className="space-y-3">
-                            {schedules.map((sched) => {
-                                const isHorario = !sched.doc_type || sched.doc_type === 'HORARIO';
-                                const parsedDate = sched.valid_from ? new Date(sched.valid_from).toLocaleDateString('pt-BR') : sched.meta?.em_vigor;
-                                const updateDate = sched.meta?.data_atualizacao;
-
-                                return (
-                                    <div key={sched.id} className="flex flex-col sm:flex-row justify-between items-center p-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600">
-                                        <div className="mb-3 sm:mb-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className={`px-2 py-0.5 text-[10px] font-bold rounded ${isHorario ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
-                                                    {isHorario ? 'HORÁRIOS' : 'ITINERÁRIO'}
-                                                </span>
-                                                <p className="font-bold text-gray-800 dark:text-gray-100">{sched.title || 'Tabela Oficial'}</p>
-                                            </div>
-
-                                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
-                                                {parsedDate && <p>Válido a partir de: {parsedDate}</p>}
-                                                {updateDate && <p>Atualizado em: {updateDate}</p>}
-                                                {sched.meta?.operator && <p>Operadora: {sched.meta.operator}</p>}
-                                            </div>
-                                        </div>
-                                        <a
-                                            href={`${supabaseUrl}/storage/v1/object/public/official/${sched.pdf_path}`}
+                        schedules.map((sched) => {
+                            const isHorario = !sched.doc_type || sched.doc_type === 'HORARIO';
+                            return (
+                                <ListItem
+                                    key={sched.id}
+                                    icon={<FileText size={18} className={isHorario ? 'text-brand' : 'text-muted'} />}
+                                    title={sched.title || 'Quadro de Horários'}
+                                    subtitle={sched.valid_from ? `Vigência: ${new Date(sched.valid_from).toLocaleDateString('pt-BR')}` : 'Vigência não informada'}
+                                    extra={
+                                        <Button
+                                            variant="secondary"
+                                            className="!h-10 !px-4 !text-[10px]"
+                                            href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/official/${sched.pdf_path}`}
                                             target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-full sm:w-auto text-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                                         >
-                                            Abrir PDF
-                                        </a>
-                                    </div>
-                                )
-                            })}
-                        </div>
+                                            PDF
+                                        </Button>
+                                    }
+                                />
+                            );
+                        })
                     )}
                 </div>
 
-            </div >
-        </main >
+                <Divider label="AÇÃO POPULAR" />
+                <EditorialCard
+                    data={{ line, metrics: lastWeekly }}
+                    generator={(d, t) => generateLineCaption(d.line, d.metrics, t)}
+                    title="Kit de Denúncia Social"
+                />
+
+                <Card className="!p-8 bg-brand border-brand overflow-hidden relative group cursor-pointer" onClick={() => window.location.href = '/registrar'}>
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                        <Bus size={120} className="text-black" />
+                    </div>
+                    <div className="relative z-10 space-y-4">
+                        <h3 className="text-black font-industrial text-2xl italic leading-none uppercase">Auditar Linha Agora</h3>
+                        <p className="text-[11px] text-black font-black leading-relaxed uppercase tracking-tight max-w-sm">
+                            A sua voz é técnica. Registre o intervalo real deste ônibus e ajude a fortalecer a auditoria comunitária de Volta Redonda.
+                        </p>
+                        <div className="inline-flex items-center gap-2 bg-black text-brand px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-2xl">
+                            Validar Horário
+                        </div>
+                    </div>
+                </Card>
+            </div>
+        </AppShell>
     );
 }

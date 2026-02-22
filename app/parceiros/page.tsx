@@ -71,20 +71,23 @@ export default function ParceirosPage() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
             <TelemetryTracker eventName="page_view_partners" />
-            <header className="bg-indigo-900 text-white p-6 rounded-b-3xl shadow-lg">
-                <h1 className="text-2xl font-black">Pontos Parceiros</h1>
-                <p className="text-indigo-200 text-sm mt-1">Locais autorizados para validar sua presença (L3).</p>
+            <header className="bg-zinc-900 border-b border-brand/20 text-white p-6 rounded-b-3xl shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-5 text-brand pointer-events-none">
+                    <MapPin size={80} />
+                </div>
+                <h1 className="text-2xl font-black font-industrial tracking-tight uppercase">Pontos Parceiros</h1>
+                <p className="text-white/60 text-sm mt-1">Locais autorizados para validar sua presença (L3).</p>
             </header>
 
             <div className="p-4 space-y-4">
                 {/* Join CTA */}
                 <Link href="/parceiros/entrar"
-                    className="flex items-center justify-between bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-2xl shadow-lg shadow-indigo-200 dark:shadow-none active:scale-95 transition-all">
+                    className="flex items-center justify-between bg-brand hover:brightness-110 text-black p-4 rounded-2xl shadow-lg active:scale-95 transition-all">
                     <div>
-                        <div className="font-black text-sm">Quero ser um Ponto Parceiro</div>
-                        <div className="text-indigo-200 text-xs mt-0.5">Cadastro gratuito em 2 minutos</div>
+                        <div className="font-black text-sm uppercase tracking-tight">Quero ser um Ponto Parceiro</div>
+                        <div className="text-black/70 text-xs mt-0.5 font-bold">Cadastro gratuito em 2 minutos</div>
                     </div>
-                    <ArrowRight size={20} className="text-indigo-200" />
+                    <ArrowRight size={20} className="text-black" />
                 </Link>
 
                 {/* Invite Copy Buttons */}
@@ -105,9 +108,9 @@ export default function ParceirosPage() {
                     <DelayMap stops={[]} partners={partners as unknown as PartnerMapItem[]} />
                 </div>
 
-                <div className="flex items-start gap-2 px-1 bg-indigo-50/50 dark:bg-indigo-900/10 p-3 rounded-xl border border-indigo-100/50 dark:border-indigo-900/20">
-                    <Info size={16} className="text-indigo-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-[11px] text-indigo-900/70 dark:text-indigo-300/70 font-medium leading-tight">
+                <div className="flex items-start gap-2 px-1 bg-brand/10 p-3 rounded-xl border border-brand/20">
+                    <Info size={16} className="text-brand mt-0.5 flex-shrink-0" />
+                    <span className="text-[11px] text-brand/80 font-medium leading-tight">
                         Escaneie o QR oficial nestes locais (balcões, totens ou adesivos) para ganhar Prova de Presença (L3) e ajudar na auditoria.
                     </span>
                 </div>
@@ -123,7 +126,7 @@ export default function ParceirosPage() {
                             <div>
                                 <h3 className="font-bold text-gray-900 dark:text-gray-100">{partner.name}</h3>
                                 <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mt-1 capitalize">
-                                    <span className="bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded font-bold">
+                                    <span className="bg-brand/20 text-brand px-1.5 py-0.5 rounded font-bold border border-brand/20">
                                         {partner.category}
                                     </span>
                                     <span>•</span>

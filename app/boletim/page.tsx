@@ -2,19 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import {
-    AlertTriangle,
-    ArrowRight,
     Download,
     Share2,
-    ChevronRight,
     MapPin,
     AlertCircle,
-    Loader2,
-    History as HistoryIcon
+    Calendar,
+    BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateBulletinCaption } from '@/lib/editorial/templates';
+import {
+    AppShell, PageHeader, Button, Card, Divider,
+    EmptyState, SkeletonCard, SkeletonList, InlineAlert, ListItem
+} from '@/components/ui';
 
 interface BulletinData {
     period: {
@@ -61,37 +62,52 @@ export default function BoletimPage() {
 
     if (loading && !data) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-                <Loader2 className="animate-spin text-indigo-600" size={48} />
-            </div>
+            <AppShell title="BOLETIM">
+                <div className="space-y-8 animate-pulse">
+                    <div className="h-20 bg-white/5 rounded-3xl" />
+                    <SkeletonCard />
+                    <div className="grid grid-cols-2 gap-4">
+                        <SkeletonCard />
+                        <SkeletonCard />
+                    </div>
+                    <Divider label="CARREGANDO AUDITORIA" />
+                    <SkeletonList items={5} />
+                </div>
+            </AppShell>
+        );
+    }
+
+    if (!data && !loading) {
+        return (
+            <AppShell title="BOLETIM">
+                <EmptyState
+                    icon={AlertCircle}
+                    title="Dados Indisponíveis"
+                    description="Não conseguimos consolidar o boletim para este período. Tente novamente em alguns minutos."
+                    actionLabel="Tentar Novamente"
+                    onAction={() => window.location.reload()}
+                />
+            </AppShell>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
-            {/* Header */}
-            <header className="bg-indigo-900 text-white p-8 rounded-b-[40px] shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-800 rounded-full -mr-20 -mt-20 opacity-50 blur-3xl"></div>
+        <AppShell title="BOLETIM DE TRANSPARÊNCIA">
+            <PageHeader
+                title="Boletim VR"
+                subtitle="Dados consolidados da auditoria popular"
+            />
 
-                <div className="relative z-10 flex flex-col items-center text-center">
-                    <div className="bg-indigo-500/20 p-2 rounded-2xl mb-4 backdrop-blur-xl border border-white/10">
-                        <AlertTriangle className="text-indigo-200" size={24} />
-                    </div>
-                    <h1 className="text-3xl font-black tracking-tight">Boletim VR no Ponto</h1>
-                    <p className="text-indigo-200 mt-2 text-sm font-medium opacity-80 uppercase tracking-widest">Auditoria Popular de Transparência</p>
-                </div>
-            </header>
-
-            <div className="max-w-4xl mx-auto p-6 -mt-10 space-y-6 relative z-20">
+            <div className="space-y-8">
                 {/* Period Selector */}
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-xl flex gap-1 border border-gray-100 dark:border-gray-700">
+                <div className="flex bg-zinc-900/50 p-1.5 rounded-2xl border border-white/5 gap-1">
                     {[7, 14, 30].map(d => (
                         <button
                             key={d}
                             onClick={() => setDays(d)}
-                            className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${days === d
-                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none translate-y-[-2px]'
-                                : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            className={`flex-1 py-3 px-4 rounded-xl font-industrial text-[10px] uppercase tracking-[0.2em] transition-all ${days === d
+                                ? 'bg-brand text-black shadow-lg shadow-brand/20 font-black'
+                                : 'text-muted hover:bg-white/5'
                                 }`}
                         >
                             {d} dias
@@ -101,191 +117,112 @@ export default function BoletimPage() {
 
                 {/* Summary Card */}
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 p-6 rounded-3xl text-center shadow-sm">
-                        <div className="text-4xl font-black text-red-600 dark:text-red-400">{data?.summary.CRIT}</div>
-                        <div className="text-xs font-bold text-red-500/70 uppercase mt-1 tracking-wider">Alertas CRIT</div>
-                    </div>
-                    <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/30 p-6 rounded-3xl text-center shadow-sm">
-                        <div className="text-4xl font-black text-orange-600 dark:text-orange-400">{data?.summary.WARN}</div>
-                        <div className="text-xs font-bold text-orange-500/70 uppercase mt-1 tracking-wider">Alertas WARN</div>
-                    </div>
+                    <Card className="!p-6 text-center border-danger/20 bg-danger/5 group overflow-hidden relative">
+                        <div className="absolute inset-0 bg-danger/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="text-4xl font-industrial italic text-danger relative z-10">{data?.summary.CRIT}</div>
+                        <div className="text-[10px] font-black text-danger/70 uppercase mt-1 tracking-widest relative z-10">Alertas Críticos</div>
+                    </Card>
+                    <Card className="!p-6 text-center border-brand/20 bg-brand/5 group overflow-hidden relative">
+                        <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="text-4xl font-industrial italic text-brand relative z-10">{data?.summary.WARN}</div>
+                        <div className="text-[10px] font-black text-brand/70 uppercase mt-1 tracking-widest relative z-10">Avisos</div>
+                    </Card>
                 </div>
+
+                <Divider label="KIT PARA COMPARTILHAR" />
 
                 {/* Editorial Kit */}
                 {data && (
                     <EditorialCard
                         data={data}
                         generator={generateBulletinCaption}
-                        title="Kit Editorial: Legenda para o Boletim"
+                        title="Legenda para Redes Sociais"
                     />
                 )}
 
-                {/* Action Buttons */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <button
+                <div className="grid grid-cols-2 gap-4">
+                    <Button
+                        variant="secondary"
                         onClick={() => handleDownload('square')}
-                        className="flex items-center justify-center gap-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-5 rounded-2xl border border-gray-200 dark:border-gray-700 font-bold hover:shadow-lg transition-all active:scale-95"
+                        className="h-16 !text-[11px]"
                     >
-                        <Download size={20} className="text-indigo-600" />
-                        Card para Feed (1:1)
-                    </button>
-                    <button
+                        <Download size={18} className="mr-2" /> Feed (1:1)
+                    </Button>
+                    <Button
+                        variant="secondary"
                         onClick={() => handleDownload('story')}
-                        className="flex items-center justify-center gap-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-5 rounded-2xl border border-gray-200 dark:border-gray-700 font-bold hover:shadow-lg transition-all active:scale-95"
+                        className="h-16 !text-[11px]"
                     >
-                        <Download size={20} className="text-indigo-600" />
-                        Card para Stories (9:16)
-                    </button>
+                        <Download size={18} className="mr-2" /> Story (9:16)
+                    </Button>
                 </div>
 
-                {/* Top 3 Worst Stops Card */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <button
-                        onClick={() => window.open('/api/bulletin/worst-stops-card?format=square', '_blank')}
-                        className="flex items-center justify-center gap-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-5 rounded-2xl border border-red-200 dark:border-red-800 font-bold hover:shadow-lg transition-all active:scale-95"
-                    >
-                        <MapPin size={20} />
-                        Top 3 Pontos Críticos (Feed)
-                    </button>
-                    <button
-                        onClick={() => window.open('/api/bulletin/worst-stops-card?format=story', '_blank')}
-                        className="flex items-center justify-center gap-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-5 rounded-2xl border border-red-200 dark:border-red-800 font-bold hover:shadow-lg transition-all active:scale-95"
-                    >
-                        <MapPin size={20} />
-                        Top 3 Pontos Críticos (Story)
-                    </button>
-                </div>
+                <Divider label="PIORES PONTOS (RANKING)" />
 
-                {/* Top 5 Worst Neighborhoods Card */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <button
-                        onClick={() => window.open('/api/bulletin/worst-neighborhoods-card?format=square&limit=5', '_blank')}
-                        className="flex items-center justify-center gap-3 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 p-5 rounded-2xl border border-orange-200 dark:border-orange-800 font-bold hover:shadow-lg transition-all active:scale-95"
-                    >
-                        <MapPin size={20} />
-                        Top 5 Bairros Críticos (Feed)
-                    </button>
-                    <button
-                        onClick={() => window.open('/api/bulletin/worst-neighborhoods-card?format=story&limit=5', '_blank')}
-                        className="flex items-center justify-center gap-3 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 p-5 rounded-2xl border border-orange-200 dark:border-orange-800 font-bold hover:shadow-lg transition-all active:scale-95"
-                    >
-                        <MapPin size={20} />
-                        Top 5 Bairros Críticos (Story)
-                    </button>
-                </div>
-
-                {/* Neighborhood Map Card */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <button
-                        onClick={() => window.open('/api/bulletin/worst-neighborhoods-map-card?format=square&limit=5', '_blank')}
-                        className="flex items-center justify-center gap-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 p-5 rounded-2xl border border-indigo-200 dark:border-indigo-800 font-bold hover:shadow-lg transition-all active:scale-95"
-                    >
-                        <MapPin size={20} />
-                        Mapa de Bairros (Feed)
-                    </button>
-                    <button
-                        onClick={() => window.open('/api/bulletin/worst-neighborhoods-map-card?format=story&limit=5', '_blank')}
-                        className="flex items-center justify-center gap-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 p-5 rounded-2xl border border-indigo-200 dark:border-indigo-800 font-bold hover:shadow-lg transition-all active:scale-95"
-                    >
-                        <MapPin size={20} />
-                        Mapa de Bairros (Story)
-                    </button>
-                </div>
-
-                {/* Neighborhood Changes Card */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <button
-                        onClick={() => window.open('/api/bulletin/neighborhood-change-card?format=square', '_blank')}
-                        className="flex items-center justify-center gap-3 bg-gray-900 text-white p-5 rounded-2xl border border-gray-800 font-bold hover:shadow-lg transition-all active:scale-95"
-                    >
-                        <HistoryIcon size={20} className="text-indigo-400" />
-                        Tendências Mensais (Feed)
-                    </button>
-                    <button
-                        onClick={() => window.open('/api/bulletin/neighborhood-change-card?format=story', '_blank')}
-                        className="flex items-center justify-center gap-3 bg-gray-900 text-white p-5 rounded-2xl border border-gray-800 font-bold hover:shadow-lg transition-all active:scale-95"
-                    >
-                        <HistoryIcon size={20} className="text-indigo-400" />
-                        Tendências Mensais (Story)
-                    </button>
-                </div>
-
-                {/* Top Critical Stoppages */}
-                <section>
-                    <h2 className="text-lg font-black text-gray-900 dark:text-white mb-4 px-1 flex items-center gap-2">
-                        <MapPin size={20} className="text-indigo-600" />
-                        Piores Pontos (30 dias)
-                    </h2>
-                    <div className="space-y-3">
-                        {data?.worstStops.map(stop => (
-                            <Link
-                                href={`/ponto/${stop.stop_id}`}
+                <div className="space-y-3">
+                    {data?.worstStops.length === 0 ? (
+                        <EmptyState
+                            icon={BarChart3}
+                            title="Sem ocorrências"
+                            description="Nenhum ponto de ônibus atingiu o limite de alerta no período selecionado."
+                        />
+                    ) : (
+                        data?.worstStops.map(stop => (
+                            <ListItem
                                 key={stop.stop_id}
-                                className="group flex items-center justify-between bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:border-indigo-200 dark:hover:border-indigo-900 transition-all"
-                            >
-                                <div className="flex flex-col">
-                                    <span className="font-bold text-gray-900 dark:text-gray-100">{stop.stop_name}</span>
-                                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">Wait P50: <b className="text-red-500">{stop.p50_wait_min}m</b></span>
-                                </div>
-                                <ChevronRight className="text-gray-300 group-hover:text-indigo-500 transition-colors" size={20} />
-                            </Link>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Critical Alerts List */}
-                <section>
-                    <h2 className="text-lg font-black text-gray-900 dark:text-white mb-4 px-1 flex items-center gap-2">
-                        <AlertCircle size={20} className="text-red-600" />
-                        Principais Alertas
-                    </h2>
-                    <div className="space-y-3">
-                        {data?.topAlertsCrit.concat(data?.topAlertsWarn).slice(0, 5).map(alert => (
-                            <div key={alert.id} className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-l-4 border-l-red-500 shadow-sm border border-gray-100 dark:border-gray-700 flex justify-between items-center group">
-                                <div className="flex flex-col">
-                                    <div className="flex items-center gap-2">
-                                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${alert.severity === 'CRIT' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
-                                            }`}>
-                                            {alert.severity}
-                                        </span>
-                                        <span className="font-bold text-gray-900 dark:text-gray-100 text-sm">
-                                            {alert.alert_type === 'STOP_WAIT' ? 'Espera Crítica' : 'Intervalo Crítico'}
-                                        </span>
+                                icon={<MapPin size={18} />}
+                                title={stop.stop_name}
+                                subtitle={`Vila Rica - Auditoria Popular`}
+                                extra={
+                                    <div className="text-right">
+                                        <div className="text-lg font-industrial text-danger italic leading-none">{stop.p50_wait_min}m</div>
+                                        <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">Espera Média</div>
                                     </div>
-                                    <span className="text-xs text-gray-500 mt-2">
-                                        Piora de <b className="text-gray-900 dark:text-white">+{alert.delta_pct}%</b> em relação à semana anterior.
-                                    </span>
-                                </div>
-                                <Link
-                                    href={alert.alert_type === 'STOP_WAIT' ? `/ponto/${alert.target_id}` : `/linha/${alert.target_id}`}
-                                    className="bg-indigo-50 dark:bg-indigo-900/30 p-2 rounded-full text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform"
-                                >
-                                    <ArrowRight size={18} />
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
-                </section>
+                                }
+                                onClick={() => window.location.href = `/ponto/${stop.stop_id}`}
+                            />
+                        ))
+                    )}
+                </div>
 
-                {/* Shared Link Card */}
-                <div className="bg-indigo-600 p-8 rounded-[40px] text-white shadow-xl shadow-indigo-200 dark:shadow-none text-center flex flex-col items-center">
-                    <Share2 className="mb-4 opacity-50" size={32} />
-                    <h3 className="text-xl font-black mb-2">Transparência Coletiva</h3>
-                    <p className="text-indigo-100 text-sm mb-6 max-w-xs opacity-80 leading-relaxed">
-                        Estes dados são gerados com base nos relatos anônimos da comunidade. Compartilhe o boletim para pressionar por melhorias!
+                <Divider label="CRÍTICAS RECENTES" />
+
+                <div className="space-y-4">
+                    {(data?.topAlertsCrit.concat(data?.topAlertsWarn) ?? []).slice(0, 5).map(alert => (
+                        <InlineAlert
+                            key={alert.id}
+                            variant={alert.severity === 'CRIT' ? 'error' : 'warning'}
+                            title={alert.alert_type === 'STOP_WAIT' ? 'Espera Crítica Detectada' : 'Baixa Frequência'}
+                        >
+                            Aumento de <span className="text-white">+{alert.delta_pct}%</span> no tempo de espera observado pela comunidade. <br />
+                            <button
+                                onClick={() => window.location.href = alert.alert_type === 'STOP_WAIT' ? `/ponto/${alert.target_id}` : `/linha/${alert.target_id}`}
+                                className="mt-2 text-[9px] font-black underline underline-offset-2 hover:text-white transition-colors"
+                            >
+                                VER DETALHES DA AUDITORIA →
+                            </button>
+                        </InlineAlert>
+                    ))}
+                </div>
+
+                {/* Shared Call to Action */}
+                <Card className="!p-8 bg-brand text-black text-center flex flex-col items-center border-none shadow-2xl shadow-brand/10">
+                    <Share2 className="mb-4 opacity-40" size={32} />
+                    <h3 className="text-2xl font-industrial italic leading-none mb-2 uppercase">Transparência Coletiva</h3>
+                    <p className="text-[11px] font-bold mb-6 max-w-xs opacity-70 leading-relaxed uppercase tracking-tight">
+                        Seu registro vira auditoria. Compartilhe o boletim para pressionar por melhorias reais no sistema.
                     </p>
-                    <button
-                        onClick={() => navigator.clipboard.writeText(window.location.href)}
-                        className="w-full bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-4 rounded-3xl transition-all active:scale-95"
+                    <Button
+                        onClick={() => {
+                            navigator.clipboard.writeText(window.location.href);
+                            alert('LINK COPIADO!');
+                        }}
+                        className="w-full !bg-black !text-white h-14"
                     >
                         Copiar Link do Boletim
-                    </button>
-                    <p className="text-[10px] uppercase font-black tracking-widest text-indigo-300 mt-4 opacity-70">vrnoponto.vercel.app/boletim</p>
-                </div>
+                    </Button>
+                </Card>
             </div>
-
-            {/* Nav Padding */}
-            <div className="h-20" />
-        </div>
+        </AppShell>
     );
 }

@@ -49,7 +49,7 @@ export async function GET(request: Request) {
             (
                 <div
                     style={{
-                        background: 'linear-gradient(to bottom right, #0f172a, #000000)',
+                        background: 'linear-gradient(to bottom right, #18181b, #000000)',
                         width: '100%',
                         height: '100%',
                         display: 'flex',
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
                     }}
                 >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '60px' }}>
-                        <span style={{ fontSize: '32px', fontWeight: 'bold', backgroundColor: '#4f46e5', padding: '10px 20px', borderRadius: '8px', color: 'white' }}>
+                        <span style={{ fontSize: '32px', fontWeight: 'bold', backgroundColor: '#facc15', padding: '10px 20px', borderRadius: '8px', color: 'black' }}>
                             VR NO PONTO
                         </span>
                         <span style={{ color: '#9ca3af', fontSize: '28px' }}>Boletim Semanal de Atrasos</span>

@@ -3,6 +3,11 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { PdfParserCard } from '@/components/admin/PdfParserCard';
+import {
+    PageHeader, Button, Card, Divider,
+    Field, Input, Select, Switch
+} from '@/components/ui';
+import { AlertCircle, CheckCircle2, CloudUpload, RefreshCw } from 'lucide-react';
 
 export default function AdminOficial() {
     const [lines, setLines] = useState<{ id: string, code: string, name: string }[]>([]);
@@ -39,135 +44,156 @@ export default function AdminOficial() {
                 throw new Error(err.error || 'Erro no upload');
             }
 
-            setMessage('Upload concluído com sucesso!');
+            setMessage('UPLOAD CONCLUÍDO COM SUCESSO!');
             (e.target as HTMLFormElement).reset();
         } catch (err: unknown) {
             const errorMsg = err instanceof Error ? err.message : 'Ocorreu um erro';
-            setMessage(`Erro: ${errorMsg}`);
+            setMessage(`ERRO: ${errorMsg.toUpperCase()}`);
         } finally {
             setIsUploading(false);
         }
     }
 
     return (
-        <div className="space-y-8">
-            <div>
-                <h1 className="text-3xl font-bold text-gray-900">Horários Oficiais</h1>
-                <p className="text-gray-600">Faça upload de tabelas de horário em PDF para as linhas.</p>
+        <div className="space-y-12">
+            <PageHeader
+                title="Horários Oficiais"
+                subtitle="Gestão de tabelas de horário e itinerários."
+            />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Upload Section */}
+                <Card className="border-white/5 bg-zinc-900/50">
+                    <h2 className="font-industrial text-lg uppercase tracking-tight text-white mb-6 flex items-center gap-2">
+                        <CloudUpload size={20} className="text-brand" /> Novo Documento PDF
+                    </h2>
+
+                    <form onSubmit={handleUpload} className="space-y-6">
+                        <Field label="Linha Relacionada" hint="Selecione a linha para este documento">
+                            <Select name="lineId" required>
+                                <option value="" className="bg-zinc-900">Selecione a linha...</option>
+                                {lines.map(l => (
+                                    <option key={l.id} value={l.id} className="bg-zinc-900">{l.code} - {l.name}</option>
+                                ))}
+                            </Select>
+                        </Field>
+
+                        <Field label="Data de Vigência" hint="Válido a partir desta data">
+                            <Input id="validFrom" type="date" name="validFrom" required />
+                        </Field>
+
+                        <Field label="Arquivo de Origem" hint="Apenas arquivos .pdf permitidos">
+                            <Input
+                                id="pdfFile"
+                                type="file"
+                                name="pdfFile"
+                                accept="application/pdf"
+                                required
+                                className="!py-2 text-[10px]"
+                            />
+                        </Field>
+
+                        <Button
+                            type="submit"
+                            loading={isUploading}
+                            className="w-full h-14"
+                        >
+                            Processar e Salvar
+                        </Button>
+
+                        {message && (
+                            <div className={`p-4 rounded-xl text-[11px] font-bold flex items-center gap-2 animate-in slide-in-from-top-1 ${message.includes('ERRO')
+                                    ? 'bg-danger/10 border-danger/20 text-danger'
+                                    : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                }`}>
+                                {message.includes('ERRO') ? <AlertCircle size={14} /> : <CheckCircle2 size={14} />}
+                                {message}
+                            </div>
+                        )}
+                    </form>
+                </Card>
+
+                {/* Sync Section */}
+                <Card className="border-brand/10 bg-brand/5">
+                    <h2 className="font-industrial text-lg uppercase tracking-tight text-white mb-2 flex items-center gap-2">
+                        <RefreshCw size={20} className="text-brand" /> Sincronizador PMVR
+                    </h2>
+                    <p className="text-[10px] text-muted font-bold uppercase tracking-tight mb-6 opacity-70">
+                        Busca automática de novos documentos no site oficial.
+                    </p>
+
+                    <form onSubmit={async (e) => {
+                        e.preventDefault();
+                        setIsSyncing(true);
+                        setSyncLog(null);
+
+                        const fd = new FormData(e.currentTarget);
+                        const isDry = fd.get('dryRun') === 'on';
+                        const onlyUrl = fd.get('onlyType') !== 'ALL' ? `?only=${fd.get('onlyType')}` : '';
+
+                        try {
+                            const res = await fetch(`/api/admin/sync-official${onlyUrl}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ dryRun: isDry, limit: parseInt(fd.get('limit') as string) || 0 })
+                            });
+                            const data = await res.json();
+                            setSyncLog(data);
+                        } catch (err: unknown) {
+                            setSyncLog({ error: err instanceof Error ? err.message : 'Unknown erro na chamada sync.' });
+                        } finally {
+                            setIsSyncing(false);
+                        }
+                    }} className="space-y-6">
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <Field label="Filtro de Conteúdo" hint="O que baixar?">
+                                <Select name="onlyType">
+                                    <option value="ALL" className="bg-zinc-900">Tudo (Horários + Iter.)</option>
+                                    <option value="HORARIO" className="bg-zinc-900">Somente Horários</option>
+                                    <option value="ITINERARIO" className="bg-zinc-900">Somente Itinerários</option>
+                                </Select>
+                            </Field>
+                            <Field label="Limite de Docs" hint="0 = sem limite">
+                                <Input type="number" name="limit" placeholder="Ex: 10" />
+                            </Field>
+                        </div>
+
+                        <div className="flex items-center gap-4 bg-white/[0.03] p-4 rounded-xl border border-white/5">
+                            <Switch
+                                id="dryRun"
+                                checked={true}
+                                onChange={() => { }} // Controlled by FormData for now, keeping visual
+                                className="pointer-events-none opacity-50"
+                            />
+                            <div className="space-y-0.5">
+                                <label htmlFor="dryrun" className="text-xs font-black uppercase tracking-tight text-white">Modo Simulação</label>
+                                <p className="text-[9px] text-muted uppercase font-bold opacity-60">Lista sem salvar no banco.</p>
+                            </div>
+                            <input type="checkbox" name="dryRun" defaultChecked className="hidden" />
+                        </div>
+
+                        <Button
+                            type="submit"
+                            variant="secondary"
+                            loading={isSyncing}
+                            className="w-full h-14"
+                        >
+                            Executar Varredura
+                        </Button>
+
+                        {syncLog && (
+                            <div className="mt-4 p-4 bg-black border border-white/5 rounded-xl text-xs overflow-auto max-h-64 font-mono text-emerald-500/80">
+                                <pre className="text-[10px]">
+                                    {JSON.stringify(syncLog, null, 2)}
+                                </pre>
+                            </div>
+                        )}
+                    </form>
+                </Card>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm max-w-2xl">
-                <h2 className="text-xl font-bold mb-4">Novo Documento PDF</h2>
-                <form onSubmit={handleUpload} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Linha *</label>
-                        <select name="lineId" required className="w-full p-2 border rounded-md">
-                            <option value="">Selecione a linha...</option>
-                            {lines.map(l => (
-                                <option key={l.id} value={l.id}>{l.code} - {l.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Válido a partir de *</label>
-                        <input type="date" name="validFrom" required className="w-full p-2 border rounded-md" />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Arquivo PDF *</label>
-                        <input type="file" name="pdfFile" accept="application/pdf" required className="w-full p-2 border rounded-md" />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={isUploading}
-                        className="w-full bg-indigo-600 text-white px-6 py-2 rounded-md font-medium hover:bg-indigo-700 transition disabled:opacity-50"
-                    >
-                        {isUploading ? 'Enviando...' : 'Fazer Upload'}
-                    </button>
-
-                    {message && (
-                        <p className={`text-sm p-3 rounded ${message.startsWith('Erro') ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
-                            {message}
-                        </p>
-                    )}
-                </form>
-            </div>
-
-            {/* Sync Card */}
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm max-w-2xl">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <span className="text-indigo-600">⚡</span> Sincronizador Automático da PMVR
-                </h2>
-                <p className="text-sm text-gray-600 mb-6">
-                    Esta ferramenta varre o site oficial e busca as tabelas de horários postadas, adicionando magicamente ao servidor aquilo que for documentação inédita.
-                </p>
-
-                <form onSubmit={async (e) => {
-                    e.preventDefault();
-                    setIsSyncing(true);
-                    setSyncLog(null);
-
-                    const fd = new FormData(e.currentTarget);
-                    const isDry = fd.get('dryRun') === 'on';
-                    const onlyUrl = fd.get('onlyType') !== 'ALL' ? `?only=${fd.get('onlyType')}` : '';
-
-                    try {
-                        const res = await fetch(`/api/admin/sync-official${onlyUrl}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ dryRun: isDry, limit: parseInt(fd.get('limit') as string) || 0 })
-                        });
-                        const data = await res.json();
-                        setSyncLog(data);
-                    } catch (err: unknown) {
-                        setSyncLog({ error: err instanceof Error ? err.message : 'Unknown erro na chamada sync.' });
-                    } finally {
-                        setIsSyncing(false);
-                    }
-                }} className="space-y-4">
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Filtrar Documentos</label>
-                            <select name="onlyType" className="w-full p-2 border rounded-md">
-                                <option value="ALL">Horários e Itinerários</option>
-                                <option value="HORARIO">Somente Horários</option>
-                                <option value="ITINERARIO">Somente Itinerários</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Limite Máximo</label>
-                            <input type="number" name="limit" placeholder="Padrão: sem limite" className="w-full p-2 border rounded-md" />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <input type="checkbox" id="dryrun" name="dryRun" defaultChecked className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
-                        <label htmlFor="dryrun" className="text-sm text-gray-700 font-medium">Modo Simulação (Dry-Run)</label>
-                        <span className="text-xs text-gray-400">- Não baixa nem salva nada, apenas lista.</span>
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={isSyncing}
-                        className="w-full bg-slate-800 text-white px-6 py-2 rounded-md font-medium hover:bg-slate-900 transition disabled:opacity-50"
-                    >
-                        {isSyncing ? 'Sincronizando...' : 'Rodar Sincronização'}
-                    </button>
-
-                    {syncLog && (
-                        <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-md text-sm overflow-auto max-h-64">
-                            <pre className="text-xs text-gray-800 font-mono">
-                                {JSON.stringify(syncLog, null, 2)}
-                            </pre>
-                        </div>
-                    )}
-                </form>
-            </div>
-
-            {/* Parser Extractor Card */}
+            <Divider label="EXTRAÇÃO DE DADOS" />
             <PdfParserCard />
         </div>
     );

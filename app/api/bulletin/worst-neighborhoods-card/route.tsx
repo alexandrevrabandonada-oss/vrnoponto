@@ -50,12 +50,12 @@ export async function GET(request: Request) {
         return new ImageResponse(
             (
                 <div style={{
-                    background: 'linear-gradient(to bottom right, #0f172a, #000000)',
+                    background: 'linear-gradient(to bottom right, #18181b, #000000)',
                     width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
                     padding: '70px', fontFamily: 'sans-serif',
                 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '50px' }}>
-                        <span style={{ fontSize: '28px', fontWeight: 'bold', backgroundColor: '#4f46e5', padding: '8px 18px', borderRadius: '8px', color: 'white' }}>VR NO PONTO</span>
+                        <span style={{ fontSize: '28px', fontWeight: 'bold', backgroundColor: '#facc15', padding: '8px 18px', borderRadius: '8px', color: 'black' }}>VR NO PONTO</span>
                         <span style={{ color: '#9ca3af', fontSize: '24px' }}>Ranking Semanal de Bairros</span>
                     </div>
                     <h1 style={{ color: 'white', fontSize: '56px', fontWeight: '900', margin: '0 0 16px 0', lineHeight: 1.1 }}>

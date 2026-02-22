@@ -67,7 +67,7 @@ export async function GET(request: Request) {
                         <span style={{ fontSize: '24px', color: '#9ca3af', fontWeight: 'bold' }}>{monthLabel}</span>
                     </div>
                     <div style={{ backgroundColor: '#1f2937', padding: '16px', borderRadius: '12px', display: 'flex' }}>
-                        <span style={{ fontSize: '32px', fontWeight: '900', color: '#6366f1' }}>VRNP</span>
+                        <span style={{ fontSize: '32px', fontWeight: '900', color: '#facc15' }}>VRNP</span>
                     </div>
                 </div>
 

@@ -59,7 +59,7 @@ export default async function Image({ params: paramsPromise, request }: { params
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '40px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: 32, fontWeight: 900, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
+                        <span style={{ fontSize: 32, fontWeight: 900, color: '#facc15', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
                             Volta Redonda no Ponto
                         </span>
                         <span style={{ fontSize: 48, fontWeight: 900, color: '#111827', marginTop: '10px' }}>

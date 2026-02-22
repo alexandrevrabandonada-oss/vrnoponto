@@ -51,8 +51,8 @@ export function QRScanner({ onClose }: { onClose: () => void }) {
         <div className="fixed inset-0 bg-black/90 z-[60] flex flex-col items-center justify-center p-6 animate-in fade-in duration-300">
             <div className="w-full max-w-md bg-zinc-900 rounded-3xl overflow-hidden shadow-2xl border border-zinc-800">
                 <div className="p-4 flex justify-between items-center border-b border-zinc-800">
-                    <div className="flex items-center gap-2 text-white font-bold">
-                        <Camera size={20} className="text-indigo-400" />
+                    <div className="flex items-center gap-2 text-white font-bold tracking-tight">
+                        <Camera size={20} className="text-brand" />
                         <span>Escanear QR Code</span>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-full text-zinc-400">

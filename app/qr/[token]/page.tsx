@@ -75,9 +75,9 @@ export default function QRCheckinPage(props: { params: Promise<{ token: string }
                 {status === 'loading' || status === 'locating' || status === 'validating' ? (
                     <div className="space-y-6">
                         <div className="flex justify-center">
-                            <Loader2 className="animate-spin text-indigo-600" size={64} />
+                            <Loader2 className="animate-spin text-brand" size={64} />
                         </div>
-                        <h1 className="text-2xl font-black text-gray-900 leading-tight">
+                        <h1 className="text-2xl font-black text-white leading-tight font-industrial uppercase tracking-tight">
                             {status === 'locating' ? 'Localizando você...' : 'Validando presença...'}
                         </h1>
                         <p className="text-gray-500 font-medium">

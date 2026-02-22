@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Package, X, Copy, ExternalLink, Printer, ShieldCheck, MapPin } from 'lucide-react';
+import { Card, Button, Input, Field } from '@/components/ui';
 
 interface Partner {
     id: string;
@@ -25,99 +26,108 @@ export function PartnerKitModal({ partner }: { partner: Partner }) {
 
     return (
         <>
-            <button
+            <Button
+                variant="secondary"
                 onClick={() => setIsOpen(true)}
-                className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-indigo-100 transition-colors"
+                className="!h-9 !px-3 !text-[10px]"
             >
-                <Package size={14} /> Gerar Kit
-            </button>
+                <Package size={14} className="mr-2" /> Gerar Kit
+            </Button>
 
             {isOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row animate-in zoom-in-95 duration-200">
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <Card className="w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row animate-in zoom-in-95 duration-200 p-0 border-white/10 ring-1 ring-white/5">
                         {/* Preview Side */}
-                        <div className="bg-gray-100 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-gray-200">
-                            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Preview do Selo</h3>
-                            <div className="bg-white p-4 rounded-2xl shadow-lg border-4 border-indigo-600 w-48 h-48 flex flex-col items-center justify-center text-center">
-                                <ShieldCheck className="text-indigo-600 mb-2" size={40} />
-                                <div className="text-[10px] font-black leading-tight text-gray-900 uppercase">{partner.name}</div>
-                                <div className="bg-indigo-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full mt-2 uppercase">Verificado</div>
+                        <div className="bg-zinc-950 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-white/5 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-brand/5 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at center, var(--color-brand) 0%, transparent 70%)' }} />
+                            <h3 className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-10 relative z-10">Preview do Ativo</h3>
+
+                            <div className="relative z-10 bg-black p-6 rounded-3xl shadow-2xl border border-brand/30 w-52 h-52 flex flex-col items-center justify-center text-center group">
+                                <div className="absolute -inset-1 bg-brand/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <ShieldCheck className="text-brand mb-4 relative" size={48} strokeWidth={2.5} />
+                                <div className="text-xs font-black leading-tight text-white uppercase tracking-tighter relative">{partner.name}</div>
+                                <div className="bg-brand text-black text-[9px] font-black px-3 py-1 rounded-full mt-4 uppercase tracking-widest relative">Parceiro Oficial</div>
                             </div>
-                            <p className="text-[10px] text-gray-500 mt-6 font-medium max-w-[120px] text-center">O selo 1:1 é ideal para redes sociais e adesivos.</p>
+
+                            <p className="text-[9px] text-muted mt-10 font-bold max-w-[140px] text-center uppercase tracking-tight opacity-40 relative z-10">Formato 1:1 otimizado para sinalização e digital.</p>
                         </div>
 
                         {/* Controls Side */}
-                        <div className="flex-1 p-8 flex flex-col">
-                            <div className="flex justify-between items-start mb-6">
+                        <div className="flex-1 p-8 flex flex-col bg-zinc-900/50">
+                            <div className="flex justify-between items-start mb-8">
                                 <div>
-                                    <h2 className="text-2xl font-black text-gray-900 leading-tight">{partner.name}</h2>
-                                    <div className="flex items-center gap-1 text-gray-500 text-sm font-medium mt-1">
-                                        <MapPin size={14} /> {partner.neighborhood}
+                                    <h2 className="text-2xl font-black text-white leading-tight tracking-tighter uppercase">{partner.name}</h2>
+                                    <div className="flex items-center gap-2 text-muted text-[10px] font-black uppercase tracking-widest mt-2">
+                                        <MapPin size={12} className="text-brand" /> {partner.neighborhood}
                                     </div>
                                 </div>
-                                <button
+                                <Button
+                                    variant="ghost"
                                     onClick={() => setIsOpen(false)}
-                                    className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors"
+                                    className="!p-0 !h-10 !w-10 !rounded-full opacity-40 hover:opacity-100"
                                 >
                                     <X size={20} />
-                                </button>
+                                </Button>
                             </div>
 
-                            <div className="space-y-4 flex-1">
-                                {/* Link Box */}
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Link da Página Pública</label>
+                            <div className="space-y-6 flex-1">
+                                <Field label="Página do Parceiro" hint="Link público para divulgação">
                                     <div className="flex gap-2">
-                                        <input
+                                        <Input
                                             readOnly
                                             value={publicUrl}
-                                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-600 font-medium focus:outline-none"
+                                            className="flex-1 !text-[11px] font-mono opacity-80"
                                         />
-                                        <button
+                                        <Button
+                                            variant="secondary"
                                             onClick={copyToClipboard}
-                                            className={`p-2 rounded-xl border transition-all ${copied ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                                            className={`!w-12 !p-0 ${copied ? '!bg-emerald-500/10 !border-emerald-500/20 !text-emerald-400' : ''}`}
                                         >
                                             {copied ? <ShieldCheck size={20} /> : <Copy size={20} />}
-                                        </button>
-                                        <a
+                                        </Button>
+                                        <Button
+                                            variant="secondary"
                                             href={publicUrl}
                                             target="_blank"
-                                            className="p-2 bg-white border border-gray-200 text-gray-500 rounded-xl hover:bg-gray-50 transition-all"
+                                            className="!w-12 !p-0 flex items-center justify-center"
                                         >
                                             <ExternalLink size={20} />
-                                        </a>
+                                        </Button>
                                     </div>
-                                </div>
+                                </Field>
 
-                                {/* Download Buttons */}
-                                <div className="grid grid-cols-1 gap-3 pt-4">
-                                    <a
+                                <div className="grid grid-cols-1 gap-4 pt-4 text-center">
+                                    <Button
                                         href={sealUrl}
-                                        download={`selo-${partner.name.toLowerCase().replace(/\s+/g, '-')}.png`}
-                                        className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black flex items-center justify-center gap-3 shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all text-sm"
+                                        download={`selo-${partner.id}.png`}
+                                        className="h-16 rounded-2xl group flex items-center justify-center"
                                     >
-                                        <ShieldCheck size={18} /> Baixar Selo (SVG/PNG)
-                                    </a>
-                                    <a
+                                        <ShieldCheck size={20} className="mr-3 group-hover:scale-110 transition-transform" />
+                                        <span className="text-[11px] font-black uppercase tracking-widest">Baixar Selo de Auditoria</span>
+                                    </Button>
+
+                                    <Button
+                                        variant="secondary"
                                         href={posterUrl}
                                         target="_blank"
-                                        className="w-full bg-white border-2 border-gray-900 text-gray-900 py-4 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-gray-900 hover:text-white active:scale-95 transition-all text-sm"
+                                        className="h-16 rounded-2xl group border-white/5 hover:border-white/20 flex items-center justify-center"
                                     >
-                                        <Printer size={18} /> Imprimir Cartaz A4
-                                    </a>
+                                        <Printer size={20} className="mr-3 group-hover:rotate-12 transition-transform" />
+                                        <span className="text-[11px] font-black uppercase tracking-widest">Imprimir Cartaz A4</span>
+                                    </Button>
                                 </div>
                             </div>
 
-                            <div className="mt-8 pt-6 border-t border-gray-100">
-                                <div className="flex items-center gap-2 text-indigo-600/60 font-black text-[10px] uppercase tracking-widest">
-                                    <ShieldCheck size={12} /> Dica de Auditoria
+                            <div className="mt-8 pt-6 border-t border-white/5">
+                                <div className="flex items-center gap-2 text-brand/40 font-black text-[9px] uppercase tracking-widest">
+                                    <ShieldCheck size={12} /> Diretriz de Auditoria
                                 </div>
-                                <p className="text-[11px] text-gray-400 mt-2 font-medium leading-relaxed">
-                                    O Cartaz A4 deve ser colocado em local de fácil visibilidade no estabelecimento. Evite colagens em espaços públicos externos.
+                                <p className="text-[10px] text-muted mt-2 font-bold leading-relaxed uppercase tracking-tight opacity-40">
+                                    O Cartaz deve ser fixado em altura visível (1.50m). Não altere as proporções do selo digital.
                                 </p>
                             </div>
                         </div>
-                    </div>
+                    </Card>
                 </div>
             )}
         </>

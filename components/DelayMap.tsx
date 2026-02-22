@@ -33,7 +33,7 @@ function createColoredIcon(colorHex: string, hasAlert = false) {
 
 const iconPartner = L.divIcon({
     className: 'custom-div-icon',
-    html: `<div style='background-color:#4f46e5; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(79,70,229,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;'>🤝</div>`,
+    html: `<div style='background-color:#facc15; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(250,204,21,0.5); display: flex; align-items: center; justify-content: center; color: black; font-size: 14px;'>🤝</div>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14]
 });
@@ -69,6 +69,8 @@ export type StopMapItem = {
             severity: 'WARN' | 'CRIT';
             delta_pct: number;
         } | null;
+        worst_delta?: number;
+        pct_verified?: number;
     } | null;
     trust_mix?: {
         total: number;
@@ -162,7 +164,7 @@ export default function DelayMapComponent({
 
                                 <a
                                     href={`/ponto/${stop.id}`}
-                                    className="pt-2 text-indigo-600 hover:text-indigo-800 font-semibold text-sm flex items-center gap-1 border-t border-gray-100"
+                                    className="pt-2 text-brand hover:brightness-110 font-bold text-sm flex items-center gap-1 border-t border-gray-100"
                                 >
                                     Abrir Detalhes <ArrowRight size={14} />
                                 </a>
@@ -179,8 +181,8 @@ export default function DelayMapComponent({
                     >
                         <Popup>
                             <div className="p-2 text-center w-48">
-                                <strong className="block text-indigo-600 mb-1">{partner.name}</strong>
-                                <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                <strong className="block text-brand mb-1">{partner.name}</strong>
+                                <span className="text-xs bg-brand/20 text-brand border border-brand/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                                     {partner.category || 'Parceiro'}
                                 </span>
                                 <div className="mt-3 text-[11px] text-gray-500 leading-tight">

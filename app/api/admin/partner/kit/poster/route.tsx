@@ -57,14 +57,14 @@ export async function GET(req: Request) {
                             {
                                 width: '40px',
                                 height: '40px',
-                                backgroundColor: '#4f46e5',
+                                backgroundColor: '#facc15',
                                 borderRadius: '10px',
                             }
                         }> </div>
                         < div style={{
                             fontSize: '32px',
                             fontWeight: 'bold',
-                            color: '#1e1b4b',
+                            color: '#09090b',
                         }}> VR no Ponto </div>
                     </div>
 
@@ -89,7 +89,7 @@ export async function GET(req: Request) {
                         < div style={{
                             fontSize: '64px',
                             fontWeight: '950',
-                            color: '#4f46e5',
+                            color: '#facc15',
                             lineHeight: '1',
                         }}> CIDADÃ </div>
                         < div style={{
@@ -142,15 +142,15 @@ export async function GET(req: Request) {
                         }
                     }>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#4f46e5' }}> 1. </div>
+                            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#facc15' }}> 1. </div>
                             < div style={{ fontSize: '24px', color: '#111827' }}> Aponte a câmera do seu celular para o QR Code </div>
                         </div>
                         < div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#4f46e5' }}> 2. </div>
+                            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#facc15' }}> 2. </div>
                             < div style={{ fontSize: '24px', color: '#111827' }}> Clique no link e aguarde a validação do GPS </div>
                         </div>
                         < div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#4f46e5' }}> 3. </div>
+                            <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#facc15' }}> 3. </div>
                             < div style={{ fontSize: '24px', color: '#111827' }}> Pronto! Seu relato ganhou prova de presença(L3) </div>
                         </div>
                     </div>

@@ -32,7 +32,7 @@ export function HelpModal({ storageKey, tips }: HelpModalProps) {
             {/* Trigger button */}
             <button
                 onClick={() => setOpen(true)}
-                className="fixed bottom-24 right-4 z-40 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all active:scale-90"
+                className="fixed bottom-24 right-4 z-40 w-10 h-10 bg-brand hover:brightness-110 text-black rounded-full shadow-lg flex items-center justify-center transition-all active:scale-90"
                 aria-label="Ajuda"
             >
                 <HelpCircle size={20} />
@@ -58,7 +58,7 @@ export function HelpModal({ storageKey, tips }: HelpModalProps) {
                         <ul className="space-y-3">
                             {tips.map((tip, i) => (
                                 <li key={i} className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                                    <span className="flex-shrink-0 w-6 h-6 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-xs font-black">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-brand/20 text-brand rounded-full flex items-center justify-center text-xs font-black">
                                         {i + 1}
                                     </span>
                                     <span className="leading-relaxed">{tip}</span>
@@ -69,7 +69,7 @@ export function HelpModal({ storageKey, tips }: HelpModalProps) {
                         <div className="flex flex-col gap-2 pt-1">
                             <button
                                 onClick={() => dismiss(false)}
-                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl transition text-sm"
+                                className="w-full bg-brand hover:brightness-110 text-black font-bold py-3 rounded-2xl transition text-sm flex justify-center items-center font-industrial tracking-widest uppercase"
                             >
                                 Entendi!
                             </button>

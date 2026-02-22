@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { LucideIcon } from 'lucide-react';
 
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     icon: React.ReactNode;

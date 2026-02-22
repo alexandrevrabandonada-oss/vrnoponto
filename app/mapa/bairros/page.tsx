@@ -124,7 +124,7 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-gray-200 dark:border-gray-800 pb-6">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <Link href="/bairros" className="text-gray-400 hover:text-indigo-600 transition-colors">
+                            <Link href="/bairros" className="text-gray-400 hover:text-brand transition-colors">
                                 <ArrowLeft size={20} />
                             </Link>
                             <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
@@ -140,11 +140,11 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
                         {/* View Mode Toggle */}
                         <div className="flex bg-gray-200 dark:bg-gray-800 p-1 rounded-lg">
                             <a href={toggleParam('m', '__clear__').replace('m=__clear__&', '').replace('?m=__clear__', '').replace('&m=__clear__', '')}
-                                className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${!listMode ? 'bg-white dark:bg-black shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                                className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${!listMode ? 'bg-white dark:bg-black shadow text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
                                 <MapIcon size={14} /> Mapa
                             </a>
                             <a href={toggleParam('m', 'lista')}
-                                className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${listMode ? 'bg-white dark:bg-black shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                                className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${listMode ? 'bg-white dark:bg-black shadow text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
                                 <MenuSquare size={14} /> Lista
                             </a>
                         </div>
@@ -153,11 +153,11 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
                         {!listMode && (
                             <div className="flex bg-gray-200 dark:bg-gray-800 p-1 rounded-lg">
                                 <a href={`/mapa/bairros${searchParams.f ? `?f=${searchParams.f}` : ''}`}
-                                    className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${!polyMode ? 'bg-white dark:bg-black shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                                    className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${!polyMode ? 'bg-white dark:bg-black shadow text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
                                     <CircleDot size={14} /> Círculos
                                 </a>
                                 <a href={`/mapa/bairros?v=polygons${searchParams.f ? `&f=${searchParams.f}` : ''}`}
-                                    className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${polyMode ? 'bg-white dark:bg-black shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                                    className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${polyMode ? 'bg-white dark:bg-black shadow text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
                                     <Hexagon size={14} /> Polígonos
                                 </a>
                             </div>
@@ -183,7 +183,7 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
                 {!listMode && (
                     <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-wrap gap-4 items-center justify-between text-sm">
                         <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 font-semibold">
-                            <Info size={16} className="text-indigo-500" /> Legenda de Risco:
+                            <Info size={16} className="text-brand" /> Legenda de Risco:
                         </div>
                         <div className="flex flex-wrap gap-3 font-medium">
                             <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-emerald-500"></span> OK (≤3m)</span>

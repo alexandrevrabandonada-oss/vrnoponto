@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { RefreshCw, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Card, Button, Divider } from '@/components/ui';
 
 type ScheduleDocs = {
     id: string;
@@ -23,7 +24,6 @@ export function PdfParserCard() {
         setLoading(true);
         const supabase = createClient();
 
-        // Fetch HORÁRIOS along with their latest parse run
         const { data } = await supabase
             .from('official_schedules')
             .select(`
@@ -51,7 +51,6 @@ export function PdfParserCard() {
 
             if (!res.ok) throw new Error(await res.text());
 
-            alert('Parse concluído!');
             loadSchedules();
         } catch (err: unknown) {
             alert('Erro no parse: ' + (err instanceof Error ? err.message : String(err)));
@@ -60,65 +59,70 @@ export function PdfParserCard() {
         }
     }
 
-    if (loading) return <div className="text-sm p-4 text-gray-500">Carregando documentos...</div>;
+    if (loading) return <div className="text-[10px] font-black uppercase text-muted/30 p-8 animate-pulse">Sincronizando registros...</div>;
 
     return (
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm max-w-4xl">
-            <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-indigo-600" />
-                Extrator de Horários (Prometido)
+        <Card className="border-white/5 bg-zinc-900/30">
+            <h2 className="font-industrial text-xl uppercase tracking-tighter text-white mb-2 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-brand" />
+                Histórico de Extração
             </h2>
-            <p className="text-sm text-gray-600 mb-6">
-                Extraia a quantidade de viagens por hora dos PDFs oficiais para cruzar com a realidade.
+            <p className="text-[10px] text-muted font-bold uppercase tracking-widest mb-8 opacity-60">
+                Auditoria de processamento de PDFs oficiais.
             </p>
 
             <div className="space-y-4">
                 {schedules.map(doc => {
-                    // Sorting to get newest
                     const run = doc.runs && doc.runs.length > 0 ? doc.runs.sort((a, b) => new Date(b.parsed_at).getTime() - new Date(a.parsed_at).getTime())[0] : null;
                     const meta = run ? run.meta : null;
 
                     return (
-                        <div key={doc.id} className="border border-gray-100 rounded-lg p-4 bg-gray-50 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-                            <div>
-                                <h3 className="font-bold text-gray-900">Linha {doc.line_code}</h3>
-                                <div className="text-xs text-gray-500 space-x-3 mt-1">
-                                    <span>Válido a partir: {doc.valid_from}</span>
-                                    {doc.pdf_path && <span className="text-blue-600">PDF Disponível</span>}
+                        <div key={doc.id} className="border border-white/5 rounded-2xl p-5 bg-white/[0.02] flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center hover:bg-white/[0.04] transition-colors">
+                            <div className="flex-1 space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <h3 className="font-industrial text-sm text-white uppercase tracking-widest">Linha {doc.line_code}</h3>
+                                    {doc.pdf_path && <span className="text-[9px] font-black bg-brand/10 text-brand px-2 py-0.5 rounded-full uppercase">PDF Ativo</span>}
                                 </div>
-                                <div className="mt-2 text-sm flexitems-center gap-2">
+                                <div className="flex flex-wrap items-center gap-4 text-[10px] font-medium text-muted uppercase tracking-tight">
+                                    <span className="flex items-center gap-1"><FileText size={12} /> Vigência: {doc.valid_from}</span>
                                     {run ? (
-                                        <div className="flex items-center gap-2">
-                                            {run.status === 'OK' && <span className="flex items-center text-green-700 bg-green-100 px-2 py-0.5 rounded text-xs font-medium"><CheckCircle className="w-3 h-3 mr-1" /> OK</span>}
-                                            {run.status === 'WARN' && <span className="flex items-center text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs font-medium"><AlertTriangle className="w-3 h-3 mr-1" /> WARN</span>}
-                                            {run.status === 'FAIL' && <span className="flex items-center text-red-700 bg-red-100 px-2 py-0.5 rounded text-xs font-medium"><AlertTriangle className="w-3 h-3 mr-1" /> FAIL</span>}
-                                            <span className="text-gray-500 text-xs text-nowrap">
-                                                {meta?.timesFound} horários | {meta?.daySectionsFound} seções
+                                        <div className="flex items-center gap-3">
+                                            {run.status === 'OK' && <span className="flex items-center text-emerald-400 gap-1"><CheckCircle className="w-3 h-3" /> Processado</span>}
+                                            {run.status === 'WARN' && <span className="flex items-center text-amber-500 gap-1"><AlertTriangle className="w-3 h-3" /> Avisos</span>}
+                                            {run.status === 'FAIL' && <span className="flex items-center text-danger gap-1"><AlertTriangle className="w-3 h-3" /> Falhou</span>}
+                                            <span className="opacity-40">
+                                                {meta?.timesFound} Horários | {meta?.daySectionsFound} Seções
                                             </span>
                                         </div>
                                     ) : (
-                                        <span className="text-gray-400 text-xs italic">Ainda não parseado.</span>
+                                        <span className="italic opacity-30">Pendente de processamento</span>
                                     )}
                                 </div>
                                 {meta?.errors && meta.errors.length > 0 && (
-                                    <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded border border-red-100 divide-y divide-red-200">
-                                        {meta.errors.map((e: string, idx: number) => <div key={idx} className="py-1">{e}</div>)}
+                                    <div className="text-[9px] font-bold text-danger bg-danger/5 p-3 rounded-lg border border-danger/10 space-y-1">
+                                        {meta.errors.map((e: string, idx: number) => <div key={idx} className="flex gap-2"><div className="mt-1 w-1 h-1 rounded-full bg-danger shrink-0" /> {e}</div>)}
                                     </div>
                                 )}
                             </div>
-                            <button
+                            <Button
                                 onClick={() => handleParse(doc.id)}
-                                disabled={parsingId === doc.id || !doc.pdf_path}
-                                className="shrink-0 flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 transition"
+                                loading={parsingId === doc.id}
+                                disabled={!doc.pdf_path}
+                                variant={run ? "ghost" : "primary"}
+                                className="!h-12 !px-6 !text-[11px]"
                             >
-                                {parsingId === doc.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                                {run ? 'Repassar' : 'Criar Vínculo'}
-                            </button>
+                                <RefreshCw className={`w-4 h-4 mr-2 ${parsingId === doc.id ? 'animate-spin' : ''}`} />
+                                {run ? 'Recalcular' : 'Extrair Dados'}
+                            </Button>
                         </div>
                     );
                 })}
-                {schedules.length === 0 && <p className="text-sm text-gray-500">Nenhum documento do tipo HORARIO encontrado.</p>}
+                {schedules.length === 0 && (
+                    <div className="text-center py-12 border border-dashed border-white/5 rounded-3xl">
+                        <p className="text-[11px] font-black uppercase text-muted tracking-widest opacity-30">Nenhum documento encontrado.</p>
+                    </div>
+                )}
             </div>
-        </div>
+        </Card>
     );
 }

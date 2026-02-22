@@ -1,157 +1,134 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import {
-    MapPin, Bus, LogOut, ChevronRight, Megaphone, Users,
-    ArrowRight, HandHeart, Star
-} from 'lucide-react';
+import { Shield, MapPin, Zap, ShieldCheck, Heart, Share2 } from 'lucide-react';
+import { AppShell, PageHeader, Card, Divider, Button } from '@/components/ui';
 
-const STEPS = [
-    {
-        number: '1',
-        icon: MapPin,
-        color: 'bg-indigo-600',
-        title: 'Cheguei no ponto',
-        desc: 'Abre o app, toca em "Estou no Ponto". O GPS identifica o ponto mais próximo automaticamente.',
-        detail: '⏱ Leva ~5 segundos',
-    },
-    {
-        number: '2',
-        icon: Bus,
-        color: 'bg-orange-500',
-        title: 'Ônibus passou ou Entrei',
-        desc: 'Quando o \u00f4nibus chegar: toca "Ônibus Passou" se não couber, ou "Entrei" quando embarcar.',
-        detail: '⏱ 1 toque',
-    },
-    {
-        number: '3',
-        icon: LogOut,
-        color: 'bg-emerald-600',
-        title: 'Se der, marca "Desci" + avalia',
-        desc: 'Ao chegar no destino: marca "Desci" e avalia em 30 segundos. Isso gera Prova de Trajeto (L3)!',
-        detail: '⏱ Opcional, mas poderoso',
-        optional: true,
-    },
-];
-
-async function trackCta() {
-    try {
-        await fetch('/api/telemetry', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ event: 'cta_click' }),
-        });
-    } catch { /* Silent fail */ }
-}
-
-export default function ComoUsarPage() {
-    const [started, setStarted] = useState(false);
-
-    const handleStart = async () => {
-        setStarted(true);
-        await trackCta();
-        window.location.href = '/no-ponto';
-    };
-
+export default function ComoUsar() {
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
-            {/* Hero Header */}
-            <header className="bg-indigo-900 text-white px-6 py-10 rounded-b-[40px] shadow-2xl relative overflow-hidden">
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute -top-10 -right-10 w-48 h-48 bg-indigo-700 rounded-full opacity-30 blur-2xl" />
-                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-violet-700 rounded-full opacity-20 blur-3xl" />
-                </div>
-                <div className="relative z-10 max-w-lg mx-auto text-center">
-                    <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-4 border border-white/20">
-                        <Star size={12} className="text-yellow-300" />
-                        Registra em 10 segundos
-                    </div>
-                    <h1 className="text-3xl font-black tracking-tight leading-tight">
-                        Como usar o<br />VR no Ponto
-                    </h1>
-                    <p className="text-indigo-200 mt-3 text-sm leading-relaxed max-w-xs mx-auto">
-                        Sua participação vira dado. Dado vira pressão. Pressão vira mudança.
-                    </p>
-                </div>
-            </header>
+        <AppShell title="GUIA DO USUÁRIO">
+            <PageHeader
+                title="Como Funciona"
+                subtitle="O seu relato é a prova que falta"
+            />
 
-            <div className="max-w-lg mx-auto px-5 py-8 space-y-5">
-                {/* Steps */}
-                <section className="space-y-4">
-                    {STEPS.map((step, i) => {
-                        const Icon = step.icon;
-                        return (
-                            <div key={i} className="bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 flex gap-4">
-                                <div className={`${step.color} text-white w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg`}>
-                                    <Icon size={20} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">PASSO {step.number}</span>
-                                        {step.optional && (
-                                            <span className="text-[9px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-black px-1.5 py-0.5 rounded-full uppercase tracking-wide">opcional</span>
-                                        )}
-                                    </div>
-                                    <h3 className="font-black text-gray-900 dark:text-white text-base leading-tight">{step.title}</h3>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{step.desc}</p>
-                                    <p className="text-xs text-gray-400 mt-1.5 font-medium">{step.detail}</p>
-                                </div>
-                            </div>
-                        );
-                    })}
+            <div className="space-y-12">
+                <section className="space-y-6">
+                    <Card variant="surface2" className="!p-8 border-brand/20 bg-brand/5 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                            <Zap size={120} className="text-brand" />
+                        </div>
+                        <div className="relative z-10 space-y-4">
+                            <h2 className="text-3xl font-industrial italic uppercase leading-none text-brand">O Poder da Auditoria</h2>
+                            <p className="text-sm font-bold text-white/80 leading-relaxed uppercase tracking-tight max-w-lg">
+                                O VR no Ponto não é apenas um app de horários. É uma ferramenta de <span className="text-brand">pressão popular</span> que prova, com dados geolocalizados, quando as empresas de ônibus não cumprem o prometido.
+                            </p>
+                        </div>
+                    </Card>
                 </section>
 
-                {/* CTAs */}
-                <section className="space-y-3">
-                    <button
-                        onClick={handleStart}
-                        disabled={started}
-                        className="w-full flex items-center justify-between bg-indigo-600 hover:bg-indigo-700 text-white py-5 px-6 rounded-3xl font-black text-base shadow-xl shadow-indigo-200 dark:shadow-none transition-all active:scale-95 disabled:opacity-70"
+                <Divider label="FLUXO DE REGISTRO" />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card className="!p-6 space-y-4 border-white/5 bg-white/[0.02]">
+                        <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
+                            <MapPin className="text-brand" size={20} />
+                        </div>
+                        <h3 className="font-industrial text-lg italic uppercase tracking-widest text-white">1. Localização</h3>
+                        <p className="text-[11px] text-muted font-black uppercase tracking-tight leading-relaxed">
+                            O sistema detecta automaticamente em qual ponto você está para validar seu relato.
+                        </p>
+                    </Card>
+
+                    <Card className="!p-6 space-y-4 border-white/5 bg-white/[0.02]">
+                        <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
+                            <Zap className="text-brand" size={20} />
+                        </div>
+                        <h3 className="font-industrial text-lg italic uppercase tracking-widest text-white">2. Ação Simples</h3>
+                        <p className="text-[11px] text-muted font-black uppercase tracking-tight leading-relaxed">
+                            Basta um toque: &quot;Ônibus Passou&quot; ou &quot;Entrei&quot;. Sem formulários complexos.
+                        </p>
+                    </Card>
+
+                    <Card className="!p-6 space-y-4 border-white/5 bg-white/[0.02]">
+                        <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
+                            <ShieldCheck className="text-brand" size={20} />
+                        </div>
+                        <h3 className="font-industrial text-lg italic uppercase tracking-widest text-white">3. Prova L1-L3</h3>
+                        <p className="text-[11px] text-muted font-black uppercase tracking-tight leading-relaxed">
+                            Seu relato se une ao de outros para criar uma prova irrefutável de má prestação de serviço.
+                        </p>
+                    </Card>
+                </div>
+
+                <Divider label="NÍVEIS DE CONFIANÇA" />
+
+                <div className="space-y-4">
+                    <Card variant="surface2" className="flex items-start gap-4 border-white/5 !p-6">
+                        <div className="mt-1 px-2 py-0.5 bg-white/10 text-white font-mono text-[10px] font-bold rounded tracking-widest uppercase">L1</div>
+                        <div className="space-y-1">
+                            <h4 className="font-industrial text-lg italic uppercase text-white/90">Relato Individual</h4>
+                            <p className="text-[11px] text-muted font-medium uppercase tracking-tight leading-relaxed">
+                                Você relata um evento. É o ponto de partida da auditoria.
+                            </p>
+                        </div>
+                    </Card>
+
+                    <Card variant="surface2" className="flex items-start gap-4 border-brand/20 !p-6">
+                        <div className="mt-1 px-2 py-0.5 bg-brand text-black font-mono text-[10px] font-bold rounded tracking-widest uppercase">L2</div>
+                        <div className="space-y-1">
+                            <h4 className="font-industrial text-lg italic uppercase text-brand">Consenso Social</h4>
+                            <p className="text-[11px] text-muted font-medium uppercase tracking-tight leading-relaxed">
+                                Mais pessoas no mesmo ponto confirmam o evento em horários próximos.
+                            </p>
+                        </div>
+                    </Card>
+
+                    <Card variant="surface2" className="flex items-start gap-4 border-emerald-500/20 !p-6">
+                        <div className="mt-1 px-2 py-0.5 bg-emerald-500 text-white font-mono text-[10px] font-bold rounded tracking-widest uppercase">L3</div>
+                        <div className="space-y-1">
+                            <h4 className="font-industrial text-lg italic uppercase text-emerald-400">Prova Verificada</h4>
+                            <p className="text-[11px] text-muted font-medium uppercase tracking-tight leading-relaxed">
+                                Relato validado via Trajeto ou QR Code em parceiro oficial.
+                            </p>
+                        </div>
+                    </Card>
+                </div>
+
+                <Divider label="POR QUE USAR?" />
+
+                <Card className="!p-10 text-center space-y-6 bg-white/[0.02] border-white/5">
+                    <Heart className="mx-auto text-danger animate-pulse" size={32} fill="currentColor" />
+                    <div className="space-y-2">
+                        <h2 className="text-3xl font-industrial italic uppercase leading-none text-white">Auditoria Transparente</h2>
+                        <p className="text-sm font-bold text-muted uppercase tracking-tight leading-relaxed max-w-md mx-auto">
+                            Ao usar o VR no Ponto, você contribui para um banco de dados público que expõe a realidade do transporte. Chega de intervalos &quot;fantasma&quot;.
+                        </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Card variant="surface2" className="flex items-center gap-2 !p-3 !bg-white/5 border-white/10">
+                            <Shield size={16} className="text-brand" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Privacidade 100%</span>
+                        </Card>
+                        <Card variant="surface2" className="flex items-center gap-2 !p-3 !bg-white/5 border-white/10">
+                            <Share2 size={16} className="text-brand" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Dados Abertos</span>
+                        </Card>
+                    </div>
+                </Card>
+
+                <div className="pt-4 flex justify-center">
+                    <Button
+                        href="/registrar"
+                        className="!bg-brand !text-black !h-14 !px-12 !text-lg hover:!scale-105 transition-all shadow-xl shadow-brand/20"
                     >
-                        <span>Começar agora</span>
-                        <ArrowRight size={22} />
-                    </button>
-                    <Link href="/registrar"
-                        className="w-full flex items-center justify-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 py-4 px-6 rounded-3xl font-bold text-sm shadow-sm border border-gray-200 dark:border-gray-700 transition-all active:scale-95 hover:shadow-md">
-                        Já estou registrando <ChevronRight size={18} />
-                    </Link>
-                </section>
+                        Começar Auditoria
+                    </Button>
+                </div>
 
-                {/* Why section */}
-                <section className="bg-gradient-to-br from-red-600 to-orange-600 text-white p-7 rounded-3xl shadow-xl shadow-red-200 dark:shadow-none">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Megaphone size={20} className="opacity-80" />
-                        <h2 className="font-black uppercase tracking-tight text-sm">Por que isso importa?</h2>
-                    </div>
-                    <p className="text-sm leading-relaxed opacity-90">
-                        O transporte público de Volta Redonda falha todo dia, mas <strong>sem dados não há cobrança</strong>. Cada registro seu vira evidência anônima. Junto com outros passageiros, criamos um <strong>boletim de auditoria</strong> que nenhuma empresa de ônibus pode ignorar.
-                    </p>
-                    <p className="text-sm mt-3 leading-relaxed opacity-90">
-                        <strong>Você não precisa de advogado.</strong> Você só precisa de 10 segundos.
-                    </p>
-                </section>
-
-                {/* Partner link */}
-                <section className="bg-white dark:bg-gray-800 p-5 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="bg-violet-100 dark:bg-violet-900/30 p-2 rounded-xl">
-                            <HandHeart size={18} className="text-violet-600 dark:text-violet-400" />
-                        </div>
-                        <div>
-                            <h3 className="font-black text-gray-900 dark:text-white text-sm">Tem um comércio ou coletivo?</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Vire um Ponto Parceiro e ajude quem passa na sua rua.</p>
-                        </div>
-                    </div>
-                    <Link href="/parceiros/entrar"
-                        className="flex items-center justify-between bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 px-4 py-3 rounded-2xl font-bold text-sm border border-violet-100 dark:border-violet-900/50 hover:bg-violet-100 transition">
-                        <span className="flex items-center gap-2">
-                            <Users size={16} /> Cadastrar como Ponto Parceiro
-                        </span>
-                        <ChevronRight size={16} />
-                    </Link>
-                </section>
+                <footer className="text-center pb-8 opacity-20 hover:opacity-100 transition-opacity">
+                    <p className="text-[10px] font-industrial tracking-[0.4em] uppercase text-muted">Vila Rica no Ponto — {new Date().getFullYear()}</p>
+                </footer>
             </div>
-        </div>
+        </AppShell>
     );
 }

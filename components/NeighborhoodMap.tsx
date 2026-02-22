@@ -73,7 +73,7 @@ function PopupContent({ neighborhood, avg_delta_min, stops_count, samples_total,
             </div>
             <a
                 href={`/bairro/${encodeURIComponent(neighborhood)}`}
-                className="pt-2 text-indigo-600 hover:text-indigo-800 font-semibold text-sm flex items-center gap-1 border-t border-gray-100"
+                className="pt-2 text-brand hover:brightness-110 font-bold text-sm flex items-center gap-1 border-t border-gray-100"
             >
                 Ver detalhes <ArrowRight size={14} />
             </a>
@@ -131,7 +131,7 @@ export default function NeighborhoodMapComponent({
                                     <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Amostras</span><span>${p.samples_total}</span></div>
                                     <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Verificado</span><span>${p.pct_verified_avg}%</span></div>
                                 </div>
-                                <a href="/bairro/${encodeURIComponent(p.neighborhood)}" style="display:block;margin-top:8px;color:#4f46e5;font-weight:600;font-size:13px;text-decoration:none">Ver detalhes →</a>
+                                <a href="/bairro/${encodeURIComponent(p.neighborhood)}" style="display:block;margin-top:8px;color:#facc15;font-weight:600;font-size:13px;text-decoration:none">Ver detalhes →</a>
                             </div>
                         `;
                         layer.bindPopup(L.popup().setContent(html));

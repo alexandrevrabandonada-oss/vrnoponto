@@ -57,7 +57,7 @@ export function StopPromisedVsRealCard({ stopId }: { stopId: string }) {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 className="text-xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
-                        <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Prometido vs Real
+                        <Clock className="w-5 h-5 text-brand dark:text-brand" /> Prometido vs Real
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                         Comparação oficial de intervalos reais vs tabela estipulada neste ponto (30 dias).
@@ -70,7 +70,7 @@ export function StopPromisedVsRealCard({ stopId }: { stopId: string }) {
                             setDayGroup(e.target.value as 'WEEKDAY' | 'SAT' | 'SUN');
                             setLoading(true);
                         }}
-                        className="appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-lg block w-full pl-3 pr-8 py-2.5 font-medium focus:ring-indigo-500 focus:border-indigo-500"
+                        className="appearance-none bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white text-sm rounded-lg block w-full pl-3 pr-8 py-2.5 font-medium focus:ring-brand focus:border-brand"
                     >
                         <option value="WEEKDAY">Dias Úteis</option>
                         <option value="SAT">Sábados</option>
@@ -110,7 +110,7 @@ export function StopPromisedVsRealCard({ stopId }: { stopId: string }) {
                             <div key={lineData.line_code} className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                                 <div className="bg-gray-50 dark:bg-gray-900/50 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                                     <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                        <span className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 px-2 py-0.5 rounded text-sm">{lineData.line_code}</span>
+                                        <span className="bg-brand/20 text-brand px-2 py-0.5 rounded text-sm font-black tracking-tight">{lineData.line_code}</span>
                                         {lineData.line_name}
                                     </h3>
                                     <div className="text-xs">
