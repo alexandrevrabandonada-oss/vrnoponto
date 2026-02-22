@@ -9,7 +9,8 @@ import {
     ChevronRight,
     MapPin,
     AlertCircle,
-    Loader2
+    Loader2,
+    History as HistoryIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
@@ -188,6 +189,24 @@ export default function BoletimPage() {
                     >
                         <MapPin size={20} />
                         Mapa de Bairros (Story)
+                    </button>
+                </div>
+
+                {/* Neighborhood Changes Card */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <button
+                        onClick={() => window.open('/api/bulletin/neighborhood-change-card?format=square', '_blank')}
+                        className="flex items-center justify-center gap-3 bg-gray-900 text-white p-5 rounded-2xl border border-gray-800 font-bold hover:shadow-lg transition-all active:scale-95"
+                    >
+                        <HistoryIcon size={20} className="text-indigo-400" />
+                        Tendências Mensais (Feed)
+                    </button>
+                    <button
+                        onClick={() => window.open('/api/bulletin/neighborhood-change-card?format=story', '_blank')}
+                        className="flex items-center justify-center gap-3 bg-gray-900 text-white p-5 rounded-2xl border border-gray-800 font-bold hover:shadow-lg transition-all active:scale-95"
+                    >
+                        <HistoryIcon size={20} className="text-indigo-400" />
+                        Tendências Mensais (Story)
                     </button>
                 </div>
 

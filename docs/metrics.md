@@ -72,6 +72,15 @@ Tabela de sinônimos: `alias_norm` → `canonical_norm`. Função SQL `apply_nei
 ### Normalização de Bairros (migration 0035)
 Coluna `neighborhood_norm` em `stops`, `partners`, `neighborhood_shapes`. Triggers BEFORE INSERT/UPDATE auto-populam. Função SQL `normalize_neighborhood_basic(text)` faz uppercase + remove acentos + resolve alias.
 
+### `vw_neighborhood_monthly` (migration 0036)
+Agregados mensais (últimos 12 meses) de performance por bairro. Utiliza `neighborhood_norm`.
+- `avg_delta_min`, `samples_total`, `pct_verified_avg`.
+
+### `vw_neighborhood_monthly_change` (migration 0036)
+Join entre meses consecutivos para calcular a tendência de performance.
+- `delta_change_min`: Diferença de atraso vs mês anterior.
+- `delta_change_pct`: Percentual de variação.
+
 ## Automação
 
 O job de alertas é executado diariamente via GitHub Actions (`run-alerts.yml`), acionando o endpoint protegido:

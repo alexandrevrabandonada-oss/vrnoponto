@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-22T02:32:00.000Z
+Gerado em: 2026-02-22T02:42:03.669Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 8ea92a9
+- Git Commit: 67662f1
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
+* 67662f1 - feat: neighborhood normalization + alias + audit
 * 8ea92a9 - feat: neighborhood polygons map (geojson import + postgis)
 * 07f5141 - feat: neighborhood map layer (centroids + cards)
 * 75b2ce6 - feat: neighborhoods dashboard + cards
 * 56492b8 - feat: promised vs real by stop + neighborhood rankings + weekly card
-* 77b5951 - feat: promised vs real by line (official PDF parse + hourly gap)
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -27,6 +27,7 @@ Gerado em: 2026-02-22T02:32:00.000Z
 - /admin/status
 - /bairro/[slug]
 - /bairros
+- /bairros/historico
 - /boletim
 - /como-usar
 - /linha/[id]
@@ -65,7 +66,10 @@ Gerado em: 2026-02-22T02:32:00.000Z
 - /api/map/neighborhoods
 - /api/map/stops
 - /api/neighborhood/detail
+- /api/neighborhood/history
 - /api/neighborhoods
+- /api/neighborhoods/changes
+- /api/neighborhoods/history
 - /api/partner-request
 - /api/point/detail
 - /api/qr/validate
@@ -118,6 +122,7 @@ Gerado em: 2026-02-22T02:32:00.000Z
 - 0033_neighborhood_map_polygons.sql
 - 0034_neighborhood_aliases.sql
 - 0035_neighborhood_norm_columns.sql
+- 0036_neighborhood_monthly_timeseries.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

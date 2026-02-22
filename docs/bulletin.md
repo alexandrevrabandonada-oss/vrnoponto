@@ -20,6 +20,11 @@ O sistema gera automaticamente imagens PNG em alta definição através da rota 
 -   **Square (1:1)**: Ideal para Feed (Instagram/LinkedIn). `format=square`.
 -   **Story (9:16)**: Ideal para Stories e Reels. `format=story`.
 
+### Cards Específicos
+- **Cards de Piores (Ranking)**: `/api/bulletin/worst-stops-card`, `/api/bulletin/worst-neighborhoods-card`.
+- **Cards de Tendência (Mudança)**: `/api/bulletin/neighborhood-change-card`. Exibe os bairros que mais pioraram ou melhoraram vs o mês anterior.
+- **Card de Mapa (Spatial)**: `/api/bulletin/worst-neighborhoods-map-card`. Mapa térmico de riscos.
+
 ## Uso Editorial e Ética
 
 -   **Privacidade**: O boletim usa apenas `target_id` (IDs de pontos e linhas). Nenhuma informação de dispositivo ou usuário é transmitida.
