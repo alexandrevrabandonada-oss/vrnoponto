@@ -46,3 +46,8 @@ lint_output.txt
 final_lint.txt
 full_lint.txt
 
+
+# local reports/logs
+lint_results_final.txt
+reports/BUILD_FAIL.txt
+
