@@ -15,7 +15,7 @@
   --color-danger: #D62828;
   --color-rust: #B45309;
 
-  /* Animations */
+  /* Static Industrial Animations */
   --animate-fade-in-up: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-scale-in: scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-float: float 4s ease-in-out infinite;
@@ -53,6 +53,25 @@
 
     50% {
       transform: translateY(-12px);
+    }
+  }
+}
+
+/* Motion Accessibility: prefers-reduced-motion overrides */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --animate-fade-in-up: fade-in 0.5s ease-out !important;
+    --animate-scale-in: fade-in 0.3s ease-out !important;
+    --animate-float: none !important;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
     }
   }
 }

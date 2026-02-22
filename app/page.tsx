@@ -10,6 +10,8 @@ import { createClient } from '@/lib/supabase/client';
 export default function Home() {
   const [isConnected, setIsConnected] = React.useState(true);
   const [isPrivacyOpen, setIsPrivacyOpen] = React.useState(false);
+  const [isHeroLoading, setIsHeroLoading] = React.useState(false);
+  const [isHeroSuccess, setIsHeroSuccess] = React.useState(false);
 
   React.useEffect(() => {
     const checkConnection = async () => {
@@ -23,6 +25,16 @@ export default function Home() {
     };
     checkConnection();
   }, []);
+
+  const handleHeroClick = () => {
+    setIsHeroLoading(true);
+    // Simular um registro rápido/transição
+    setTimeout(() => {
+      setIsHeroLoading(false);
+      setIsHeroSuccess(true);
+      setTimeout(() => setIsHeroSuccess(false), 2000);
+    }, 800);
+  };
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-between p-6 relative overflow-hidden bg-[#070707]">
@@ -44,7 +56,7 @@ export default function Home() {
       <div className="w-full max-w-sm space-y-10 z-10 animate-fade-in-up">
 
         {/* Hero Section */}
-        <Card className="text-center !p-10 !rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-brand/10" variant="surface">
+        <Card className={`text-center !p-10 !rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-brand/10 transition-all duration-500 ${isHeroSuccess ? 'scale-[1.02] border-brand/40 shadow-brand/10' : ''}`} variant="surface">
           <Badge variant="brand" className="mb-8 px-4 py-2 bg-brand/10 border-brand/20 !text-brand text-xs">
             <Clock size={14} className="mr-2" />
             Auditoria em 10 segundos
@@ -66,12 +78,22 @@ export default function Home() {
           </div>
 
           <Link href="/no-ponto" passHref legacyBehavior>
-            <Button className="mt-12 w-full h-18 !text-2xl hover:scale-[1.02] active:scale-[0.98] shadow-brand/20 transition-all"
-              icon={<ArrowRight size={28} />}
-              iconPosition="right">
+            <Button
+              className={`mt-12 w-full h-18 !text-2xl hover:scale-[1.02] active:scale-[0.98] shadow-brand/20 transition-all ${isHeroSuccess ? '!bg-emerald-500 !text-white' : ''}`}
+              icon={isHeroSuccess ? null : <ArrowRight size={28} />}
+              iconPosition="right"
+              loading={isHeroLoading}
+              onClick={handleHeroClick}
+            >
               <div className="flex items-center gap-4">
-                <MapPin size={28} />
-                estou no ponto
+                {isHeroSuccess ? (
+                  <span className="animate-scale-in">REGISTRADO!</span>
+                ) : (
+                  <>
+                    <MapPin size={28} />
+                    estou no ponto
+                  </>
+                )}
               </div>
             </Button>
           </Link>

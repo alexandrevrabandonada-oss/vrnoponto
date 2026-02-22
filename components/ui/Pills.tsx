@@ -30,9 +30,9 @@ interface StatusPillProps {
 
 export const StatusPill = ({ status, label }: StatusPillProps) => {
     const configs = {
-        online: { color: 'bg-brand', text: label || 'CONECTADO', class: 'text-brand bg-brand/5 border-brand/20' },
-        offline: { color: 'bg-muted', text: label || 'OFFLINE', class: 'text-muted bg-white/5 border-white/10' },
-        error: { color: 'bg-danger', text: label || 'ERRO', class: 'text-danger bg-danger/5 border-danger/20' },
+        online: { color: 'bg-brand', text: label || 'SISTEMA OPERACIONAL', class: 'text-brand bg-brand/5 border-brand/20' },
+        offline: { color: 'bg-muted', text: label || 'MODO OFFLINE — SINCRONIZAMOS DEPOIS', class: 'text-muted bg-white/5 border-white/10' },
+        error: { color: 'bg-danger', text: label || 'ERRO DE CONEXÃO — TENTE DE NOVO', class: 'text-danger bg-danger/5 border-danger/20' },
     };
 
     const config = configs[status];
