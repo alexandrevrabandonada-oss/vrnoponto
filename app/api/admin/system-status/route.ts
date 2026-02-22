@@ -135,11 +135,23 @@ export async function GET(req: Request) {
         const pushCrit = pPrefs.filter(p => p.severity_min === 'CRIT').length;
 
         const { data: latestPush } = await supabase
-            .from('push_sends')
-            .select('created_at')
+            .from('push_send_logs')
+            .select('created_at, status')
             .order('created_at', { ascending: false })
             .limit(1)
             .single();
+
+        const { count: pushFailures24h } = await supabase
+            .from('push_send_logs')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'FAIL')
+            .gte('created_at', yesterday);
+
+        const { count: pushDeadEndpoints } = await supabase
+            .from('push_subscriptions')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_active', false)
+            .in('deactivation_reason', ['404', '410']);
 
         return NextResponse.json({
             health: {
@@ -170,7 +182,9 @@ export async function GET(req: Request) {
             webpush: {
                 vapid_ok: !!process.env.VAPID_PUBLIC_KEY && !!process.env.VAPID_PRIVATE_KEY,
                 last_sent_at: latestPush?.created_at || null,
-                last_status: latestPush ? 'OK' : 'UNKNOWN',
+                last_status: latestPush?.status || (latestPush ? 'OK' : 'UNKNOWN'),
+                failures_24h: pushFailures24h || 0,
+                dead_endpoints: pushDeadEndpoints || 0,
                 subscriptions: {
                     total: pushSubsTotal || 0,
                     digest: pushDigest,

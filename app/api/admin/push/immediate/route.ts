@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import webpush from 'web-push';
+import { sendNotification } from '@/lib/push/sendNotification';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
 
         if (immSubs.length === 0) return NextResponse.json({ message: 'No immediate subscriptions' });
 
-        // Fetch recent CRIT alerts (last 1 hour to prevent massive backlog send)
+        // Fetch recent CRIT alerts (last 1 hour)
         const hourAgo = new Date();
         hourAgo.setHours(hourAgo.getHours() - 1);
 
@@ -92,33 +93,26 @@ export async function POST(req: Request) {
                     });
 
                 if (dedupeErr) {
-                    if (dedupeErr.code === '23505') continue; // Already sent this alert to this device
-                    continue; // Other error, skip
+                    if (dedupeErr.code === '23505') continue;
+                    continue;
                 }
 
-                // Send 
-                const payload = JSON.stringify({
-                    title: `🚨 CRÍTICO: ${a.line_id || a.neighborhood_norm || 'Geral'}`,
-                    body: a.title,
-                    data: { url: '/painel' }
-                });
+                // Send using utility
+                const res = await sendNotification(
+                    supabase,
+                    sub,
+                    {
+                        title: `🚨 CRÍTICO: ${a.line_id || a.neighborhood_norm || 'Geral'}`,
+                        body: a.title,
+                        data: { url: '/painel' }
+                    },
+                    'IMMEDIATE'
+                );
 
-                const pushSub = {
-                    endpoint: sub.endpoint,
-                    keys: { p256dh: sub.p256dh, auth: sub.auth }
-                };
-
-                try {
-                    await webpush.sendNotification(pushSub, payload);
+                if (res.ok) {
                     sentCount++;
-                } catch (e: unknown) {
+                } else {
                     failedCount++;
-                    if (e && typeof e === 'object' && 'statusCode' in e) {
-                        const err = e as { statusCode: number };
-                        if (err.statusCode === 404 || err.statusCode === 410) {
-                            await supabase.from('push_subscriptions').update({ is_active: false }).eq('endpoint', sub.endpoint);
-                        }
-                    }
                 }
             }
         }

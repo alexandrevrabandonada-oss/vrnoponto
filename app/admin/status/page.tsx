@@ -34,6 +34,8 @@ interface SystemStatus {
         vapid_ok: boolean;
         last_sent_at: string | null;
         last_status: string;
+        failures_24h: number;
+        dead_endpoints: number;
         subscriptions: {
             total: number;
             digest: number;
@@ -249,13 +251,25 @@ export default function StatusDashboard() {
                             <span className="font-medium text-gray-900">{formatDate(statusData.webpush.last_sent_at)}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Status</span>
+                            <StatusBadge status={statusData.webpush.last_status} />
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Falhas (24h)</span>
+                            <span className={statusData.webpush.failures_24h > 0 ? "font-bold text-red-600" : "font-bold text-gray-900"}>{statusData.webpush.failures_24h}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Endpoints Mortos (410)</span>
+                            <span className="font-medium text-orange-600">{statusData.webpush.dead_endpoints}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-600">Env Chaves VAPID</span>
                             <span className={statusData.webpush.vapid_ok ? "font-bold text-emerald-600" : "font-bold text-red-600"}>{statusData.webpush.vapid_ok ? 'OK' : 'MISSING'}</span>
                         </div>
                     </div>
                     <div className="space-y-3 pt-3 border-t border-gray-100">
                         <div className="flex justify-between items-center text-sm">
-                            <span className="text-gray-600">Web Inscritos</span>
+                            <span className="text-gray-600">Web Inscritos Ativos</span>
                             <span className="font-bold text-gray-900">{statusData.webpush.subscriptions.total}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm">

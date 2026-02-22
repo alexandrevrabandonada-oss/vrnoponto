@@ -12,6 +12,7 @@ import {
     AppShell, PageHeader, Card, Divider, Button,
     SkeletonCard, SkeletonList, EmptyState, InlineAlert, ListItem, MetricRow, Skeleton
 } from '@/components/ui';
+import { FollowButton, FollowBadge } from '@/components/push/FollowButton';
 
 type WeeklyHeadway = {
     week_start: string;
@@ -123,6 +124,7 @@ export default function LinhaDetails() {
             title="ANÁLISE DE LINHA"
             actions={
                 <div className="flex items-center gap-2">
+                    <FollowButton type="line" id={lineId} label={line?.code} />
                     {trustMix && <TrustMixBadge total={trustMix.total_events} pctVerified={trustMix.pct_verified} />}
                     <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ${line.is_active ? 'bg-brand/20 text-brand' : 'bg-red-500/20 text-red-400'}`}>
                         {line.is_active ? 'EM OPERAÇÃO' : 'DESATIVADA'}
@@ -134,6 +136,10 @@ export default function LinhaDetails() {
                 title={line.code}
                 subtitle={line.name}
             />
+
+            <div className="mb-6 flex justify-center">
+                <FollowBadge />
+            </div>
 
             <div className="space-y-8">
                 {/* Active Alerts */}

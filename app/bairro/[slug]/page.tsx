@@ -13,6 +13,7 @@ import {
     AppShell, PageHeader, Button, Card, Divider,
     EmptyState, SkeletonBlock, SkeletonCard, SkeletonList, ListItem, MetricRow
 } from '@/components/ui';
+import { FollowButton, FollowBadge } from '@/components/push/FollowButton';
 import { t } from '@/lib/copy';
 
 type Summary = { neighborhood: string; avg_delta_min: number | null; stops_count: number; samples_total: number; pct_verified_avg: number };
@@ -99,7 +100,18 @@ export default function BairroDetailPage() {
             <PageHeader
                 title={summary.neighborhood}
                 subtitle="Prometido vs Real nos últimos 30 dias"
+                actions={
+                    <FollowButton
+                        type="neighborhood"
+                        id={summary.neighborhood.toLowerCase().trim()}
+                        label={summary.neighborhood}
+                    />
+                }
             />
+
+            <div className="mb-6 flex justify-center">
+                <FollowBadge />
+            </div>
 
             <div className="space-y-8">
                 {/* KPI Grid */}

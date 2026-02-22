@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import webpush from 'web-push';
+import { sendNotification } from '@/lib/push/sendNotification';
 
 export const dynamic = 'force-dynamic';
+
+const truncate = (text: string, limit: number) => {
+    if (text.length <= limit) return text;
+    return text.substring(0, limit - 3) + '...';
+};
 
 export async function POST(req: Request) {
     const authHeader = req.headers.get('authorization');
@@ -108,7 +114,6 @@ export async function POST(req: Request) {
                 });
 
             if (dedupeErr) {
-                // Unique constraint violation means already sent
                 if (dedupeErr.code === '23505') continue;
                 console.error('Dedupe error', dedupeErr);
                 continue;
@@ -118,34 +123,27 @@ export async function POST(req: Request) {
             let bodyText = '';
             const toSend = filtered.slice(0, 6);
             for (const a of toSend) {
-                bodyText += `• [${a.line_id || a.neighborhood_norm || 'Geral'}] ${a.title}\n`;
+                bodyText += `• [${a.line_id || a.neighborhood_norm || 'Geral'}] ${truncate(a.title, 60)}\n`;
             }
             if (filtered.length > 6) {
                 bodyText += `+ ${filtered.length - 6} outros avisos...`;
             }
 
-            const payload = JSON.stringify({
-                title: `VR no Ponto: Resumo (${filtered.length} alertas)`,
-                body: bodyText,
-                data: { url: '/painel' }
-            });
+            const res = await sendNotification(
+                supabase,
+                sub,
+                {
+                    title: `VR no Ponto: Resumo (${filtered.length} alertas)`,
+                    body: bodyText,
+                    data: { url: '/painel' }
+                },
+                'DIGEST'
+            );
 
-            const pushSub = {
-                endpoint: sub.endpoint,
-                keys: { p256dh: sub.p256dh, auth: sub.auth }
-            };
-
-            try {
-                await webpush.sendNotification(pushSub, payload);
+            if (res.ok) {
                 sentCount++;
-            } catch (e: unknown) {
+            } else {
                 failedCount++;
-                if (e && typeof e === 'object' && 'statusCode' in e) {
-                    const err = e as { statusCode: number };
-                    if (err.statusCode === 404 || err.statusCode === 410) {
-                        await supabase.from('push_subscriptions').update({ is_active: false }).eq('endpoint', sub.endpoint);
-                    }
-                }
             }
         }
 

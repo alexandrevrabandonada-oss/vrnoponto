@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-22T18:22:41.817Z
+Gerado em: 2026-02-22T19:32:48.980Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 00de398
+- Git Commit: 7abeb3a
 - .env.local: OK
 - Supabase Env Vars: OK
-- /api/health Local: OK
+- /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
-* 00de398 - feat: partner invite A/B growth testing framework
-* 0c1b7ff - feat: offline first event queue with sync idempotency
-* 68e3a0c - refactor: eliminate legacy indigo and blue themes from maps, og and components
-* 768cff9 - ux: refined state feedback and accessibility audit
-* 563d2d9 - style: cutting-edge industrial home page refactor
+* 7abeb3a - fix: align suggestLine signature with registrar call
+* 853e512 - chore: stop tracking lint_output.txt
+* d573757 - chore: sync patches + migrations + web push + doctor
+* 6aef940 - fix: monthly neighborhood view derives line_id via official_schedules
+* c20d670 - feat: partner invite A/B growth testing framework
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -90,6 +90,7 @@ Gerado em: 2026-02-22T18:22:41.817Z
 - /api/report/monthly
 - /api/report/monthly.csv
 - /api/stop/promised-vs-real
+- /api/stop/top-lines
 - /api/stops/nearest
 - /api/telemetry
 - /api/timeseries/line
@@ -142,6 +143,14 @@ Gerado em: 2026-02-22T18:22:41.817Z
 - 0039_client_event_id.sql
 - 0040_invite_ab.sql
 - 0042_web_push.sql
+- 0043_push_send_logs.sql
+
+## Funcionalidades de Notificações
+- ✅ Seguir Bairro: OK
+- ✅ Seguir Linha: OK
+- ✅ Deduplicação de Preferências: OK
+- ✅ Telemetria Mobile-First: OK
+- ✅ Web Push Hardening: OK (Retries + Logs + Deativação 410/404)
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: OK
@@ -149,13 +158,37 @@ Gerado em: 2026-02-22T18:22:41.817Z
 *(Run `npm run supabase:check` to validate the token against the Supabase CLI)*
 
 ## Scripts
-- npm run lint: SUCCESS
+- npm run lint: FAILED
 - npm run build: SUCCESS
 - npm run db:doctor: SKIPPED (No DB Password)
 
 
 
+### Resumo Lint
+```text
 
+> vrnoponto@0.1.0 lint
+> eslint
+
+
+C:\Projetos\vrnoponto\components\push\PushOptInCard.tsx
+  30:13  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+  32:13  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+  34:13  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+
+C:\Projetos\vrnoponto\lib\push\sendNotification.ts
+   7:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projetos\vrnoponto\lib\suggestLine.ts
+  16:51  warning  'deviceId' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 7 problems (3 errors, 4 warnings)
+  0 errors and 3 warnings potentially fixable with the `--fix` option.
+
+
+```
 
 
 

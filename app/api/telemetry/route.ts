@@ -20,7 +20,11 @@ const ALLOWED_EVENTS = new Set([
     'invite_click_A',
     'invite_click_B',
     'partner_request_created_A',
-    'partner_request_created_B'
+    'partner_request_created_B',
+    'follow_bairro_click',
+    'follow_linha_click',
+    'push_optin_success',
+    'push_optin_denied'
 ]);
 
 export async function POST(req: Request) {

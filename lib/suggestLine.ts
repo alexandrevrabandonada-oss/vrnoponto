@@ -13,7 +13,7 @@ export interface SuggestedLine {
  * 2. Most recent line used by device anywhere (last 7 days)
  * 3. Most popular line at this stop (API)
  */
-export async function suggestLine(stopId: string, deviceId?: string): Promise<SuggestedLine | null> {
+export async function suggestLine(stopId: string, _deviceId?: string): Promise<SuggestedLine | null> {
     try {
         // 1. Check localStorage for this specific stop
         if (typeof window !== 'undefined') {
@@ -34,7 +34,7 @@ export async function suggestLine(stopId: string, deviceId?: string): Promise<Su
         }
 
         // 2. Fetch top lines for this stop from API (Fallback to popular lines)
-        const res = await fetch(`/api/stop/top-lines?stop_id=${stopId}&limit=1`);
+        const res = await fetch(`/api/stop/top-lines?stop_id=${stopId}&limit=1&device_id=${_deviceId || ''}`);
         if (res.ok) {
             const data = await res.json();
             if (data.lines && data.lines.length > 0) {
