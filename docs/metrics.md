@@ -60,6 +60,12 @@ Top 10 piores linhas por bairro, ranqueadas por `avg_delta_min`. Enriquecido com
 ### `vw_neighborhood_map_30d` (migration 0031)
 Centroides dos bairros (avg lat/lng dos stops) com `avg_delta_min`, `risk_band` (OK/ATTENTION/BAD/CRIT), `stops_count`, `samples_total`, `pct_verified_avg`. Filtra bairros com ≥2 stops.
 
+### `neighborhood_shapes` (migration 0032)
+Tabela PostGIS com polígonos reais dos bairros (`geom geography(MULTIPOLYGON, 4326)`). Importados via admin endpoint com GeoJSON.
+
+### `vw_neighborhood_polygon_metrics_30d` (migration 0033)
+Join `neighborhood_shapes` + `vw_neighborhood_map_30d`. Retorna `ST_AsGeoJSON(geom)` + métricas para o layer Leaflet GeoJSON.
+
 ## Automação
 
 O job de alertas é executado diariamente via GitHub Actions (`run-alerts.yml`), acionando o endpoint protegido:

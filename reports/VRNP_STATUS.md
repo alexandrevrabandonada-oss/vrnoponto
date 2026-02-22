@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-22T00:59:13.637Z
+Gerado em: 2026-02-22T01:09:07.580Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 75b2ce6
+- Git Commit: 07f5141
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
+* 07f5141 - feat: neighborhood map layer (centroids + cards)
 * 75b2ce6 - feat: neighborhoods dashboard + cards
 * 56492b8 - feat: promised vs real by stop + neighborhood rankings + weekly card
 * 77b5951 - feat: promised vs real by line (official PDF parse + hourly gap)
 * 414d9e6 - feat: trust mix badge across map, stop, line, reports
-* de4df0e - feat: system status dashboard in admin
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -44,6 +44,7 @@ Gerado em: 2026-02-22T00:59:13.637Z
 
 ## Rotas de Backend (app/api/)
 - /api/admin/funnel/csv
+- /api/admin/neighborhoods/import-geojson
 - /api/admin/oficial/parse
 - /api/admin/qr/generate
 - /api/admin/run-alerts
@@ -111,6 +112,8 @@ Gerado em: 2026-02-22T00:59:13.637Z
 - 0029_rankings_stop_neighborhood.sql
 - 0030_neighborhood_detail_views.sql
 - 0031_neighborhood_map_views.sql
+- 0032_neighborhood_polygons.sql
+- 0033_neighborhood_map_polygons.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import { type NeighborhoodMapItem } from '@/components/NeighborhoodMap';
+import { type NeighborhoodMapItem, type NeighborhoodGeoJSON } from '@/components/NeighborhoodMap';
 
 const DynamicMap = dynamic(
     () => import('@/components/NeighborhoodMap'),
@@ -11,6 +11,14 @@ const DynamicMap = dynamic(
     }
 );
 
-export default function NeighborhoodMapWrapper({ neighborhoods }: { neighborhoods: NeighborhoodMapItem[] }) {
-    return <DynamicMap neighborhoods={neighborhoods} />;
+export default function NeighborhoodMapWrapper({
+    neighborhoods,
+    geojsonData,
+    mode = 'circles',
+}: {
+    neighborhoods: NeighborhoodMapItem[];
+    geojsonData?: NeighborhoodGeoJSON;
+    mode?: 'circles' | 'polygons';
+}) {
+    return <DynamicMap neighborhoods={neighborhoods} geojsonData={geojsonData} mode={mode} />;
 }
