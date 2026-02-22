@@ -2,10 +2,12 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ArrowRight, MapPin, Clock, ChevronRight, BarChart3, Bus, ShieldCheck, Info } from 'lucide-react';
-import { Button, Card, Badge, StatusPill, IconButton, BrandSymbol } from '@/components/ui';
+import { ArrowRight, MapPin, Clock, ChevronRight, Info, ShieldCheck } from 'lucide-react';
+import { Button, Card, Badge, StatusPill, BrandSymbol } from '@/components/ui';
 import { PrivacyModal } from '@/components/PrivacyModal';
 import { createClient } from '@/lib/supabase/client';
+import { FavoritesSection } from '@/components/FavoritesSection';
+import { QuickActions } from '@/components/QuickActions';
 
 export default function Home() {
   const [isConnected, setIsConnected] = React.useState(true);
@@ -104,28 +106,11 @@ export default function Home() {
           </Link>
         </Card>
 
-        {/* Secondary Actions */}
-        <div className="grid grid-cols-2 gap-4">
-          <Link href="/registrar" className="focus-ring rounded-3xl">
-            <Card variant="surface2" className="!p-6 text-center hover:bg-white/[0.02] border-white/5 transition-all group flex flex-col items-center gap-4">
-              <IconButton icon={<Bus size={28} className="text-muted group-hover:text-brand transition-colors" />} variant="ghost" className="pointer-events-none p-0 border-0" />
-              <div className="space-y-1">
-                <span className="block font-industrial text-base text-white tracking-widest uppercase">Mover</span>
-                <span className="block text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Fluxo Técnico</span>
-              </div>
-            </Card>
-          </Link>
+        {/* Favorites */}
+        <FavoritesSection />
 
-          <Link href="/boletim" className="focus-ring rounded-3xl">
-            <Card variant="surface2" className="!p-6 text-center hover:bg-white/[0.02] border-white/5 transition-all group flex flex-col items-center gap-4">
-              <IconButton icon={<BarChart3 size={28} className="text-muted group-hover:text-brand transition-colors" />} variant="ghost" className="pointer-events-none p-0 border-0" />
-              <div className="space-y-1">
-                <span className="block font-industrial text-base text-white tracking-widest uppercase">Dados</span>
-                <span className="block text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Métricas / GAP</span>
-              </div>
-            </Card>
-          </Link>
-        </div>
+        {/* Quick Actions */}
+        <QuickActions />
       </div>
 
       {/* Footer */}

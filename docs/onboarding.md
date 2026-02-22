@@ -75,3 +75,17 @@ Card no admin `/admin` mostra **cliques hoje** e **cliques nos últimos 7 dias**
 ## Notas de Ativação
 
 > ⚠️ Aplicar a migration `0020_telemetry_counts.sql` no Supabase antes de usar em produção.
+
+## Favoritos (sem login)
+
+Usuários podem favoritar bairros e linhas para acesso rápido na Home:
+
+- **Ícone ⭐**: Aparece nas páginas `/bairro/[slug]` e `/linha/[id]`, ao lado do botão "Seguir".
+- **Storage**: `localStorage` chave `vrnp_favorites` (sem PII, até 10 por tipo).
+- **Home (/)**: Seção "Meus Bairros" / "Minhas Linhas" com cards + link direto + botão 🔔.
+- **Estado vazio**: CTA convidando a favoritar via `/bairros` ou `/boletim`.
+- **Ações Rápidas**: Grid com 5 links: No Ponto, Mover, Dados, Bairros, Mapa.
+
+Componentes: `FavoriteToggle.tsx`, `FavoritesSection.tsx`, `QuickActions.tsx`.
+Lib: `lib/favorites.ts` (`getFavorites`, `toggleFavoriteNeighborhood`, `toggleFavoriteLine`).
+

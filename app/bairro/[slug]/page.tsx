@@ -14,6 +14,7 @@ import {
     EmptyState, SkeletonBlock, SkeletonCard, SkeletonList, ListItem, MetricRow
 } from '@/components/ui';
 import { FollowButton, FollowBadge } from '@/components/push/FollowButton';
+import { FavoriteToggle } from '@/components/FavoriteToggle';
 import { t } from '@/lib/copy';
 
 type Summary = { neighborhood: string; avg_delta_min: number | null; stops_count: number; samples_total: number; pct_verified_avg: number };
@@ -101,11 +102,14 @@ export default function BairroDetailPage() {
                 title={summary.neighborhood}
                 subtitle="Prometido vs Real nos últimos 30 dias"
                 actions={
-                    <FollowButton
-                        type="neighborhood"
-                        id={summary.neighborhood.toLowerCase().trim()}
-                        label={summary.neighborhood}
-                    />
+                    <div className="flex items-center gap-2">
+                        <FavoriteToggle type="neighborhood" id={slug} label={summary.neighborhood} />
+                        <FollowButton
+                            type="neighborhood"
+                            id={summary.neighborhood.toLowerCase().trim()}
+                            label={summary.neighborhood}
+                        />
+                    </div>
                 }
             />
 

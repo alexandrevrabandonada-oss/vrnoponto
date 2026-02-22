@@ -13,6 +13,7 @@ import {
     SkeletonCard, SkeletonList, EmptyState, InlineAlert, ListItem, MetricRow, Skeleton
 } from '@/components/ui';
 import { FollowButton, FollowBadge } from '@/components/push/FollowButton';
+import { FavoriteToggle } from '@/components/FavoriteToggle';
 
 type WeeklyHeadway = {
     week_start: string;
@@ -124,6 +125,7 @@ export default function LinhaDetails() {
             title="ANÁLISE DE LINHA"
             actions={
                 <div className="flex items-center gap-2">
+                    <FavoriteToggle type="line" id={lineId} label={line?.code || 'Linha'} />
                     <FollowButton type="line" id={lineId} label={line?.code} />
                     {trustMix && <TrustMixBadge total={trustMix.total_events} pctVerified={trustMix.pct_verified} />}
                     <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ${line.is_active ? 'bg-brand/20 text-brand' : 'bg-red-500/20 text-red-400'}`}>

@@ -97,9 +97,15 @@ Gerado em: 2026-02-22T19:32:48.980Z
 - /api/timeseries/stop
 ## Componentes Compartilhados (components/)
 - RatingModal.tsx
+- FavoriteToggle.tsx
+- FavoritesSection.tsx
+- QuickActions.tsx
 
 ## Hooks (hooks/)
 - useDeviceId.ts
+
+## Libs (lib/)
+- favorites.ts
 
 ## Supabase Migrations
 - 0001_init.sql
