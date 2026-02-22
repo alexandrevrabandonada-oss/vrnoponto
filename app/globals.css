@@ -3,55 +3,65 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
+  --font-industrial: var(--font-staatliches);
 
-  /* Premium Palette */
-  --color-brand-50: #f5f7ff;
-  --color-brand-100: #ebf0fe;
-  --color-brand-200: #ced9fd;
-  --color-brand-300: #a1b8fa;
-  --color-brand-400: #708df5;
-  --color-brand-500: #4a66f1;
-  --color-brand-600: #3142e8;
-  --color-brand-700: #2932d5;
-  --color-brand-800: #2629ad;
-  --color-brand-900: #24288a;
-  --color-brand-950: #1a1c54;
+  /* Industrial Palette: VR Abandonada */
+  --color-brand: #F6C600;
+  --color-surface: #111111;
+  --color-surface-2: #161616;
+  --color-muted: #B7B7B7;
+  --color-danger: #D62828;
+  --color-rust: #B45309;
 
   /* Animations */
-  --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  --animate-scale-in: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  --animate-float: float 3s ease-in-out infinite;
+  --animate-fade-in-up: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-in: scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-float: float 4s ease-in-out infinite;
 
   @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   @keyframes scale-in {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
+
   @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-12px);
+    }
   }
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.3);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617;
-    --foreground: #f8fafc;
-    --glass-bg: rgba(15, 23, 42, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
-  }
+  --background: #070707;
+  --foreground: #F2F2F2;
+  --glass-bg: rgba(17, 17, 17, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 body {
@@ -59,17 +69,65 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* Glassmorphism Helper */
+/* Industrial Textures: Grain & Glow */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 50% -20%, rgba(246, 198, 0, 0.05) 0%, transparent 60%),
+    radial-gradient(circle at -10% 50%, rgba(180, 83, 9, 0.03) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+h1,
+h2,
+h3,
+.font-industrial {
+  font-family: var(--font-industrial), sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Industrial Utility Classes */
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
 }
 
-/* Fluid Gradients */
+.surface-card {
+  background: var(--color-surface);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.5);
+}
+
 .grad-brand {
-  background: linear-gradient(135deg, var(--color-brand-600) 0%, var(--color-brand-800) 100%);
+  background: linear-gradient(135deg, #F6C600 0%, #D4A700 100%);
+}
+
+.focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus-ring:focus-visible {
+  outline-color: var(--color-brand);
 }

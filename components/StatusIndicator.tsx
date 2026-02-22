@@ -19,12 +19,12 @@ export function StatusIndicator({ isConnected, label, loading }: StatusIndicator
     }
 
     return (
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-500 scale-in ${isConnected
-            ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600'
-            : 'bg-red-50 dark:bg-red-950/30 text-red-600'
-            }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500'}`} />
-            {label || (isConnected ? 'Sistema Online' : 'Banco Offline')}
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-500 scale-in border ${isConnected
+            ? 'bg-brand/5 border-brand/20 text-brand'
+            : 'bg-danger/5 border-danger/20 text-danger'
+            } focus-ring`} tabIndex={0}>
+            <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-brand shadow-[0_0_8px_rgba(246,198,0,0.6)] animate-pulse' : 'bg-danger'}`} />
+            {label || (isConnected ? 'SISTEMA OPERACIONAL' : 'VRP EM MANUTENÇÃO')}
         </div>
     );
 }
