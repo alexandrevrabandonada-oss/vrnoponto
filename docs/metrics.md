@@ -66,6 +66,12 @@ Tabela PostGIS com polígonos reais dos bairros (`geom geography(MULTIPOLYGON, 4
 ### `vw_neighborhood_polygon_metrics_30d` (migration 0033)
 Join `neighborhood_shapes` + `vw_neighborhood_map_30d`. Retorna `ST_AsGeoJSON(geom)` + métricas para o layer Leaflet GeoJSON.
 
+### `neighborhood_aliases` (migration 0034)
+Tabela de sinônimos: `alias_norm` → `canonical_norm`. Função SQL `apply_neighborhood_alias(text)` resolve alias → canônico.
+
+### Normalização de Bairros (migration 0035)
+Coluna `neighborhood_norm` em `stops`, `partners`, `neighborhood_shapes`. Triggers BEFORE INSERT/UPDATE auto-populam. Função SQL `normalize_neighborhood_basic(text)` faz uppercase + remove acentos + resolve alias.
+
 ## Automação
 
 O job de alertas é executado diariamente via GitHub Actions (`run-alerts.yml`), acionando o endpoint protegido:

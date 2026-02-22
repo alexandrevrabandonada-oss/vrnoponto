@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { Info, Loader2, Map as MapIcon, MenuSquare, Zap, MapPin, TrendingDown, ArrowLeft, Hexagon, CircleDot } from 'lucide-react';
+import { Info, Loader2, Map as MapIcon, MenuSquare, Zap, MapPin, ArrowLeft, Hexagon, CircleDot } from 'lucide-react';
 import NeighborhoodMapWrapper from '@/components/NeighborhoodMapWrapper';
 import { type NeighborhoodMapItem } from '@/components/NeighborhoodMap';
 import { TrustMixBadge } from '@/components/TrustMixBadge';

@@ -206,6 +206,138 @@ export default function StatusDashboard() {
                 </div>
             </div>
 
+            {/* Neighborhood Audit Card */}
+            <NeighborhoodAuditCard token={token} />
+
+        </div>
+    );
+}
+
+function NeighborhoodAuditCard({ token }: { token: string }) {
+    const [audit, setAudit] = useState<{
+        total_stop_neighborhoods: number;
+        total_shape_neighborhoods: number;
+        matched_count: number;
+        match_rate_pct: number;
+        unmatched_stops: string[];
+        unmatched_shapes: string[];
+    } | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [renormLoading, setRenormLoading] = useState(false);
+    const [renormResult, setRenormResult] = useState<string | null>(null);
+    const [showStops, setShowStops] = useState(false);
+    const [showShapes, setShowShapes] = useState(false);
+
+    const refreshAudit = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/admin/neighborhoods/audit?t=${token}`);
+            if (res.ok) setAudit(await res.json());
+        } catch (e) { console.error(e); }
+        setLoading(false);
+    };
+
+    const runRenormalize = async () => {
+        setRenormLoading(true);
+        setRenormResult(null);
+        try {
+            const res = await fetch(`/api/admin/neighborhoods/renormalize?t=${token}`, { method: 'POST' });
+            if (res.ok) {
+                const data = await res.json();
+                setRenormResult(`✅ Stops: ${data.stops_updated}, Partners: ${data.partners_updated}, Shapes: ${data.shapes_updated}`);
+                setTimeout(() => refreshAudit(), 500);
+            }
+        } catch (e) { console.error(e); }
+        setRenormLoading(false);
+    };
+
+    useEffect(() => {
+        if (!token) return;
+        let cancelled = false;
+        (async () => {
+            setLoading(true);
+            try {
+                const res = await fetch(`/api/admin/neighborhoods/audit?t=${token}`);
+                if (res.ok && !cancelled) setAudit(await res.json());
+            } catch (e) { console.error(e); }
+            if (!cancelled) setLoading(false);
+        })();
+        return () => { cancelled = true; };
+    }, [token]);
+
+    if (loading && !audit) return null;
+
+    return (
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-3 text-indigo-900">
+                    <Database size={20} />
+                    <h2 className="font-bold">Bairros: Qualidade do Match</h2>
+                </div>
+                <button onClick={refreshAudit} disabled={loading} className="text-sm text-gray-500 hover:text-gray-700">
+                    <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                </button>
+            </div>
+            {audit && (
+                <div className="p-5 space-y-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div className="bg-gray-50 p-3 rounded-xl text-center">
+                            <div className="text-2xl font-black text-gray-900">{audit.match_rate_pct}%</div>
+                            <div className="text-[10px] font-bold text-gray-500 uppercase">Match Rate</div>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-xl text-center">
+                            <div className="text-2xl font-black text-emerald-600">{audit.matched_count}</div>
+                            <div className="text-[10px] font-bold text-gray-500 uppercase">Matched</div>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-xl text-center">
+                            <div className="text-2xl font-black text-gray-900">{audit.total_stop_neighborhoods}</div>
+                            <div className="text-[10px] font-bold text-gray-500 uppercase">Stops Bairros</div>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-xl text-center">
+                            <div className="text-2xl font-black text-gray-900">{audit.total_shape_neighborhoods}</div>
+                            <div className="text-[10px] font-bold text-gray-500 uppercase">Shapes</div>
+                        </div>
+                    </div>
+
+                    {audit.unmatched_stops.length > 0 && (
+                        <div>
+                            <button onClick={() => setShowStops(!showStops)} className="text-sm font-bold text-orange-600 hover:underline">
+                                {showStops ? '▾' : '▸'} Faltantes nos Stops ({audit.unmatched_stops.length})
+                            </button>
+                            {showStops && (
+                                <div className="mt-2 bg-orange-50 p-3 rounded-lg text-xs font-mono text-orange-800 max-h-40 overflow-y-auto">
+                                    {audit.unmatched_stops.map(s => <div key={s}>{s}</div>)}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {audit.unmatched_shapes.length > 0 && (
+                        <div>
+                            <button onClick={() => setShowShapes(!showShapes)} className="text-sm font-bold text-red-600 hover:underline">
+                                {showShapes ? '▾' : '▸'} Faltantes nos Shapes ({audit.unmatched_shapes.length})
+                            </button>
+                            {showShapes && (
+                                <div className="mt-2 bg-red-50 p-3 rounded-lg text-xs font-mono text-red-800 max-h-40 overflow-y-auto">
+                                    {audit.unmatched_shapes.map(s => <div key={s}>{s}</div>)}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="flex items-center gap-3 pt-2 border-t border-gray-100">
+                        <button
+                            onClick={runRenormalize}
+                            disabled={renormLoading}
+                            className="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl text-sm font-bold transition disabled:opacity-50"
+                        >
+                            {renormLoading ? <Loader2 size={14} className="animate-spin" /> : <PlayCircle size={14} />}
+                            Re-normalizar Agora
+                        </button>
+                        {renormResult && <span className="text-xs text-emerald-600 font-medium">{renormResult}</span>}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

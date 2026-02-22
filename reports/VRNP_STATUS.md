@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-22T01:09:07.580Z
+Gerado em: 2026-02-22T02:32:00.000Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 07f5141
+- Git Commit: 8ea92a9
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
+* 8ea92a9 - feat: neighborhood polygons map (geojson import + postgis)
 * 07f5141 - feat: neighborhood map layer (centroids + cards)
 * 75b2ce6 - feat: neighborhoods dashboard + cards
 * 56492b8 - feat: promised vs real by stop + neighborhood rankings + weekly card
 * 77b5951 - feat: promised vs real by line (official PDF parse + hourly gap)
-* 414d9e6 - feat: trust mix badge across map, stop, line, reports
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -44,7 +44,9 @@ Gerado em: 2026-02-22T01:09:07.580Z
 
 ## Rotas de Backend (app/api/)
 - /api/admin/funnel/csv
+- /api/admin/neighborhoods/audit
 - /api/admin/neighborhoods/import-geojson
+- /api/admin/neighborhoods/renormalize
 - /api/admin/oficial/parse
 - /api/admin/qr/generate
 - /api/admin/run-alerts
@@ -114,6 +116,8 @@ Gerado em: 2026-02-22T01:09:07.580Z
 - 0031_neighborhood_map_views.sql
 - 0032_neighborhood_polygons.sql
 - 0033_neighborhood_map_polygons.sql
+- 0034_neighborhood_aliases.sql
+- 0035_neighborhood_norm_columns.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

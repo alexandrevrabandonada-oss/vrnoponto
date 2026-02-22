@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { normalizeNeighborhood } from '@/lib/neighborhood/normalize';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GeoJSONFeature = { type: string; geometry: any; properties: Record<string, any> };
 type GeoJSONCollection = { type: string; features: GeoJSONFeature[] };
-
-function normalizeNeighborhoodName(name: string): string {
-    return name.trim().replace(/\s+/g, ' ');
-}
 
 function geometryToWKT(geometry: GeoJSONFeature['geometry']): string | null {
     if (!geometry || !geometry.coordinates) return null;
@@ -72,7 +69,8 @@ export async function POST(request: NextRequest) {
                 continue;
             }
 
-            const normalized = normalizeNeighborhoodName(name);
+            const normalized = name.trim().replace(/\s+/g, ' ');
+            const normalizedNorm = normalizeNeighborhood(name);
             const wkt = geometryToWKT(feature.geometry);
 
             if (!wkt) {
@@ -110,6 +108,7 @@ export async function POST(request: NextRequest) {
                     .from('neighborhood_shapes')
                     .insert({
                         neighborhood: normalized,
+                        neighborhood_norm: normalizedNorm,
                         geom: wkt,
                         source,
                     });
