@@ -1,0 +1,6 @@
+
+C:\Projetos\vrnoponto\app\boletim\error.tsx
+  5:20  warning  'EmptyState' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 1 problem (0 errors, 1 warning)
+

@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { HelpModal } from '@/components/HelpModal';
-import { MapPin, Navigation, Bus, AlertCircle, ArrowRight } from 'lucide-react';
+import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle } from 'lucide-react';
+import { StopSuggestionModal } from '@/components/StopSuggestionModal';
 import {
     AppShell, PageHeader, Card, Divider, Button,
     Field, Select, InlineAlert
@@ -25,6 +26,7 @@ export default function NoPonto() {
     const [message, setMessage] = useState('');
     const [isLoadingStops, setIsLoadingStops] = useState(false);
     const [hasArrived, setHasArrived] = useState(false);
+    const [showSuggestionModal, setShowSuggestionModal] = useState(false);
 
     const { isOnline, isSyncing, pendingCount, syncNow, refreshPending } = useOfflineSync();
 
@@ -215,11 +217,24 @@ export default function NoPonto() {
                                     ))}
                                 </Select>
                             ) : (
-                                <div className="p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01] text-center space-y-2">
-                                    <AlertCircle size={24} className="mx-auto text-white/20" />
+                                <div className="p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01] text-center space-y-4">
+                                    <AlertCircle size={28} className="mx-auto text-white/20" />
                                     <p className="text-[10px] text-muted font-black uppercase tracking-tight leading-relaxed">
-                                        {location ? "Nenhum ponto localizado no seu perímetro." : "Aguardando GPS para listar pontos..."}
+                                        {location ? "Nenhum ponto encontrado perto de você." : "Aguardando GPS para listar pontos..."}
                                     </p>
+                                    {location && !isLoadingStops && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                trackTelemetry('stop_suggestion_open');
+                                                setShowSuggestionModal(true);
+                                            }}
+                                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand/10 border border-brand/20 text-brand text-xs font-black uppercase tracking-widest hover:bg-brand/20 transition-colors"
+                                        >
+                                            <PlusCircle size={16} />
+                                            Sugerir ponto aqui
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </Field>
@@ -297,8 +312,18 @@ export default function NoPonto() {
                     "O GPS é capturado automáticamente ao abrir a página.",
                     "Sempre selecione o ponto correto da lista para que seu dado seja computado.",
                     "Após fazer check-in, você pode registrar passagem ou embarque com 1 toque.",
+                    "Se não encontrar seu ponto, use 'Sugerir ponto aqui' para ajudar a mapear a cidade.",
                 ]}
             />
+
+            {showSuggestionModal && location && (
+                <StopSuggestionModal
+                    lat={location.lat}
+                    lng={location.lng}
+                    deviceId={deviceId}
+                    onClose={() => setShowSuggestionModal(false)}
+                />
+            )}
         </AppShell>
     );
 }

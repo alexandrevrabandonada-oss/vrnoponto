@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { QRGenerator } from '@/components/admin/QRGenerator';
+import { StopsImportCard } from '@/components/admin/StopsImportCard';
 
 export default async function AdminPontos() {
     const supabase = await createClient();
@@ -94,6 +95,8 @@ export default async function AdminPontos() {
                     </tbody>
                 </table>
             </div>
+
+            <StopsImportCard />
         </div>
     );
 }

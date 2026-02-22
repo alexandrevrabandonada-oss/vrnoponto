@@ -89,3 +89,21 @@ Usuários podem favoritar bairros e linhas para acesso rápido na Home:
 Componentes: `FavoriteToggle.tsx`, `FavoritesSection.tsx`, `QuickActions.tsx`.
 Lib: `lib/favorites.ts` (`getFavorites`, `toggleFavoriteNeighborhood`, `toggleFavoriteLine`).
 
+## Se não encontrar ponto, sugira
+
+Quando `/no-ponto` não encontra paradas próximas, o empty state mostra **"Sugerir ponto aqui"**:
+
+1. Usuário abre `/no-ponto` → GPS captura localização → nenhum ponto encontrado
+2. Botão "Sugerir ponto aqui" aparece → abre modal `StopSuggestionModal`
+3. Preenche: **nome** (obrigatório), observação e bairro (opcionais)
+4. Submit → `POST /api/stop-suggestion`:
+   - **Se já existe sugestão PENDING a <30m nos últimos 7 dias**: incrementa confirmações (dedup) → feedback "Já existia uma sugestão aqui — você confirmou ✅ (N confirmações)"
+   - **Se não existe**: cria nova sugestão → feedback "Sugestão enviada — vai para aprovação"
+5. Rate limit: máximo 3 sugestões/dia por `device_id`
+
+Administradores revisam em `/admin/sugestoes`:
+- Ordenação por **confirmações** (mais confirmadas primeiro)
+- **Aprovar**: cria ponto real + rejeita automaticamente sugestões duplicadas próximas
+- **Rejeitar**: marca com nota opcional
+
+> ⚠️ Aplicar migrations `0044_stop_suggestions.sql` e `0045_stop_suggestions_dedupe.sql` antes de usar.

@@ -24,6 +24,7 @@ Gerado em: 2026-02-22T21:13:40.791Z
 - /admin/oficial
 - /admin/parceiros
 - /admin/pontos
+- /admin/sugestoes
 - /admin/status
 - /alertas
 - /bairro/[slug]
@@ -57,6 +58,10 @@ Gerado em: 2026-02-22T21:13:40.791Z
 - /api/admin/push/immediate
 - /api/admin/qr/generate
 - /api/admin/run-alerts
+- /api/admin/stop-suggestions
+- /api/admin/stop-suggestions/approve
+- /api/admin/stop-suggestions/reject
+- /api/admin/stops/import
 - /api/admin/sync-official
 - /api/admin/system-status
 - /api/admin/telegram/digest
@@ -91,6 +96,7 @@ Gerado em: 2026-02-22T21:13:40.791Z
 - /api/report/monthly.csv
 - /api/stop/promised-vs-real
 - /api/stop/top-lines
+- /api/stop-suggestion
 - /api/stops/nearest
 - /api/telemetry
 - /api/timeseries/line
@@ -144,6 +150,8 @@ Gerado em: 2026-02-22T21:13:40.791Z
 - 0040_invite_ab.sql
 - 0042_web_push.sql
 - 0043_push_send_logs.sql
+- 0044_stop_suggestions.sql
+- 0045_stop_suggestions_dedupe.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING
