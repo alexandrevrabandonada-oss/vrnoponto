@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { ArrowRight, MapPin, Clock, ChevronRight } from 'lucide-react'
+import { ArrowRight, MapPin, Clock, ChevronRight, BarChart3, Bus } from 'lucide-react'
+import { StatusIndicator } from '@/components/StatusIndicator'
 
 export default async function Home() {
   let isConnected = false;
@@ -16,63 +17,83 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-5">
-      <div className="w-full max-w-sm space-y-5">
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full -z-10 bg-gray-50 dark:bg-gray-950" />
+      <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-brand-500/10 rounded-full blur-[120px] animate-float" />
+      <div className="absolute -bottom-[10%] -right-[10%] w-[30%] h-[30%] bg-violet-500/10 rounded-full blur-[100px] animate-float" style={{ animationDelay: '1.5s' }} />
+
+      <div className="w-full max-w-sm space-y-6 animate-fade-in-up">
+
+        {/* Branding */}
+        <div className="flex justify-center mb-2">
+          <div className="flex items-center gap-2 bg-white dark:bg-gray-900 px-4 py-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+            <div className="w-8 h-8 grad-brand rounded-lg flex items-center justify-center text-white font-black text-lg italic">VR</div>
+            <span className="font-black text-gray-900 dark:text-white tracking-tighter">no ponto</span>
+          </div>
+        </div>
 
         {/* Hero CTA Card */}
-        <div className="bg-indigo-900 text-white rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-300 dark:shadow-none relative overflow-hidden">
-          <div className="absolute -top-8 -right-8 w-40 h-40 bg-indigo-700 rounded-full opacity-30 blur-2xl pointer-events-none" />
-          <div className="absolute -bottom-6 -left-6 w-28 h-28 bg-violet-600 rounded-full opacity-20 blur-2xl pointer-events-none" />
+        <div className="grad-brand text-white rounded-[2.5rem] p-8 shadow-2xl shadow-brand-500/30 dark:shadow-none relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:scale-110 transition-transform duration-700" />
 
           <div className="relative z-10">
-            <div className="flex items-center gap-2 bg-white/10 border border-white/20 w-fit px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-5">
-              <Clock size={11} className="text-indigo-300" />
-              10 segundos
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 w-fit px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
+              <Clock size={12} className="text-brand-200" />
+              Impacto imediato
             </div>
 
-            <h1 className="text-2xl font-black leading-tight">
+            <h1 className="text-3xl font-black leading-tight tracking-tight">
               Tá no ponto?<br />Registra agora.
             </h1>
-            <p className="text-indigo-200 text-sm mt-2 leading-relaxed opacity-80">
-              Sua presença vira dado de auditoria. Anônimo. Gratuito.
+            <p className="text-brand-100 text-sm mt-3 leading-relaxed opacity-90 max-w-[240px]">
+              Sua espera vira dado de auditoria para toda a cidade.
             </p>
 
             <Link href="/no-ponto"
-              className="mt-6 flex items-center justify-between w-full bg-white text-indigo-900 font-black py-4 px-5 rounded-2xl shadow-lg transition-all active:scale-95 hover:bg-indigo-50">
-              <div className="flex items-center gap-2">
-                <MapPin size={20} className="text-indigo-600" />
+              className="mt-8 flex items-center justify-between w-full bg-white text-brand-700 font-black py-4.5 px-6 rounded-2xl shadow-xl transition-all active:scale-95 hover:bg-brand-50 group/btn">
+              <div className="flex items-center gap-3">
+                <MapPin size={22} className="text-brand-500 group-hover/btn:scale-110 transition-transform" />
                 Estou no Ponto
               </div>
-              <ArrowRight size={20} className="text-indigo-500" />
+              <ArrowRight size={22} className="text-brand-400 group-hover/btn:translate-x-1 transition-transform" />
             </Link>
 
             <Link href="/como-usar"
-              className="mt-3 flex items-center justify-center gap-1 text-indigo-300 text-xs font-bold hover:text-white transition">
-              Como funciona? <ChevronRight size={14} />
+              className="mt-4 flex items-center justify-center gap-1 text-brand-200 text-xs font-bold hover:text-white transition">
+              Entenda como a auditoria funciona <ChevronRight size={14} />
             </Link>
           </div>
         </div>
 
-        {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Quick actions grid */}
+        <div className="grid grid-cols-2 gap-4">
           <Link href="/registrar"
-            className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 text-center hover:shadow-md transition flex flex-col items-center gap-2">
-            <span className="text-2xl">🚌</span>
-            <span className="font-bold text-sm text-gray-700 dark:text-gray-200 leading-tight">Registrar Ação</span>
-            <span className="text-[10px] text-gray-400">Boarding / Alighted</span>
+            className="glass rounded-[2rem] p-5 shadow-sm text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center gap-3 group">
+            <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Bus className="text-indigo-600 dark:text-indigo-400" size={24} />
+            </div>
+            <div className="space-y-1">
+              <span className="block font-black text-sm text-gray-900 dark:text-white">Registrar</span>
+              <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Movimentação</span>
+            </div>
           </Link>
+
           <Link href="/boletim"
-            className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 text-center hover:shadow-md transition flex flex-col items-center gap-2">
-            <span className="text-2xl">📊</span>
-            <span className="font-bold text-sm text-gray-700 dark:text-gray-200 leading-tight">Boletim</span>
-            <span className="text-[10px] text-gray-400">Auditoria semanal</span>
+            className="glass rounded-[2rem] p-5 shadow-sm text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center gap-3 group">
+            <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <BarChart3 className="text-emerald-600 dark:text-emerald-400" size={24} />
+            </div>
+            <div className="space-y-1">
+              <span className="block font-black text-sm text-gray-900 dark:text-white">Boletim</span>
+              <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Linhas & Gaps</span>
+            </div>
           </Link>
         </div>
 
-        {/* Status badge */}
-        <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
-          <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} />
-          {isConnected ? 'Sistema operacional' : 'Sem conexão com banco'}
+        {/* Status indicator */}
+        <div className="flex justify-center pt-2">
+          <StatusIndicator isConnected={isConnected} />
         </div>
       </div>
     </main>

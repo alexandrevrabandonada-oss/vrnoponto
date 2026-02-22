@@ -1,27 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-22T02:42:03.669Z
+Gerado em: 2026-02-22T03:01:18.859Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 67662f1
+- Git Commit: a3c899f
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
-## Status Atual
-- **Bairros**: Sistema de normalização, aliases e histórico mensal implementados. Ranking histórico disponível em `/bairros/historico`.
-- **Boletim**: Novos cards de tendências mensais integrados.
-- **Alertas**: Notificações automáticas via Telegram (WARN/CRIT) integradas.
-- **Métricas**: Agregados mensais de 12 meses baseados em `neighborhood_norm`.
-
 ## Últimos 5 Commits
+* a3c899f - feat: telegram alerts notifier
+* 616799f - feat: monthly neighborhood history + change cards
 * 67662f1 - feat: neighborhood normalization + alias + audit
 * 8ea92a9 - feat: neighborhood polygons map (geojson import + postgis)
 * 07f5141 - feat: neighborhood map layer (centroids + cards)
-* 75b2ce6 - feat: neighborhoods dashboard + cards
-* 56492b8 - feat: promised vs real by stop + neighborhood rankings + weekly card
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -54,6 +48,7 @@ Gerado em: 2026-02-22T02:42:03.669Z
 - /api/admin/neighborhoods/audit
 - /api/admin/neighborhoods/import-geojson
 - /api/admin/neighborhoods/renormalize
+- /api/admin/notify-telegram
 - /api/admin/oficial/parse
 - /api/admin/qr/generate
 - /api/admin/run-alerts
@@ -129,6 +124,7 @@ Gerado em: 2026-02-22T02:42:03.669Z
 - 0034_neighborhood_aliases.sql
 - 0035_neighborhood_norm_columns.sql
 - 0036_neighborhood_monthly_timeseries.sql
+- 0037_telegram_notifications.sql
 
 ## Supabase Remote (Status)
 - SUPABASE_PROJECT_REF: MISSING

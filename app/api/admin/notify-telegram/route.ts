@@ -4,6 +4,25 @@ import { sendTelegramMessage } from '@/lib/telegram/sendMessage';
 
 export const dynamic = 'force-dynamic';
 
+interface AlertData {
+    id: string;
+    alert_type: string;
+    target_id: string;
+    severity: string;
+    delta_pct: number;
+    metric_p50: number;
+    prev_metric_p50: number;
+    target_name: string;
+    line_code: string;
+    neighborhood: string;
+}
+
+interface TelegramResult {
+    sent: number;
+    failed: number;
+    details: Array<{ id: string; error: string | null }>;
+}
+
 export async function POST(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
@@ -24,7 +43,7 @@ export async function POST(req: Request) {
 
         // 1. Fetch active alerts (WARN/CRIT) that haven't been sent to telegram
         const { data: alerts, error: fetchError } = await supabase
-            .rpc('get_unsent_telegram_alerts', { lim: limit });
+            .rpc('get_unsent_telegram_alerts', { lim: limit }) as { data: AlertData[] | null, error: unknown };
 
         if (fetchError) throw fetchError;
 
@@ -32,7 +51,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ sent: 0, skipped: 0, message: 'No new alerts to notify' });
         }
 
-        const results = { sent: 0, failed: 0, details: [] as any[] };
+        const results: TelegramResult = { sent: 0, failed: 0, details: [] };
 
         for (const alert of alerts) {
             const isLine = alert.alert_type === 'LINE_HEADWAY';
@@ -83,8 +102,8 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json(results);
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error('Notify Telegram Error:', err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        return NextResponse.json({ error: err instanceof Error ? err.message : 'Unknown error' }, { status: 500 });
     }
 }
