@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import {
     MapPin, Bus, Clock, Users, ShieldCheck, Download,
-    History as HistoryIcon, AlertCircle, BarChart3,
-    TrendingUp, TrendingDown
+    History as HistoryIcon, AlertCircle, BarChart3
 } from 'lucide-react';
 import { Sparkline } from '@/components/Sparkline';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
@@ -210,7 +209,7 @@ export default function BairroDetailPage() {
                             description="As linhas que cruzam este bairro apresentam performance dentro da média."
                         />
                     ) : (
-                        topLines.map((l, i) => (
+                        topLines.map((l) => (
                             <ListItem
                                 key={l.line_id}
                                 leftIcon={<span className="font-industrial text-[10px] opacity-40">L{l.line_code}</span>}

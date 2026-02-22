@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
-import { MapPin, Info, ArrowRight, Loader2, Copy, Check, MessageCircle } from 'lucide-react';
+import { MapPin, Info, ArrowRight, Loader2 } from 'lucide-react';
 import type { PartnerMapItem } from '@/components/DelayMap';
 import Link from 'next/link';
-import { getWhatsAppShort, getInstagramDM } from '@/lib/editorial/partner_invite';
 import { TelemetryTracker } from '@/components/TelemetryTracker';
 import { InvitePartnerCard } from '@/components/InvitePartnerCard';
 
@@ -35,14 +34,7 @@ interface Partner {
 export default function ParceirosPage() {
     const [partners, setPartners] = useState<Partner[]>([]);
     const [loading, setLoading] = useState(true);
-    const [copiedInvite, setCopiedInvite] = useState<string | null>(null);
 
-    const copyInvite = (type: string) => {
-        const text = type === 'whatsapp' ? getWhatsAppShort() : getInstagramDM();
-        navigator.clipboard.writeText(text);
-        setCopiedInvite(type);
-        setTimeout(() => setCopiedInvite(null), 2000);
-    };
 
     useEffect(() => {
         async function fetchPartners() {

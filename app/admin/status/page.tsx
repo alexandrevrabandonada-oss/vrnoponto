@@ -30,6 +30,17 @@ interface SystemStatus {
             crit_only: number;
         };
     };
+    webpush: {
+        vapid_ok: boolean;
+        last_sent_at: string | null;
+        last_status: string;
+        subscriptions: {
+            total: number;
+            digest: number;
+            immediate: number;
+            crit_only: number;
+        };
+    };
     migrations: { version: string, checked_at: string };
 }
 
@@ -221,6 +232,47 @@ export default function StatusDashboard() {
                         {actionLoading === 'telegram' ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                         Notificar Agora
                     </button>
+                </div>
+
+                {/* Web Push Card */}
+                <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4 md:col-span-2 xl:col-span-1">
+                    <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                        <div className="flex items-center gap-3 text-brand">
+                            <Send size={20} />
+                            <h2 className="font-bold text-white">Browser Web Push</h2>
+                        </div>
+                        <StatusBadge status={statusData.webpush.vapid_ok ? 'OK' : 'FAIL'} />
+                    </div>
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Último Envio</span>
+                            <span className="font-medium text-gray-900">{formatDate(statusData.webpush.last_sent_at)}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Env Chaves VAPID</span>
+                            <span className={statusData.webpush.vapid_ok ? "font-bold text-emerald-600" : "font-bold text-red-600"}>{statusData.webpush.vapid_ok ? 'OK' : 'MISSING'}</span>
+                        </div>
+                    </div>
+                    <div className="space-y-3 pt-3 border-t border-gray-100">
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Web Inscritos</span>
+                            <span className="font-bold text-gray-900">{statusData.webpush.subscriptions.total}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Digest / Imediato</span>
+                            <span className="text-gray-900 font-mono text-xs">{statusData.webpush.subscriptions.digest} / {statusData.webpush.subscriptions.immediate}</span>
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => triggerAction('webpush', '/api/admin/push/digest')}
+                            disabled={actionLoading === 'webpush'}
+                            className="flex-1 flex items-center justify-center gap-1.5 bg-brand hover:brightness-110 text-black px-2 py-2 rounded-xl text-xs font-bold transition disabled:opacity-50"
+                        >
+                            {actionLoading === 'webpush' ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
+                            Disparar Digest
+                        </button>
+                    </div>
                 </div>
             </div>
 

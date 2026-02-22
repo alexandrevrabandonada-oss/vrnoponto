@@ -2,16 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useParams as useNextParams } from 'next/navigation';
-import {
-    Clock, Share2, TrendingDown, TrendingUp, Users, MapPin,
-    ShieldAlert, BadgeAlert, AlertCircle, BarChart3, Bus
-} from 'lucide-react';
+import { Clock, TrendingUp, Users, BadgeAlert, AlertCircle, BarChart3, Bus } from 'lucide-react';
 import { Sparkline } from '@/components/metrics/Sparkline';
 import { StopPromisedVsRealCard } from '@/components/StopPromisedVsRealCard';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateStopCaption } from '@/lib/editorial/templates';
 import {
-    AppShell, PageHeader, Card, Divider, Button,
+    AppShell, PageHeader, Card, Divider,
     SkeletonCard, SkeletonList, EmptyState, InlineAlert, ListItem, MetricRow
 } from '@/components/ui';
 

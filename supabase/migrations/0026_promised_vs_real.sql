@@ -1,3 +1,12 @@
+-- VRNP PATCH: ensure official_schedules.line_id
+-- Ensure column exists on older DBs and backfill from line_code (best-effort).
+ALTER TABLE public.official_schedules ADD COLUMN IF NOT EXISTS line_id uuid;
+UPDATE public.official_schedules os
+SET line_id = l.id
+FROM public.lines l
+WHERE os.line_id IS NULL
+  AND os.line_code IS NOT NULL
+  AND l.code = os.line_code;
 -- Migration 0026: Promised vs Real 30-day Comparison View
 -- Combines the parsed active Official Schedules (Prometido) with the Crowdsourced Data (Real)
 

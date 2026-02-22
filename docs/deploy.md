@@ -9,6 +9,8 @@ Para realizar o deploy na Vercel, você precisa configurar as variáveis de ambi
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: A chave pública do seu projeto.
    - `SUPABASE_SERVICE_ROLE_KEY`: A chave secreta *service_role* (usada apenas no servidor).
    - `ADMIN_TOKEN`: Um token que você inventou para proteger rotas administrativas (ex: `/admin`).
+   - `VAPID_PUBLIC_KEY`: Chave pública para Web Push Notifications (Gere usando `npx web-push generate-vapid-keys`).
+   - `VAPID_PRIVATE_KEY`: Chave privada para Web Push Notifications.
 
 ## 2. Rodando Localmente (Manual via \`.env\`)
 1. Copie o arquivo `.env.example` para criar o seu `.env.local`:

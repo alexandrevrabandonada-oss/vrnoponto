@@ -17,7 +17,7 @@ export function useUIPreferences() {
         const currentContrast = document.documentElement.getAttribute('data-contrast') as UIContrast || 'normal';
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setDensityState(currentDensity);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+         
         setContrastState(currentContrast);
     }, []);
 

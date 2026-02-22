@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, Button } from '@/components/ui';
-import { PieChart, Zap, Hand, Users, Target, Loader2 } from 'lucide-react';
+import { Users, Loader2, Zap, Hand, Target } from 'lucide-react';
 
 interface VariantResult {
     key: string;
@@ -23,7 +23,7 @@ export const InviteABDashboard = ({ adminToken }: { adminToken?: string }) => {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-    const fetchStats = async () => {
+    const fetchStats = useCallback(async () => {
         try {
             const res = await fetch('/api/admin/invite-ab', {
                 headers: { 'Authorization': `Bearer ${adminToken || ''}` }
@@ -37,11 +37,11 @@ export const InviteABDashboard = ({ adminToken }: { adminToken?: string }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [adminToken]);
 
     useEffect(() => {
         fetchStats();
-    }, [adminToken]);
+    }, [fetchStats, adminToken]);
 
     const toggleVariant = async (key: string, currentStatus: boolean) => {
         setActionLoading(key);
@@ -59,8 +59,9 @@ export const InviteABDashboard = ({ adminToken }: { adminToken?: string }) => {
             } else {
                 alert('Erro: não é possível desativar todas as variantes simultaneamente.');
             }
-        } catch (e) {
-            alert('Erro de conexão ao alterar a variante.');
+        } catch (error) {
+            console.error('Error toggling variant', error);
+            alert('Erro ao alternar status.');
         } finally {
             setActionLoading(null);
         }

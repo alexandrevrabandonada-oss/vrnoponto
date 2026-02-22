@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Info, AlertTriangle, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Info, AlertTriangle, CheckCircle2, AlertCircle } from 'lucide-react';
 
 type AlertVariant = 'info' | 'success' | 'warning' | 'error';
 
@@ -14,7 +14,7 @@ interface InlineAlertProps {
 
 const icons = {
     info: Info,
-    success: CheckCircle,
+    success: CheckCircle2,
     warning: AlertTriangle,
     error: AlertCircle,
 };

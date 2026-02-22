@@ -1,3 +1,4 @@
+-- VRNP PATCH: keep polygon view column order
 -- Migration 0035: Normalized neighborhood columns + triggers
 -- Adds neighborhood_norm to stops, partners, neighborhood_shapes
 
@@ -99,16 +100,16 @@ CREATE TRIGGER trg_shapes_set_neighborhood_norm
 -- 4. Update polygon metrics view to prefer neighborhood_norm
 CREATE OR REPLACE VIEW public.vw_neighborhood_polygon_metrics_30d AS
 SELECT
-    ns.neighborhood,
-    ns.neighborhood_norm,
-    ST_AsGeoJSON(ns.geom)::json AS geojson,
-    COALESCE(m.avg_delta_min, 0) AS avg_delta_min,
-    COALESCE(m.stops_count, 0) AS stops_count,
-    COALESCE(m.samples_total, 0) AS samples_total,
-    COALESCE(m.pct_verified_avg, 0) AS pct_verified_avg,
-    COALESCE(m.risk_band, 'OK') AS risk_band,
-    ns.source,
-    ns.updated_at
+  ns.neighborhood,
+  ST_AsGeoJSON(ns.geom)::json AS geojson,
+  COALESCE(m.avg_delta_min, 0) AS avg_delta_min,
+  COALESCE(m.stops_count, 0) AS stops_count,
+  COALESCE(m.samples_total, 0) AS samples_total,
+  COALESCE(m.pct_verified_avg, 0) AS pct_verified_avg,
+  COALESCE(m.risk_band, 'OK') AS risk_band,
+  ns.source,
+  ns.updated_at,
+  ns.neighborhood_norm
 FROM public.neighborhood_shapes ns
 LEFT JOIN public.vw_neighborhood_map_30d m
-    ON COALESCE(m.neighborhood, '') = COALESCE(ns.neighborhood_norm, ns.neighborhood, '');
+  ON COALESCE(m.neighborhood, '') = COALESCE(ns.neighborhood_norm, ns.neighborhood, '');

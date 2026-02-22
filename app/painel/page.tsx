@@ -2,15 +2,14 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Clock, Bus, AlertTriangle, Filter, BarChart3, TrendingUp, TrendingDown, MapPin } from 'lucide-react';
+import { Clock, Bus, BarChart3 } from 'lucide-react';
 import {
-    AppShell, PageHeader, Button, Card, Divider,
-    EmptyState, SkeletonCard, SkeletonList, InlineAlert, ListItem, MetricRow
+    AppShell, PageHeader, Card, Divider,
+    EmptyState, SkeletonCard, SkeletonList, InlineAlert, MetricRow
 } from '@/components/ui';
 
 interface Line { id: string; code: string; name: string; }
-interface WaitMetric { median_wait_time: number; }
-interface HeadwayMetric { median_headway: number; }
+
 interface CriticalStop { stop_name: string; median_wait_time: number; total_samples: number; }
 interface DashboardAlert { id: string, alert_type: string, severity: string, delta_pct: number, target_id: string }
 
@@ -79,7 +78,7 @@ function PainelContent() {
             }
         }
         fetchData();
-    }, [lineFilter, daysFilter]);
+    }, [lineFilter, daysFilter, lines.length]);
 
     const handleFilterChange = (name: string, value: string) => {
         const params = new URLSearchParams(searchParams.toString());

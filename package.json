@@ -19,6 +19,7 @@
     "supabase:push": "npx supabase db push",
     "supabase:seed": "npx supabase db execute --file supabase/migrations/0002_seed.sql",
     "supabase:check": "node scripts/supabase-check.mjs",
+    "db:doctor": "node scripts/db-doctor.mjs",
     "ops:env": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/vrnp-env-local.ps1",
     "ops:supabase": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/vrnp-supabase-apply.ps1",
     "ops:smoke": "pwsh -NoProfile -ExecutionPolicy Bypass -File tools/vrnp-smoke.ps1",
@@ -40,11 +41,13 @@
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
     "pdf-parse": "^2.4.5",
+    "pg": "^8.18.0",
     "qrcode.react": "^4.2.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-leaflet": "^5.0.0",
-    "react-leaflet-cluster": "^4.0.0"
+    "react-leaflet-cluster": "^4.0.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -52,6 +55,7 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.1.6",
     "supabase": "^2.76.12",

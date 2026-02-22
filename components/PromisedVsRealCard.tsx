@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AlertCircle, ChevronDown, Clock, BarChart3 } from 'lucide-react';
+import { Clock, ChevronDown, BarChart3 } from 'lucide-react';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
 import { Card, InlineAlert, SkeletonMetric, EmptyState } from '@/components/ui';
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { RefreshCw, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
-import { Card, Button, Divider, InlineAlert } from '@/components/ui';
+import { RefreshCw, FileText, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Card, Button, InlineAlert } from '@/components/ui';
 
 type ScheduleDocs = {
     id: string;
@@ -28,9 +28,9 @@ export function PdfParserCard() {
         const { data } = await supabase
             .from('official_schedules')
             .select(`
-                id, line_code, valid_from, pdf_path,
-                runs:official_schedule_parse_runs(status, parsed_at, meta)
-            `)
+id, line_code, valid_from, pdf_path,
+    runs: official_schedule_parse_runs(status, parsed_at, meta)
+        `)
             .eq('doc_type', 'HORARIO')
             .order('created_at', { ascending: false });
 
@@ -95,7 +95,7 @@ export function PdfParserCard() {
                                     <span className="flex items-center gap-1"><FileText size={12} /> Vigência: {doc.valid_from}</span>
                                     {run ? (
                                         <div className="flex items-center gap-3">
-                                            {run.status === 'OK' && <span className="flex items-center text-emerald-400 gap-1"><CheckCircle className="w-3 h-3" /> Processado</span>}
+                                            {run.status === 'OK' && <span className="flex items-center text-emerald-400 gap-1"><CheckCircle2 className="w-3 h-3" /> Processado</span>}
                                             {run.status === 'WARN' && <span className="flex items-center text-amber-500 gap-1"><AlertTriangle className="w-3 h-3" /> Avisos</span>}
                                             {run.status === 'FAIL' && <span className="flex items-center text-danger gap-1"><AlertTriangle className="w-3 h-3" /> Falhou</span>}
                                             <span className="opacity-40">

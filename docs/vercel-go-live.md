@@ -16,6 +16,8 @@ Na tela de configuração (aba *Environment Variables*), você deve informar 5 c
 | `SUPABASE_SERVICE_ROLE_KEY` | **SIM** | A super-chave do banco; MANTENHA SECRETA. |
 | `ADMIN_TOKEN` | **SIM** | O token criado por você para liberar a URL do seu Painel. |
 | `OFFICIAL_SOURCE_URL` | **SIM** | A base do site da prefeitura que contém os links dos anexos de horários. |
+| `VAPID_PUBLIC_KEY` | **SIM** | Chave pública gerada via cli `npx web-push generate-vapid-keys` |
+| `VAPID_PRIVATE_KEY` | **SIM** | Chave privada correspondente; MANTENHA SECRETA na nuvem. |
 
 *Jamais adicione as chaves terminadas em "CLI/Access Token" como variáveis de hospedagem web.*
 

@@ -1,3 +1,7 @@
+-- VRNP PATCH: alias neighborhood column
+-- VRNP PATCH: ensure stops.neighborhood
+-- Ensure legacy DBs have stops.neighborhood
+ALTER TABLE public.stops ADD COLUMN IF NOT EXISTS neighborhood text;
 -- Migration to create Rankings for stops and neighborhoods
 -- Window: Last 30 days
 -- Relies on vw_stopline_promised_vs_real_30d
@@ -7,7 +11,7 @@ CREATE OR REPLACE VIEW public.vw_worst_stops_30d AS
 SELECT
     s.id AS stop_id,
     s.name AS stop_name,
-    s.neighborhood,
+    COALESCE(s.neighborhood, '') AS neighborhood,
     MAX(r.delta_min) AS worst_delta_min,
     ROUND(AVG(r.delta_min)::numeric, 1) AS avg_delta_min,
     SUM(r.samples) AS samples_total,
@@ -15,7 +19,7 @@ SELECT
 FROM public.stops s
 JOIN public.vw_stopline_promised_vs_real_30d r ON s.id = r.stop_id
 WHERE r.meta = 'OK' AND r.delta_min IS NOT NULL
-GROUP BY s.id, s.name, s.neighborhood
+GROUP BY s.id, s.name, COALESCE(s.neighborhood,'')
 ORDER BY worst_delta_min DESC NULLS LAST
 LIMIT 50;
 

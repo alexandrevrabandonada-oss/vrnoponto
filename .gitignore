@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local patch backups / local lint logs
+/tools/_patch_backup/
+lint_output.txt
+final_lint.txt
+full_lint.txt
+

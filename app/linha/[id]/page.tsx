@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams as useNextParams } from 'next/navigation';
 import { Sparkline } from '@/components/metrics/Sparkline';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
-import { Clock, TrendingUp, TrendingDown, Users, ShieldCheck, Zap, AlertCircle, Download, FileText, Bus, BarChart3 } from 'lucide-react';
+import { Clock, TrendingUp, Users, Zap, FileText, BarChart3, AlertCircle, Bus } from 'lucide-react';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateLineCaption } from '@/lib/editorial/templates';
 import { PromisedVsRealCard } from '@/components/PromisedVsRealCard';

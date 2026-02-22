@@ -118,6 +118,29 @@ export async function GET(req: Request) {
         const immediateCount = subs.filter(s => s.mode === 'IMMEDIATE').length;
         const critMinCount = subs.filter(s => s.severity_min === 'CRIT').length;
 
+        // 6. Web Push Status
+        const { count: pushSubsTotal } = await supabase
+            .from('push_subscriptions')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_active', true);
+
+        const { data: pushPrefs } = await supabase
+            .from('push_preferences')
+            .select('mode, severity_min')
+            .eq('is_active', true);
+
+        const pPrefs = pushPrefs || [];
+        const pushDigest = pPrefs.filter(p => p.mode === 'DIGEST').length;
+        const pushImmediate = pPrefs.filter(p => p.mode === 'IMMEDIATE').length;
+        const pushCrit = pPrefs.filter(p => p.severity_min === 'CRIT').length;
+
+        const { data: latestPush } = await supabase
+            .from('push_sends')
+            .select('created_at')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
         return NextResponse.json({
             health: {
                 api_health: apiHealth,
@@ -142,6 +165,17 @@ export async function GET(req: Request) {
                     digest: digestCount,
                     immediate: immediateCount,
                     crit_only: critMinCount
+                }
+            },
+            webpush: {
+                vapid_ok: !!process.env.VAPID_PUBLIC_KEY && !!process.env.VAPID_PRIVATE_KEY,
+                last_sent_at: latestPush?.created_at || null,
+                last_status: latestPush ? 'OK' : 'UNKNOWN',
+                subscriptions: {
+                    total: pushSubsTotal || 0,
+                    digest: pushDigest,
+                    immediate: pushImmediate,
+                    crit_only: pushCrit
                 }
             },
             migrations

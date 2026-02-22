@@ -129,6 +129,10 @@ export async function POST(req: Request) {
         try {
             const baseUrl = req.url.split('/api/')[0];
             await fetch(`${baseUrl}/api/admin/telegram/digest?days=1&t=${process.env.ADMIN_TOKEN}`);
+            await fetch(`${baseUrl}/api/admin/push/digest`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${process.env.ADMIN_TOKEN}` }
+            });
         } catch (err: unknown) {
             console.error('Failed to trigger digest:', err);
             results.errors.push(`Digest trigger failed: ${err instanceof Error ? err.message : 'Unknown error'}`);

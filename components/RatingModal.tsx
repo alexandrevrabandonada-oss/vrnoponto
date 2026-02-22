@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Field, RadioGroup, Card } from '@/components/ui';
-import { Info } from 'lucide-react';
 
 interface RatingModalProps {
     isOpen: boolean;
@@ -79,8 +78,8 @@ export function RatingModal({ isOpen, onClose, lineId, deviceId }: RatingModalPr
 
                 {message && (
                     <div className={`p-4 rounded-xl text-[11px] font-bold text-center tracking-widest border animate-in slide-in-from-top-1 ${message.includes('ERRO')
-                            ? 'bg-danger/10 border-danger/20 text-danger'
-                            : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                        ? 'bg-danger/10 border-danger/20 text-danger'
+                        : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                         }`}>
                         {message}
                     </div>

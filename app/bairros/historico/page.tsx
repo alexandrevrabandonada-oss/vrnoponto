@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowLeft, TrendingUp, TrendingDown, History as HistoryIcon, AlertTriangle, Calendar, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, AlertTriangle, AlertCircle } from 'lucide-react';
 import { AppShell, PageHeader, Card, MetricRow, EmptyState, Divider, ListItem, SkeletonCard, SkeletonList } from '@/components/ui';
-import { t } from '@/lib/copy';
+
 
 type MonthlyChange = {
     month_start: string;
@@ -24,7 +24,7 @@ export default function HistoricoBairrosPage() {
         async function fetchHistoricalData() {
             setLoading(true);
             try {
-                const resChanges = await fetch(`/api/neighborhoods/changes`);
+                const resChanges = await fetch(`/ api / neighborhoods / changes`);
                 if (resChanges.ok) {
                     const json = await resChanges.json();
                     setChanges(json.data || []);
@@ -100,7 +100,7 @@ export default function HistoricoBairrosPage() {
                                         label={`${w.cur_avg_delta_min}m total`}
                                         value={w.neighborhood_norm}
                                         delta="negative"
-                                        deltaLabel={`${w.delta_change_min}m`}
+                                        deltaLabel={`${w.delta_change_min} m`}
                                         tone="danger"
                                         className="!py-3"
                                     />
@@ -125,7 +125,7 @@ export default function HistoricoBairrosPage() {
                                         label={`${i.cur_avg_delta_min}m total`}
                                         value={i.neighborhood_norm}
                                         delta="positive"
-                                        deltaLabel={`${i.delta_change_min}m`}
+                                        deltaLabel={`${i.delta_change_min} m`}
                                         tone="brand"
                                         className="!py-3"
                                     />
@@ -152,7 +152,7 @@ export default function HistoricoBairrosPage() {
                             const isImproving = c.delta_change_min && c.delta_change_min < 0;
 
                             const FormattedTrend = c.delta_change_min ? (
-                                <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-full ${isWorsening ? 'bg-danger/10 text-danger' : isImproving ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/5 text-muted'}`}>
+                                <span className={`text - [10px] font - black uppercase px - 2 py - 1 rounded - full ${isWorsening ? 'bg-danger/10 text-danger' : isImproving ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/5 text-muted'} `}>
                                     {isWorsening ? '+' : ''}{c.delta_change_min}m
                                 </span>
                             ) : (
@@ -161,7 +161,7 @@ export default function HistoricoBairrosPage() {
 
                             return (
                                 <ListItem
-                                    key={`${c.month_start}-${c.neighborhood_norm}`}
+                                    key={`${c.month_start} -${c.neighborhood_norm} `}
                                     title={c.neighborhood_norm}
                                     description={formatDate(c.month_start)}
                                     leftIcon={<span className="font-industrial text-[10px]">&bull;</span>}
@@ -175,7 +175,7 @@ export default function HistoricoBairrosPage() {
                                             {FormattedTrend}
                                         </div>
                                     }
-                                    href={`/bairro/${encodeURIComponent(c.neighborhood_norm)}`}
+                                    href={`/ bairro / ${encodeURIComponent(c.neighborhood_norm)} `}
                                 />
                             );
                         })}

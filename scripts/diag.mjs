@@ -116,6 +116,15 @@ const buildRes = execWithStatus('npm run build');
 const buildStatus = buildRes.code === 0 ? 'SUCCESS' : 'FAILED';
 const buildOutput = buildRes.output;
 
+let dbDoctorStatus = 'SKIPPED (No DB Password)';
+let dbDoctorOutput = '';
+if (process.env.SUPABASE_DB_PASSWORD || (envLocalExists && fs.readFileSync(envLocalPath, 'utf8').includes('SUPABASE_DB_PASSWORD'))) {
+    console.log('Running npm run db:doctor...');
+    const dbRes = execWithStatus('npm run db:doctor');
+    dbDoctorStatus = dbRes.code === 0 ? 'SUCCESS' : 'FAILED';
+    dbDoctorOutput = dbRes.output;
+}
+
 console.log('Checking /api/health...');
 let apiHealthStatus = 'FAIL';
 try {
@@ -164,6 +173,12 @@ ${migrations.length > 0 ? migrations.map(m => `- ${m}`).join('\n') : '- Nenhuma 
 ## Scripts
 - npm run lint: ${lintStatus}
 - npm run build: ${buildStatus}
+- npm run db:doctor: ${dbDoctorStatus}
+
+${dbDoctorStatus !== 'SKIPPED (No DB Password)' ? `### DB Doctor Output
+\`\`\`text
+${dbDoctorOutput}
+\`\`\`` : ''}
 
 ${isSnapshot || lintStatus === 'FAILED' ? `### Resumo Lint
 \`\`\`text

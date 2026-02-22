@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
     CheckCircle2, Navigation, ShieldCheck,
-    ArrowLeft, Store, Info
+    ArrowLeft, Info
 } from 'lucide-react';
 import Link from 'next/link';
 import { TelemetryTracker } from '@/components/TelemetryTracker';

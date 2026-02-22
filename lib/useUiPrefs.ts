@@ -16,7 +16,7 @@ export function useUiPrefs() {
 
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setUiModeState(currentUiMode);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+         
         setDensityState(currentDensity);
     }, []);
 

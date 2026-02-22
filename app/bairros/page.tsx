@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MapPin, TrendingDown, AlertTriangle, BarChart3, Map as MapIcon, ChevronRight } from 'lucide-react';
+import { AlertTriangle, BarChart3, Map as MapIcon } from 'lucide-react';
 import {
     AppShell, PageHeader, Button, Card, Divider,
-    EmptyState, SkeletonCard, SkeletonList, ListItem, MetricRow
+    EmptyState, SkeletonCard, SkeletonList, ListItem
 } from '@/components/ui';
 import { t } from '@/lib/copy';
 

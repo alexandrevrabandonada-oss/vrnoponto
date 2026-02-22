@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-22T03:01:18.859Z
+Gerado em: 2026-02-22T18:22:41.817Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: a3c899f
+- Git Commit: 00de398
 - .env.local: OK
 - Supabase Env Vars: OK
-- /api/health Local: SKIPPED (server not running)
+- /api/health Local: OK
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
-* a3c899f - feat: telegram alerts notifier
-* 616799f - feat: monthly neighborhood history + change cards
-* 67662f1 - feat: neighborhood normalization + alias + audit
-* 8ea92a9 - feat: neighborhood polygons map (geojson import + postgis)
-* 07f5141 - feat: neighborhood map layer (centroids + cards)
+* 00de398 - feat: partner invite A/B growth testing framework
+* 0c1b7ff - feat: offline first event queue with sync idempotency
+* 68e3a0c - refactor: eliminate legacy indigo and blue themes from maps, og and components
+* 768cff9 - ux: refined state feedback and accessibility audit
+* 563d2d9 - style: cutting-edge industrial home page refactor
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -25,6 +25,7 @@ Gerado em: 2026-02-22T03:01:18.859Z
 - /admin/parceiros
 - /admin/pontos
 - /admin/status
+- /alertas
 - /bairro/[slug]
 - /bairros
 - /bairros/historico
@@ -42,18 +43,24 @@ Gerado em: 2026-02-22T03:01:18.859Z
 - /qr/[token]
 - /registrar
 - /relatorio/mensal
+- /ui
 
 ## Rotas de Backend (app/api/)
 - /api/admin/funnel/csv
+- /api/admin/invite-ab
 - /api/admin/neighborhoods/audit
 - /api/admin/neighborhoods/import-geojson
 - /api/admin/neighborhoods/renormalize
 - /api/admin/notify-telegram
 - /api/admin/oficial/parse
+- /api/admin/push/digest
+- /api/admin/push/immediate
 - /api/admin/qr/generate
 - /api/admin/run-alerts
 - /api/admin/sync-official
 - /api/admin/system-status
+- /api/admin/telegram/digest
+- /api/admin/telegram/subscribe
 - /api/admin/upload-pdf
 - /api/alerts
 - /api/bulletin
@@ -62,6 +69,8 @@ Gerado em: 2026-02-22T03:01:18.859Z
 - /api/env-audit
 - /api/events/record
 - /api/health
+- /api/invite-stats
+- /api/invite-variants
 - /api/line/detail
 - /api/line/promised-vs-real
 - /api/map/neighborhoods
@@ -73,6 +82,10 @@ Gerado em: 2026-02-22T03:01:18.859Z
 - /api/neighborhoods/history
 - /api/partner-request
 - /api/point/detail
+- /api/push/preferences
+- /api/push/subscribe
+- /api/push/unsubscribe
+- /api/push/vapid-public-key
 - /api/qr/validate
 - /api/report/monthly
 - /api/report/monthly.csv
@@ -127,15 +140,20 @@ Gerado em: 2026-02-22T03:01:18.859Z
 - 0037_telegram_notifications.sql
 - 0038_alert_prefs.sql
 - 0039_client_event_id.sql
+- 0040_invite_ab.sql
+- 0042_web_push.sql
 
 ## Supabase Remote (Status)
-- SUPABASE_PROJECT_REF: MISSING
+- SUPABASE_PROJECT_REF: OK
 - SUPABASE_ACCESS_TOKEN: MISSING
 *(Run `npm run supabase:check` to validate the token against the Supabase CLI)*
 
 ## Scripts
 - npm run lint: SUCCESS
 - npm run build: SUCCESS
+- npm run db:doctor: SKIPPED (No DB Password)
+
+
 
 
 

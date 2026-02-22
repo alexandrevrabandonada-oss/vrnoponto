@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { AppShell, Button } from '@/components/ui';
-import { Settings, LogOut } from 'lucide-react';
+import { Button } from '@/components/ui';
+import { Settings } from 'lucide-react';
 
 export default function AdminLayout({
     children,
