@@ -1,22 +1,21 @@
--- Migration 0043: Push sending logs and deactivation reasons
+-- Migration 0043 (patched): push send logs
+-- Fix: push_subscriptions.device_id is not unique (a device can have multiple endpoints).
+-- Use subscription_id (FK to push_subscriptions.id) and keep device_id as plain text.
 
--- Add deactivation reason to subscriptions
-ALTER TABLE push_subscriptions 
-ADD COLUMN IF NOT EXISTS deactivation_reason TEXT;
-
--- Create logs table for push sends
-CREATE TABLE IF NOT EXISTS push_send_logs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    device_id TEXT REFERENCES push_subscriptions(device_id) ON DELETE CASCADE,
-    send_type TEXT NOT NULL, -- 'IMMEDIATE', 'DIGEST'
-    status TEXT NOT NULL, -- 'OK', 'FAIL'
-    status_code INTEGER,
-    error_message TEXT,
-    retries INTEGER DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS public.push_send_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  subscription_id uuid NULL REFERENCES public.push_subscriptions(id) ON DELETE SET NULL,
+  device_id text NOT NULL,
+  send_type text NOT NULL, -- 'IMMEDIATE', 'DIGEST'
+  status text NOT NULL, -- 'OK', 'FAIL'
+  status_code integer,
+  error_message text,
+  retries integer DEFAULT 0,
+  created_at timestamptz DEFAULT now()
 );
 
--- Index for admin status queries
-CREATE INDEX IF NOT EXISTS idx_push_send_logs_created_at ON push_send_logs(created_at);
-CREATE INDEX IF NOT EXISTS idx_push_send_logs_status ON push_send_logs(status);
-CREATE INDEX IF NOT EXISTS idx_push_subscriptions_active_reason ON push_subscriptions(is_active, deactivation_reason);
+CREATE INDEX IF NOT EXISTS idx_push_send_logs_created_at
+  ON public.push_send_logs (created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_push_send_logs_device_id
+  ON public.push_send_logs (device_id);
