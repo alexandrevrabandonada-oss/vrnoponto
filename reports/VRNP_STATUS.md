@@ -10,6 +10,12 @@ Gerado em: 2026-02-22T02:42:03.669Z
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
+## Status Atual
+- **Bairros**: Sistema de normalização, aliases e histórico mensal implementados. Ranking histórico disponível em `/bairros/historico`.
+- **Boletim**: Novos cards de tendências mensais integrados.
+- **Alertas**: Notificações automáticas via Telegram (WARN/CRIT) integradas.
+- **Métricas**: Agregados mensais de 12 meses baseados em `neighborhood_norm`.
+
 ## Últimos 5 Commits
 * 67662f1 - feat: neighborhood normalization + alias + audit
 * 8ea92a9 - feat: neighborhood polygons map (geojson import + postgis)

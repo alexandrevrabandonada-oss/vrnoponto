@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import {
     Activity, Database, Server, Clock, AlertTriangle,
-    CheckCircle2, Loader2, PlayCircle, RefreshCw, XCircle
+    CheckCircle2, Loader2, PlayCircle, RefreshCw, XCircle,
+    Send, MessageSquare
 } from 'lucide-react';
 
 interface SystemStatus {
@@ -17,6 +18,11 @@ interface SystemStatus {
         official_schedules_last_fetched_at: string | null;
         alerts_last_created_at: string | null;
         active_alerts_count: number;
+    };
+    telegram: {
+        last_sent_at: string | null;
+        last_status: string;
+        count_24h: number;
     };
     migrations: { version: string, checked_at: string };
 }
@@ -163,6 +169,36 @@ export default function StatusDashboard() {
                             <span className="text-gray-500 text-xs">{formatDate(migrations.checked_at)}</span>
                         </div>
                     </div>
+                </div>
+
+                {/* Telegram Card */}
+                <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                    <div className="flex items-center gap-3 text-indigo-900 border-b border-gray-100 pb-3">
+                        <MessageSquare size={20} />
+                        <h2 className="font-bold">Notificações Telegram</h2>
+                    </div>
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Último Envio</span>
+                            <span className="font-medium text-gray-900">{formatDate(statusData.telegram.last_sent_at)}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Status</span>
+                            <StatusBadge status={statusData.telegram.last_status} />
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Enviados (24h)</span>
+                            <span className="font-bold text-gray-900">{statusData.telegram.count_24h}</span>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => triggerAction('telegram', '/api/admin/notify-telegram')}
+                        disabled={actionLoading === 'telegram'}
+                        className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition disabled:opacity-50"
+                    >
+                        {actionLoading === 'telegram' ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                        Notificar Agora
+                    </button>
                 </div>
             </div>
 

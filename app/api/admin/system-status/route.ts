@@ -21,6 +21,7 @@ export async function GET(req: Request) {
         const host = req.headers.get('host') || 'localhost:3000';
         const protocol = host.includes('localhost') ? 'http' : 'https';
         const baseUrl = `${protocol}://${host}`;
+        const now = new Date();
 
         // ping /api/health directly
         let apiHealth = 'FAIL';
@@ -90,6 +91,21 @@ export async function GET(req: Request) {
 
         const migrations = await getLastAppliedMigration();
 
+        // 4. Telegram Status
+        const { data: latestNotification } = await supabase
+            .from('alert_notifications')
+            .select('sent_at, status')
+            .order('sent_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        const yesterday = new Date(now.getTime() - 24 * 3600 * 1000).toISOString();
+        const { count: telegramCount24h } = await supabase
+            .from('alert_notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'OK')
+            .gte('sent_at', yesterday);
+
         return NextResponse.json({
             health: {
                 api_health: apiHealth,
@@ -104,6 +120,11 @@ export async function GET(req: Request) {
                 official_schedules_last_fetched_at: latestSchedule?.fetched_at || null,
                 alerts_last_created_at: latestAlert?.created_at || null,
                 active_alerts_count: activeAlertsCount || 0
+            },
+            telegram: {
+                last_sent_at: latestNotification?.sent_at || null,
+                last_status: latestNotification?.status || 'UNKNOWN',
+                count_24h: telegramCount24h || 0
             },
             migrations
         });

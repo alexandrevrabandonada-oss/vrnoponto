@@ -13,3 +13,8 @@ jobs:
         run: |
           curl -X POST "${{ secrets.VRNP_ALERTS_URL || 'https://vrnoponto.vercel.app/api/admin/run-alerts' }}?t=${{ secrets.VRNP_ADMIN_TOKEN }}" \
             -H "Content-Type: application/json"
+
+      - name: Notify Telegram
+        run: |
+          curl -X POST "${{ secrets.VRNP_NOTIFY_URL || 'https://vrnoponto.vercel.app/api/admin/notify-telegram' }}?t=${{ secrets.VRNP_ADMIN_TOKEN }}" \
+            -H "Content-Type: application/json"

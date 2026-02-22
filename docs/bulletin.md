@@ -39,3 +39,12 @@ Toda segunda-feira às 07:40 BRT, o workflow `Weekly Bulletin Generation` é exe
 3.  Selecione a execução mais recente.
 4.  No rodapé, baixe o arquivo `weekly-bulletin-xxxx` (ZIP).
 5.  O ZIP conterá as imagens prontas para publicação.
+
+## Alertas via Telegram
+
+O sistema monitora degradações críticas (atrasos >= 60%) e avisos (atrasos >= 30%) e os posta automaticamente no canal configurado.
+
+- **Frequência**: Ocorre após cada execução do Engine de Alertas (diário).
+- **Sem Spam**: O sistema rastreia os alertas já enviados na tabela `alert_notifications` para evitar duplicidade.
+- **Configuração**: Requer `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID` no ambiente.
+
