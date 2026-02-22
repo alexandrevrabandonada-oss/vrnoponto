@@ -173,6 +173,24 @@ export default function BoletimPage() {
                     </button>
                 </div>
 
+                {/* Neighborhood Map Card */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <button
+                        onClick={() => window.open('/api/bulletin/worst-neighborhoods-map-card?format=square&limit=5', '_blank')}
+                        className="flex items-center justify-center gap-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 p-5 rounded-2xl border border-indigo-200 dark:border-indigo-800 font-bold hover:shadow-lg transition-all active:scale-95"
+                    >
+                        <MapPin size={20} />
+                        Mapa de Bairros (Feed)
+                    </button>
+                    <button
+                        onClick={() => window.open('/api/bulletin/worst-neighborhoods-map-card?format=story&limit=5', '_blank')}
+                        className="flex items-center justify-center gap-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 p-5 rounded-2xl border border-indigo-200 dark:border-indigo-800 font-bold hover:shadow-lg transition-all active:scale-95"
+                    >
+                        <MapPin size={20} />
+                        Mapa de Bairros (Story)
+                    </button>
+                </div>
+
                 {/* Top Critical Stoppages */}
                 <section>
                     <h2 className="text-lg font-black text-gray-900 dark:text-white mb-4 px-1 flex items-center gap-2">

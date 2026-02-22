@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, MapPin, TrendingDown, AlertTriangle, BarChart3 } from 'lucide-react';
+import { ArrowLeft, MapPin, TrendingDown, AlertTriangle, BarChart3, Map as MapIcon } from 'lucide-react';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
 
 export const dynamic = 'force-dynamic';
@@ -50,6 +50,9 @@ export default async function BairrosPage() {
                     <p className="text-gray-500 dark:text-gray-400">
                         Bairros com maior defasagem entre o horário oficial e a realidade observada (últimos 30 dias).
                     </p>
+                    <Link href="/mapa/bairros" className="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-sm mt-2">
+                        <MapIcon size={16} /> Ver no mapa
+                    </Link>
                 </header>
 
                 {/* Summary KPIs */}

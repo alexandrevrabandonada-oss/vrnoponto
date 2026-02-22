@@ -57,6 +57,9 @@ Top 20 piores pontos por bairro, ranqueados por `worst_delta_min`. Inclui `pct_v
 ### `vw_neighborhood_top_lines_30d` (migration 0030)
 Top 10 piores linhas por bairro, ranqueadas por `avg_delta_min`. Enriquecido com `line_code`/`line_name` via API.
 
+### `vw_neighborhood_map_30d` (migration 0031)
+Centroides dos bairros (avg lat/lng dos stops) com `avg_delta_min`, `risk_band` (OK/ATTENTION/BAD/CRIT), `stops_count`, `samples_total`, `pct_verified_avg`. Filtra bairros com ≥2 stops.
+
 ## Automação
 
 O job de alertas é executado diariamente via GitHub Actions (`run-alerts.yml`), acionando o endpoint protegido:
