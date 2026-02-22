@@ -1,21 +1,21 @@
 # VRNP STATUS REPORT
-Gerado em: 2026-02-22T19:32:48.980Z
+Gerado em: 2026-02-22T21:13:40.791Z
 
 ## Ambiente
 - Node Version: v22.19.0 [WARNING: local node != engines node 20.x]
 - Git Branch: main
-- Git Commit: 7abeb3a
+- Git Commit: 45b8ed7
 - .env.local: OK
 - Supabase Env Vars: OK
 - /api/health Local: SKIPPED (server not running)
 - ESLint Version: v9.39.3
 
 ## Últimos 5 Commits
+* 45b8ed7 - feat: favorites on home (neighborhoods + lines)
+* 6297143 - feat: one-tap from /no-ponto
+* e4f77bf - chore: ignore local lint/build logs
+* 79874ac - chore: lint zero for push + suggestions
 * 7abeb3a - fix: align suggestLine signature with registrar call
-* 853e512 - chore: stop tracking lint_output.txt
-* d573757 - chore: sync patches + migrations + web push + doctor
-* 6aef940 - fix: monthly neighborhood view derives line_id via official_schedules
-* c20d670 - feat: partner invite A/B growth testing framework
 
 ## Rotas Dinâmicas (app/page.tsx)
 - /.
@@ -97,15 +97,9 @@ Gerado em: 2026-02-22T19:32:48.980Z
 - /api/timeseries/stop
 ## Componentes Compartilhados (components/)
 - RatingModal.tsx
-- FavoriteToggle.tsx
-- FavoritesSection.tsx
-- QuickActions.tsx
 
 ## Hooks (hooks/)
 - useDeviceId.ts
-
-## Libs (lib/)
-- favorites.ts
 
 ## Supabase Migrations
 - 0001_init.sql
@@ -151,29 +145,21 @@ Gerado em: 2026-02-22T19:32:48.980Z
 - 0042_web_push.sql
 - 0043_push_send_logs.sql
 
-## Funcionalidades de Notificações
-- ✅ Seguir Bairro: OK
-- ✅ Seguir Linha: OK
-- ✅ Deduplicação de Preferências: OK
-- ✅ Telemetria Mobile-First: OK
-- ✅ Web Push Hardening: OK (Retries + Logs + Deativação 410/404)
-- ✅ One-Tap from /no-ponto: OK (useOneTap hook + OneTapCard autônomo)
-
-## Novos Arquivos (One-Tap Integration)
-- `hooks/useOneTap.ts` — Hook compartilhado para registro 1-toque com offline queue
-- `components/OneTapCard.tsx` — Card autônomo com sugestão + troca de linha + feedback
-- `app/no-ponto/page.tsx` — Integrado: após "Cheguei" mostra OneTapCard + CTA /registrar
-- `app/registrar/page.tsx` — Suporte a `?stopId` + usa OneTapCard autônomo
-
 ## Supabase Remote (Status)
-- SUPABASE_PROJECT_REF: OK
+- SUPABASE_PROJECT_REF: MISSING
 - SUPABASE_ACCESS_TOKEN: MISSING
 *(Run `npm run supabase:check` to validate the token against the Supabase CLI)*
 
 ## Scripts
-- npm run lint: SUCCESS (0 errors, 0 warnings)
+- npm run lint: SUCCESS
 - npm run build: SUCCESS
 - npm run db:doctor: SKIPPED (No DB Password)
+
+
+
+
+
+
 
 ## OPS (Windows Automation Workspace)
 As rotinas DevOps foram automatizadas para uso sem "touching" manual via PowerShell:
@@ -185,9 +171,8 @@ As rotinas DevOps foram automatizadas para uso sem "touching" manual via PowerSh
 ## Fluxo de Teste Manual (MVP)
 1. Abra a aplicação e acesse a rota `/no-ponto`.
 2. Permita o uso da Geolocalização no navegador (Status do GPS deve atualizar).
-3. Selecione o ponto mais próximo e clique em **"Estou no Ponto"**.
-4. O `OneTapCard` aparece com a linha sugerida. Clique em **"Ônibus Passou"** ou **"Entrei"**.
-5. Verifique o feedback: "Registrado ✓" ou "Salvo (vai sincronizar)".
-6. Clique em **"Ir para registrar completo"** para acessar `/registrar?stopId=xxx`.
-7. Em `/registrar`, o ponto é pré-selecionado e a sugestão de linha é carregada automaticamente.
-8. Verifique as tabelas `stop_events` e `bus_ratings` no Supabase para confirmar a inserção.
+3. Selecione "Ponto Central" e "P200" e clique em **"Cheguei no Ponto"**.
+4. Acesse a rota `/registrar`.
+5. Selecione simulando o ponto atual e clique em **"Ônibus Passou Agora"** ou **"Entrei (Embarquei)"**.
+6. O modal de avaliação será aberto. Vote na lotação (de 1 a 5) e clique em **"Avaliar"**.
+7. Verifique as tabelas `stop_events` e `bus_ratings` no projeto do Supabase vinculado para confirmar a inserção do `device_id` e dados.
