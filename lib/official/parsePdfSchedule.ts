@@ -1,17 +1,30 @@
-// pdf-parse is loaded dynamically to avoid edge runtime Next.js compilation issues
-
 /**
- * Polyfill for ROMMatrix to fix compatibility issues with pdf.js in Node.js (Vercel)
- * Some versions of pdfjs-dist used by pdf-parse expect DOMMatrix to be available.
+ * Robust polyfills for DOM classes requested by pdf.js in Node.js environments.
+ * This fixes "is not a function" errors in minified pdf.js code.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 if (typeof global !== 'undefined' && !global.DOMMatrix) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (global as any).DOMMatrix = class DOMMatrix { constructor() { } };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (global as any).DOMPoint = class DOMPoint { constructor() { } };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (global as any).DOMRect = class DOMRect { constructor() { } };
+    class DummyDOMMatrix {
+        constructor() { }
+        multiply() { return new DummyDOMMatrix(); }
+        translate() { return new DummyDOMMatrix(); }
+        scale() { return new DummyDOMMatrix(); }
+        rotate() { return new DummyDOMMatrix(); }
+        inverse() { return new DummyDOMMatrix(); }
+        transformPoint(p: any) { return p || { x: 0, y: 0, z: 0, w: 1 }; }
+    }
+    (global as any).DOMMatrix = DummyDOMMatrix;
+    (global as any).DOMPoint = class DOMPoint {
+        constructor(public x = 0, public y = 0, public z = 0, public w = 1) { }
+    };
+    (global as any).DOMRect = class DOMRect {
+        constructor(public x = 0, public y = 0, public width = 0, public height = 0) { }
+    };
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParser = require('pdf-parse');
 
 export type ParsedHourlyTrip = {
     dayGroup: 'WEEKDAY' | 'SAT' | 'SUN';
@@ -36,9 +49,7 @@ export type ParseRunResult = {
  * Detecta metadados (Linha e Data) de um PDF da PMVR.
  */
 export async function detectMetadataFromPdf(pdfBuffer: Buffer): Promise<{ lineCode: string | null, validFrom: string | null }> {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdf = require('pdf-parse');
-    const RAW = await pdf(pdfBuffer).catch(() => null);
+    const RAW = await pdfParser(pdfBuffer).catch(() => null);
     if (!RAW) return { lineCode: null, validFrom: null };
 
     const text = RAW.text.toUpperCase();
@@ -65,10 +76,8 @@ export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResul
     meta.lineCode = metadata.lineCode;
     meta.validFrom = metadata.validFrom;
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdf = require('pdf-parse');
-    const RAW = await pdf(pdfBuffer).catch((e: Error) => {
-        meta.errors.push(`Falha fatal no pdf-parse: ${e.message}`);
+    const RAW = await pdfParser(pdfBuffer).catch((e: Error) => {
+        meta.errors.push(`Falha fatal no pdf-parse: ${e.message || e}`);
         return null;
     });
 
