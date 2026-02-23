@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import {
     AlertTriangle, ShieldCheck, Database, MapPin, Search,
-    RefreshCcw, Crosshair, Loader2
+    RefreshCcw, Crosshair, Loader2, Rocket, CheckCircle, AlertCircle,
+    Map
 } from 'lucide-react';
 import { Card, Button, Divider, PageHeader } from '@/components/ui';
 
@@ -24,6 +25,10 @@ export default function AdminDataQualityPage() {
     const [metrics, setMetrics] = useState<DataQualityMetrics | null>(null);
     const [actionLoading, setActionLoading] = useState('');
     const [actionMessage, setActionMessage] = useState('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [readiness, setReadiness] = useState<any>(null);
+
+
 
     const fetchMetrics = async () => {
         setLoading(true);
@@ -37,20 +42,33 @@ export default function AdminDataQualityPage() {
         }
     };
 
+    const fetchReadiness = async () => {
+        try {
+            const res = await fetch('/api/admin/launch-readiness');
+            if (res.ok) setReadiness(await res.json());
+        } catch (err) { }
+    };
+
     useEffect(() => {
         fetchMetrics();
+        fetchReadiness();
     }, []);
 
-    const handleAction = async (endpoint: string, name: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleAction = async (endpoint: string, name: string, body?: any) => {
         if (!confirm(`Tem certeza que deseja executar: ${name}?`)) return;
 
         setActionLoading(name);
         setActionMessage('');
         try {
-            const res = await fetch(`/api/admin/${endpoint}`, { method: 'POST' });
+            const res = await fetch(`/api/admin/${endpoint}`, {
+                method: 'POST',
+                headers: body ? { 'Content-Type': 'application/json' } : {},
+                body: body ? JSON.stringify(body) : undefined
+            });
             const data = await res.json();
             setActionMessage(data.message || (data.success ? 'Sucesso' : 'Erro'));
-            await fetchMetrics(); // refresh
+            await Promise.all([fetchMetrics(), fetchReadiness()]);
         } catch (err: unknown) {
             setActionMessage(`Erro em ${name}: ` + (err instanceof Error ? err.message : ''));
         } finally {
@@ -82,6 +100,91 @@ export default function AdminDataQualityPage() {
                 <div className={`p-4 rounded-lg font-bold text-sm ${actionMessage.includes('Erro') ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
                     {actionMessage}
                 </div>
+            )}
+
+            {/* Pronto Pra Lançar? Checklist */}
+            {readiness && (
+                <Card className="!p-6 border-brand/20 bg-brand/5">
+                    <div className="flex items-center gap-3 mb-6">
+                        <Rocket size={24} className="text-brand" />
+                        <h2 className="text-xl font-bold text-gray-800">Pronto pra lançar?</h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {Object.entries(readiness.checks).map(([key, check]: [string, any]) => (
+
+                            <div key={key} className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                        {key.replace('_', ' ')}
+                                    </span>
+                                    {check.ok ? (
+                                        <CheckCircle size={14} className="text-green-500" />
+                                    ) : (
+                                        <AlertCircle size={14} className="text-orange-500" />
+                                    )}
+                                </div>
+                                <div className={`text-2xl font-black ${check.ok ? 'text-gray-800' : 'text-orange-600'}`}>
+                                    {check.value}
+                                    <span className="text-xs text-gray-400 font-normal ml-1">/ {check.target}</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                                    <div
+                                        className={`h-full transition-all duration-500 ${check.ok ? 'bg-green-500' : 'bg-orange-400'}`}
+                                        style={{ width: `${Math.min(100, (check.value / check.target) * 100)}%` }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <Divider label="AÇÕES RECOMENDADAS PARA O LANÇAMENTO" />
+
+                    <div className="flex flex-wrap gap-4 mt-6">
+                        {!readiness.checks.stops_total.ok && (
+                            <Button
+                                variant="primary"
+                                onClick={() => handleAction('stops/import-osm', 'Rodar Seed OSM', {
+                                    bbox: "-22.56,-44.15,-22.47,-44.05",
+                                    dryRun: false
+                                })}
+                                disabled={!!actionLoading}
+                            >
+                                {actionLoading === 'Rodar Seed OSM' ? <Loader2 size={16} className="animate-spin mr-2" /> : <Map size={16} className="mr-2" />}
+                                Rodar Seed OSM
+                            </Button>
+                        )}
+
+                        {!readiness.checks.bairros_eligiveis.ok && (
+                            <Button
+                                variant="primary"
+                                onClick={() => handleAction('backfill-neighborhoods', 'Rodar Backfill Bairros')}
+                                disabled={!!actionLoading}
+                                className="bg-purple-600 hover:bg-purple-700 text-white border-purple-800"
+                            >
+                                {actionLoading === 'Rodar Backfill Bairros' ? <Loader2 size={16} className="animate-spin mr-2" /> : <Crosshair size={16} className="mr-2" />}
+                                Rodar Backfill Bairros
+                            </Button>
+                        )}
+
+                        {(!readiness.checks.eventos_7d.ok || !readiness.checks.pct_L2L3_7d.ok) && (
+                            <a href="/admin/mutirao">
+                                <Button variant="secondary">
+                                    <Rocket size={16} className="mr-2" />
+                                    Ativar Mutirão
+                                </Button>
+                            </a>
+                        )}
+
+                        {readiness.ready && (
+                            <div className="flex items-center gap-2 text-green-600 bg-green-50 px-4 py-2 rounded-xl font-bold text-sm border border-green-200">
+                                <Rocket size={18} />
+                                BASE PRONTA PARA LANÇAMENTO PÚBLICO!
+                            </div>
+                        )}
+                    </div>
+                </Card>
             )}
 
             {/* Quick Actions */}
