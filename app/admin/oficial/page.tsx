@@ -14,6 +14,7 @@ export default function AdminOficial() {
     const [lines, setLines] = useState<{ id: string, code: string, name: string }[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [message, setMessage] = useState('');
+    const [parserReloadKey, setParserReloadKey] = useState(0);
 
     const [isSyncing, setIsSyncing] = useState(false);
     const [syncLog, setSyncLog] = useState<Record<string, unknown> | null>(null);
@@ -63,7 +64,7 @@ export default function AdminOficial() {
             />
 
             <BatchPdfUploader onComplete={() => {
-                // Refresh logic if needed, PdfParserCard has its own timer or we can trigger it
+                setParserReloadKey(prev => prev + 1);
             }} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -199,7 +200,7 @@ export default function AdminOficial() {
             </div>
 
             <Divider label="EXTRAÇÃO DE DADOS" />
-            <PdfParserCard />
+            <PdfParserCard key={parserReloadKey} />
         </div>
     );
 }
