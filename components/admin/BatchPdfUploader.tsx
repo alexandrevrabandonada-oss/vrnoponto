@@ -39,7 +39,7 @@ export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
         setIsUploading(true);
         setResults([]);
 
-        const adminToken = localStorage.getItem('vrnp_admin_token') || localStorage.getItem('admin_token');
+        let adminToken = localStorage.getItem('vrnp_admin_token') || localStorage.getItem('admin_token');
         if (!adminToken) {
             const token = prompt('Digite o token de ADMIN para autorizar o envio:');
             if (!token) {
@@ -47,6 +47,7 @@ export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
                 return;
             }
             localStorage.setItem('vrnp_admin_token', token);
+            adminToken = token;
         }
 
         const queue = [...files];

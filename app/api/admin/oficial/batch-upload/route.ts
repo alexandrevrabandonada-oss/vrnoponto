@@ -4,6 +4,15 @@ import { detectMetadataFromPdf, parsePdfSchedule } from '@/lib/official/parsePdf
 
 export const dynamic = 'force-dynamic';
 
+function normalizeValidFrom(value: string | null): string | null {
+    if (!value) return null;
+    const iso = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+    const br = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (br) return `${br[3]}-${br[2]}-${br[1]}`;
+    return null;
+}
+
 export async function POST(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
@@ -35,6 +44,7 @@ export async function POST(req: Request) {
 
             // 1. Detect Metadata
             const { lineCode, validFrom } = await detectMetadataFromPdf(buffer);
+            const normalizedValidFrom = normalizeValidFrom(validFrom);
 
             if (!lineCode) {
                 results.push({ fileName, status: 'ERROR', error: 'Código da linha não encontrado no PDF' });
@@ -77,7 +87,7 @@ export async function POST(req: Request) {
 
             // 4. Upload to Storage
             const storagePath = `batch/${lineCode}_${Date.now()}.pdf`;
-            const { data: uploadData, error: uploadErr } = await supabase.storage
+            const { error: uploadErr } = await supabase.storage
                 .from('official')
                 .upload(storagePath, buffer, { contentType: 'application/pdf' });
 
@@ -91,7 +101,7 @@ export async function POST(req: Request) {
                 .from('official_schedules')
                 .insert({
                     line_variant_id: variant.id,
-                    valid_from: validFrom || new Date().toISOString().slice(0, 10),
+                    valid_from: normalizedValidFrom || new Date().toISOString().slice(0, 10),
                     pdf_path: storagePath,
                     title: `Tabela ${lineCode} (Upload Automático)`
                 })
