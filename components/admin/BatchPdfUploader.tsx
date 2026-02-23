@@ -43,7 +43,20 @@ export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
         files.forEach(f => formData.append('files', f));
 
         try {
-            const adminToken = localStorage.getItem('vrnp_admin_token') || '';
+            let adminToken = localStorage.getItem('vrnp_admin_token') || localStorage.getItem('admin_token');
+
+            if (!adminToken) {
+                adminToken = prompt('Digite o token de ADMIN para autorizar o envio:');
+                if (adminToken) {
+                    localStorage.setItem('vrnp_admin_token', adminToken);
+                }
+            }
+
+            if (!adminToken) {
+                setIsUploading(false);
+                return;
+            }
+
             const res = await fetch(`/api/admin/oficial/batch-upload?t=${adminToken}`, {
                 method: 'POST',
                 body: formData

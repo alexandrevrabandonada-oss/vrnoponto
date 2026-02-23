@@ -126,8 +126,13 @@ const AdminLogin = () => {
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        if (token.trim()) {
-            window.location.href = `/admin?t=${encodeURIComponent(token.trim())}`;
+        const cleanToken = token.trim();
+        if (cleanToken) {
+            // Save to localStorage so components can use it for API calls
+            localStorage.setItem('vrnp_admin_token', cleanToken);
+            localStorage.setItem('admin_token', cleanToken); // Compatibility with older components
+
+            window.location.href = `/admin?t=${encodeURIComponent(cleanToken)}`;
         }
     };
 
