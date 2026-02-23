@@ -21,6 +21,7 @@ export default function AdminLayout({
                             <Link href="/admin/pontos" className="hover:text-brand transition-colors">Pontos</Link>
                             <Link href="/admin/sugestoes" className="hover:text-brand transition-colors">Sugestões</Link>
                             <Link href="/admin/oficial" className="hover:text-brand transition-colors">Horários</Link>
+                            <Link href="/admin/mutirao" className="hover:text-brand transition-colors">Mutirões</Link>
                             <Link href="/admin/parceiros" className="hover:text-brand transition-colors">Parceiros</Link>
                             <Link href="/admin/status" className="hover:text-brand transition-colors text-brand">Status</Link>
                         </div>

@@ -8,6 +8,7 @@ import { PrivacyModal } from '@/components/PrivacyModal';
 import { createClient } from '@/lib/supabase/client';
 import { FavoritesSection } from '@/components/FavoritesSection';
 import { QuickActions } from '@/components/QuickActions';
+import { MutiraoBanner } from '@/components/MutiraoBanner';
 
 export default function Home() {
   const [isConnected, setIsConnected] = React.useState(true);
@@ -56,6 +57,9 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="w-full max-w-sm space-y-10 z-10 animate-fade-in-up">
+
+        {/* Active Mutirao Banner */}
+        <MutiraoBanner />
 
         {/* Hero Section */}
         <Card className={`text-center !p-10 !rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-brand/10 transition-all duration-500 ${isHeroSuccess ? 'scale-[1.02] border-brand/40 shadow-brand/10' : ''}`} variant="surface">

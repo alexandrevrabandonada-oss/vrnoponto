@@ -1,0 +1,44 @@
+
+C:\Projetos\vrnoponto\app\admin\mutirao\page.tsx
+  31:9  error  Error: Cannot access variable before it is declared
+
+`fetchMutiroes` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Projetos\vrnoponto\app\admin\mutirao\page.tsx:31:9
+  29 |
+  30 |     useEffect(() => {
+> 31 |         fetchMutiroes();
+     |         ^^^^^^^^^^^^^ `fetchMutiroes` accessed before it is declared
+  32 |     }, []);
+  33 |
+  34 |     const fetchMutiroes = async () => {
+
+C:\Projetos\vrnoponto\app\admin\mutirao\page.tsx:34:5
+  32 |     }, []);
+  33 |
+> 34 |     const fetchMutiroes = async () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 35 |         const supabase = createClient();
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 36 |         const { data } = await supabase
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 37 |             .from('mutiroes')
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 38 |             .select('*')
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |             .order('created_at', { ascending: false });
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 41 |         setMutiroes(data || []);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 42 |         setLoading(false);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 43 |     };
+     | ^^^^^^^ `fetchMutiroes` is declared here
+  44 |
+  45 |     async function handleCreate(e: React.FormEvent) {
+  46 |         e.preventDefault();  react-hooks/immutability
+
+✖ 1 problem (1 error, 0 warnings)
+

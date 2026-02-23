@@ -1,0 +1,54 @@
+
+C:\Projetos\vrnoponto\app\admin\mutirao\page.tsx
+   5:24  warning  'Input' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  31:9   error    Error: Cannot access variable before it is declared
+
+`fetchMutiroes` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Projetos\vrnoponto\app\admin\mutirao\page.tsx:31:9
+  29 |
+  30 |     useEffect(() => {
+> 31 |         fetchMutiroes();
+     |         ^^^^^^^^^^^^^ `fetchMutiroes` accessed before it is declared
+  32 |     }, []);
+  33 |
+  34 |     async function fetchMutiroes() {
+
+C:\Projetos\vrnoponto\app\admin\mutirao\page.tsx:34:5
+  32 |     }, []);
+  33 |
+> 34 |     async function fetchMutiroes() {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 35 |         const supabase = createClient();
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 36 |         const { data } = await supabase
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 37 |             .from('mutiroes')
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 38 |             .select('*')
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 39 |             .order('created_at', { ascending: false });
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 41 |         setMutiroes(data || []);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 42 |         setLoading(false);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 43 |     }
+     | ^^^^^^ `fetchMutiroes` is declared here
+  44 |
+  45 |     async function handleCreate(e: React.FormEvent) {
+  46 |         e.preventDefault();  react-hooks/immutability
+
+C:\Projetos\vrnoponto\app\mutirao\page.tsx
+  4:40  warning  'ArrowRight' is defined but never used    @typescript-eslint/no-unused-vars
+  4:73  warning  'Bus' is defined but never used           @typescript-eslint/no-unused-vars
+  5:20  warning  'PageHeader' is defined but never used    @typescript-eslint/no-unused-vars
+  9:71  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Projetos\vrnoponto\components\MutiraoBanner.tsx
+  8:71  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 7 problems (3 errors, 4 warnings)
+

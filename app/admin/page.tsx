@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Activity, MapPin, Bus, Handshake, Zap } from 'lucide-react';
+import { Activity, MapPin, Bus, Handshake, Zap, Target } from 'lucide-react';
 
 export default function AdminHome() {
     const [health, setHealth] = useState<string | null>(null);
@@ -113,6 +113,15 @@ export default function AdminHome() {
                         </div>
                     </div>
                 </div>
+
+                <a href="/admin/mutirao" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-brand/10 hover:border-brand/20 transition-all">
+                    <div className="bg-brand/5 text-brand w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
+                        <Target size={20} />
+                    </div>
+                    <div className="flex justify-between items-end">
+                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Mutirões</h2>
+                    </div>
+                </a>
 
                 <a href="/admin/oficial" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-gray-100 hover:border-gray-200 transition-all">
                     <div className="bg-gray-50 text-gray-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
