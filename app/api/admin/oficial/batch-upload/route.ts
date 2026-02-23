@@ -16,12 +16,15 @@ export async function POST(req: Request) {
         const formData = await req.formData();
         const files = formData.getAll('files') as File[];
 
-        if (!files || files.length === 0) {
-            return NextResponse.json({ error: 'No files provided' }, { status: 400 });
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!supabaseUrl || !supabaseServiceKey) {
+            return NextResponse.json({
+                error: 'Ambiente Misconfigurado: Faltam as variáveis NEXT_PUBLIC_SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY na Vercel.'
+            }, { status: 500 });
         }
 
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
         const supabase = createSupabaseClient(supabaseUrl, supabaseServiceKey);
 
         const results = [];
