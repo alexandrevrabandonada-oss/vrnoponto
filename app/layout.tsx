@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Geist, Geist_Mono, Staatliches, Inter } from "next/font/google";
+import { EnvBanner } from "@/components/EnvBanner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -44,6 +45,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${staatliches.variable} ${inter.variable} antialiased`}
       >
+        <EnvBanner />
         {children}
       </body>
     </html>
