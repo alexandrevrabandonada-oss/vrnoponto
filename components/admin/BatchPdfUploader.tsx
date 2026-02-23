@@ -58,7 +58,7 @@ export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
             formData.append('files', file);
 
             try {
-                const res = await fetch(`/api/admin/oficial/batch-upload?t=${adminToken}`, {
+                const res = await fetch(`/api/admin/oficial/batch-upload-v2?t=${adminToken}`, {
                     method: 'POST',
                     body: formData
                 });
