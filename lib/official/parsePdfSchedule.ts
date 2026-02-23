@@ -1,5 +1,18 @@
 // pdf-parse is loaded dynamically to avoid edge runtime Next.js compilation issues
 
+/**
+ * Polyfill for ROMMatrix to fix compatibility issues with pdf.js in Node.js (Vercel)
+ * Some versions of pdfjs-dist used by pdf-parse expect DOMMatrix to be available.
+ */
+if (typeof global !== 'undefined' && !global.DOMMatrix) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (global as any).DOMMatrix = class DOMMatrix { constructor() { } };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (global as any).DOMPoint = class DOMPoint { constructor() { } };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (global as any).DOMRect = class DOMRect { constructor() { } };
+}
+
 export type ParsedHourlyTrip = {
     dayGroup: 'WEEKDAY' | 'SAT' | 'SUN';
     hour: number;
