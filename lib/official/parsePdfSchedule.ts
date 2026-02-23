@@ -1,4 +1,23 @@
-import { PDFParse } from 'pdf-parse';
+type PdfTextItem = { str?: string; hasEOL?: boolean };
+type PdfTextContent = { items: PdfTextItem[] };
+type PdfPage = {
+    getTextContent: (opts?: { disableNormalization?: boolean; includeMarkedContent?: boolean }) => Promise<PdfTextContent>;
+    cleanup?: () => void;
+};
+type PdfDocument = {
+    numPages: number;
+    getPage: (pageNumber: number) => Promise<PdfPage>;
+    destroy: () => Promise<void>;
+};
+type PdfLoadingTask = { promise: Promise<PdfDocument> };
+type PdfJsModule = {
+    getDocument: (opts: {
+        data: Uint8Array;
+        disableWorker?: boolean;
+        isEvalSupported?: boolean;
+        stopAtErrors?: boolean;
+    }) => PdfLoadingTask;
+};
 
 export type ParsedHourlyTrip = {
     dayGroup: 'WEEKDAY' | 'SAT' | 'SUN';
@@ -19,47 +38,86 @@ export type ParseRunResult = {
     };
 };
 
+async function loadPdfJs(): Promise<PdfJsModule> {
+    const mod = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    return mod as unknown as PdfJsModule;
+}
+
+async function extractPageText(page: PdfPage): Promise<string> {
+    const text = await page.getTextContent({ disableNormalization: false, includeMarkedContent: false });
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const item of text.items) {
+        const chunk = (item.str || '').trim();
+        if (!chunk) continue;
+
+        currentLine = currentLine ? `${currentLine} ${chunk}` : chunk;
+
+        if (item.hasEOL) {
+            lines.push(currentLine);
+            currentLine = '';
+        }
+    }
+
+    if (currentLine) {
+        lines.push(currentLine);
+    }
+
+    return lines.join('\n');
+}
+
 async function extractPdfText(pdfBuffer: Buffer): Promise<string | null> {
-    let parser: PDFParse | null = null;
+    let document: PdfDocument | null = null;
+
     try {
-        parser = new PDFParse({ data: pdfBuffer });
-        const result = await parser.getText();
-        return result?.text ?? null;
+        const pdfjs = await loadPdfJs();
+        const loadingTask = pdfjs.getDocument({
+            data: new Uint8Array(pdfBuffer),
+            disableWorker: true,
+            isEvalSupported: false,
+            stopAtErrors: false
+        });
+
+        document = await loadingTask.promise;
+
+        const pages: string[] = [];
+        for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber++) {
+            const page = await document.getPage(pageNumber);
+            const pageText = await extractPageText(page);
+            if (pageText) pages.push(pageText);
+            page.cleanup?.();
+        }
+
+        return pages.join('\n');
     } catch {
         return null;
     } finally {
-        if (parser) {
-            await parser.destroy().catch(() => undefined);
+        if (document) {
+            await document.destroy().catch(() => undefined);
         }
     }
 }
 
-/**
- * Detecta metadados (Linha e Data) de um PDF da PMVR.
- */
 export async function detectMetadataFromPdf(pdfBuffer: Buffer): Promise<{ lineCode: string | null, validFrom: string | null }> {
     const textRaw = await extractPdfText(pdfBuffer);
     if (!textRaw) return { lineCode: null, validFrom: null };
+
     const text = textRaw.toUpperCase();
 
-    // Regex para Linha: Procura "LINHA:" seguido de números
-    const lineMatch = text.match(/LINHA:?\s*(\d+)/);
+    const lineMatch = text.match(/LINHA[:\s-]*([0-9]{2,3}[A-Z]?)/);
     const lineCode = lineMatch ? lineMatch[1] : null;
 
-    // Regex para Data: Procura "PARTIR" seguido de uma data DD/MM/AAAA
-    const dateMatch = text.match(/PARTIR\s*(\d{2}\/\d{2}\/\d{4})/);
-    const validFrom = dateMatch ? dateMatch[1] : null;
+    const contextualDateMatch = text.match(/(?:PARTIR|VIG[ÊE]NCIA|VIGOR|ATUALIZA[ÇC][ÃA]O).{0,50}?(\d{2}\/\d{2}\/\d{4})/);
+    const fallbackDateMatch = text.match(/\b(\d{2}\/\d{2}\/\d{4})\b/);
+    const validFrom = contextualDateMatch ? contextualDateMatch[1] : (fallbackDateMatch ? fallbackDateMatch[1] : null);
 
     return { lineCode, validFrom };
 }
 
-/**
- * Heurística de extração de PDFs da PMVR.
- */
 export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResult> {
     const meta: ParseRunResult['meta'] = { timesFound: 0, daySectionsFound: 0, errors: [] };
 
-    // Detect Metadata (Line and ValidFrom)
     const metadata = await detectMetadataFromPdf(pdfBuffer);
     meta.lineCode = metadata.lineCode;
     meta.validFrom = metadata.validFrom;
@@ -69,6 +127,7 @@ export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResul
         meta.errors.push('Falha fatal no parser de PDF.');
         return { status: 'FAIL', hourlyTrips: [], meta };
     }
+
     const lines = text.split('\n');
 
     const tripsMap: Record<'WEEKDAY' | 'SAT' | 'SUN', Record<number, number>> = {
@@ -82,8 +141,8 @@ export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResul
 
     for (let line of lines) {
         line = line.toUpperCase().trim();
+        if (!line) continue;
 
-        // 1. Tentar detectar seção de dia
         if (line.match(/DIAS?\s+ÚTEIS|DIA\s+UTIL/)) {
             currentContext = 'WEEKDAY';
             defaultContextAssumed = false;
@@ -103,24 +162,19 @@ export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResul
             continue;
         }
 
-        // 2. Tentar achar tempos HH:MM nesta linha
-        // Matches times like 05:30, 6:15, 22:00
         const timeMatches = line.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g);
+        if (!timeMatches) continue;
 
-        if (timeMatches) {
-            for (const t of timeMatches) {
-                const hourStr = t.split(':')[0];
-                const hour = parseInt(hourStr, 10);
+        for (const t of timeMatches) {
+            const hourStr = t.split(':')[0];
+            const hour = parseInt(hourStr, 10);
+            if (hour < 0 || hour > 23) continue;
 
-                if (hour >= 0 && hour <= 23) {
-                    tripsMap[currentContext][hour] = (tripsMap[currentContext][hour] || 0) + 1;
-                    meta.timesFound++;
-                }
-            }
+            tripsMap[currentContext][hour] = (tripsMap[currentContext][hour] || 0) + 1;
+            meta.timesFound++;
         }
     }
 
-    // 3. Gerar a saída
     const hourlyTrips: ParsedHourlyTrip[] = [];
 
     const calculateHeadway = (trips: number) => {
@@ -130,14 +184,13 @@ export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResul
 
     for (const [dayGroup, hourData] of Object.entries(tripsMap)) {
         for (const [hourStr, count] of Object.entries(hourData)) {
-            if (count > 0) {
-                hourlyTrips.push({
-                    dayGroup: dayGroup as 'WEEKDAY' | 'SAT' | 'SUN',
-                    hour: parseInt(hourStr, 10),
-                    trips: count,
-                    promisedHeadwayMin: calculateHeadway(count)
-                });
-            }
+            if (count <= 0) continue;
+            hourlyTrips.push({
+                dayGroup: dayGroup as 'WEEKDAY' | 'SAT' | 'SUN',
+                hour: parseInt(hourStr, 10),
+                trips: count,
+                promisedHeadwayMin: calculateHeadway(count)
+            });
         }
     }
 
@@ -147,12 +200,8 @@ export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResul
         meta.errors.push('Nenhum horário (HH:MM) encontrado no documento.');
     } else if (defaultContextAssumed) {
         status = 'WARN';
-        meta.errors.push('Nenhum cabeçalho de dia (Dias Úteis/Sábado/Domingo) localizado. Tudo associado como WEEKDAY por padrão.');
+        meta.errors.push('Nenhum cabeçalho de dia localizado. Tudo associado como WEEKDAY por padrão.');
     }
 
-    return {
-        status,
-        hourlyTrips,
-        meta
-    };
+    return { status, hourlyTrips, meta };
 }

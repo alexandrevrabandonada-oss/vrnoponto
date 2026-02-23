@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         // 2. Download the PDF from Supabase Storage
         const { data: pdfData, error: dlErr } = await supabase
             .storage
-            .from('official-docs')
+            .from('official')
             .download(schedule.pdf_path);
 
         if (dlErr || !pdfData) {
