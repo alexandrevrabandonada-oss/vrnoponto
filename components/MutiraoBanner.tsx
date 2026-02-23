@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Target, Zap, ArrowRight } from 'lucide-react';
+import { Target, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui';
 import Link from 'next/link';
 
 export function MutiraoBanner() {
@@ -22,28 +23,18 @@ export function MutiraoBanner() {
     const goal = m.goal || 50;
 
     return (
-        <Link href="/mutirao" className="block animate-scale-in">
-            <div className="bg-brand hover:brightness-110 transition-all p-4 rounded-3xl shadow-[0_20px_40px_rgba(255,214,0,0.15)] flex items-center gap-4 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
-                <div className="w-12 h-12 rounded-2xl bg-black/10 flex items-center justify-center text-black shrink-0">
-                    <Target size={28} />
-                </div>
-                <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-0.5">
-                        <Zap size={12} className="text-black" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/60">Mutirão Ativo</span>
-                    </div>
-                    <h2 className="text-lg font-industrial text-black leading-tight uppercase tracking-tight">
-                        {m.title}
-                    </h2>
-                    <p className="text-[10px] font-bold text-black/80 uppercase tracking-tight mt-0.5">
-                        Meta: <span className="text-black font-black">{progress} / {goal}</span> registros
-                    </p>
-                </div>
-                <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center text-black">
-                    <ArrowRight size={18} />
-                </div>
+        <div className="bg-brand border border-black/10 p-3 px-5 rounded-3xl flex items-center justify-between gap-4 animate-fade-in mb-6">
+            <div className="flex items-center gap-3 overflow-hidden">
+                <Target size={18} className="text-black/40 shrink-0" />
+                <p className="text-xs font-black uppercase tracking-tight text-black truncate italic">
+                    {m.title}: {progress}/{goal} registros agora
+                </p>
             </div>
-        </Link>
+            <Link href="/mutirao" className="shrink-0">
+                <Button className="!bg-black !text-white !rounded-full !px-4 !py-1 !h-8 !text-[10px] font-black uppercase tracking-widest">
+                    Participar <ArrowRight size={14} className="ml-1" />
+                </Button>
+            </Link>
+        </div>
     );
 }
