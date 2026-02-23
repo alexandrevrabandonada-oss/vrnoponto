@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Geist, Geist_Mono, Staatliches, Inter } from "next/font/google";
 import { EnvBanner } from "@/components/EnvBanner";
+import { MovementSeal } from "@/components/MovementSeal";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -47,6 +48,7 @@ export default async function RootLayout({
       >
         <EnvBanner />
         {children}
+        <MovementSeal />
       </body>
     </html>
   );

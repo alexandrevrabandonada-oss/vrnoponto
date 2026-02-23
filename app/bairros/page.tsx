@@ -58,8 +58,8 @@ export default function BairrosPage() {
     return (
         <AppShell title="RANKING DE BAIRROS">
             <PageHeader
-                title="Bairros Críticos"
-                subtitle="Defasagem entre horário oficial e realidade (30d)"
+                title="Bairros com Mais Atraso"
+                subtitle="Diferença entre o horário oficial e a realidade (30d)"
                 actions={
                     <Button variant="secondary" href="/mapa/bairros" className="!h-10 !px-4">
                         <MapIcon size={16} className="mr-2" /> MAPA
@@ -90,7 +90,7 @@ export default function BairrosPage() {
                         <div className="text-2xl font-industrial text-white">
                             {neighborhoods.reduce((a, b) => a + b.samples_total, 0)}
                         </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">{t('samples.audit')}</div>
+                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Relatos</div>
                     </Card>
                 </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button, Field, RadioGroup, Card } from '@/components/ui';
 
@@ -24,6 +24,16 @@ export function RatingModal({ isOpen, onClose, lineId, deviceId }: RatingModalPr
     const [crowdingLevel, setCrowdingLevel] = useState<string>('3');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState('');
+
+    // Close on ESC
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
 
     if (!isOpen) return null;
 

@@ -95,21 +95,21 @@ export default function Registrar() {
     return (
         <AppShell title="REGISTRAR AUDITORIA">
             <PageHeader
-                title={registrationComplete ? "Relato Concluído!" : "Relatar Agora"}
-                subtitle={registrationComplete ? "Seu dado já está ajudando a cidade." : `Fluxo de auditoria rápida`}
+                title={registrationComplete ? "Relato Concluído!" : "Relatar Presença"}
+                subtitle={registrationComplete ? "Seu dado já está ajudando a cidade." : `Relate agora onde você está`}
             />
 
             <div className="space-y-6">
                 {(!isOnline || pendingCount > 0) && (
                     <InlineAlert
                         variant={isOnline ? "warning" : "error"}
-                        title={isOnline ? "Fila Aguardando Sincronismo" : "Conexão Instável (Offline)"}
+                        title={isOnline ? "Sincronizando Dados" : "Internet Instável (Offline)"}
                     >
                         <div className="flex flex-col gap-3 mt-1">
                             <p className="text-xs">
                                 {!isOnline
-                                    ? "Você está offline. O registro será enviado automaticamente depois."
-                                    : "A rede voltou. Sincronizando dados pendentes..."}
+                                    ? "Você está sem internet. O registro ficará salvo no celular e será enviado assim que a rede voltar."
+                                    : "A rede voltou. Enviando os relatos que estavam guardados..."}
                             </p>
                         </div>
                     </InlineAlert>
@@ -117,18 +117,18 @@ export default function Registrar() {
 
                 {!registrationComplete ? (
                     <>
-                        <Card variant="surface2" className="border-white/5 bg-white/[0.02]">
+                        <Card variant="surface2" className="border-white/5 bg-white/[0.02]" aria-label="Status da Localização">
                             <div className="flex items-center gap-3">
-                                <Navigation size={14} className={location ? "text-brand" : "text-zinc-600 animate-pulse"} />
+                                <Navigation size={14} className={location ? "text-brand" : "text-zinc-600 animate-pulse"} aria-hidden="true" />
                                 <div className="flex-1">
-                                    <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">GPS</p>
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Localização</p>
                                     <p className="text-xs font-bold text-white uppercase truncate">
-                                        {gpsStatus}
+                                        {location ? "Localizado via GPS" : gpsStatus}
                                     </p>
                                 </div>
                                 {selectedStopId && (
                                     <div className="text-right">
-                                        <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Ponto</p>
+                                        <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Seu Ponto</p>
                                         <p className="text-xs font-bold text-brand uppercase truncate max-w-[120px]">
                                             {currentStop?.name || queryStopId || 'Detectando...'}
                                         </p>
@@ -145,7 +145,7 @@ export default function Registrar() {
                                 onRecorded={(result) => {
                                     if (result.ok) {
                                         if (result.queued) {
-                                            setMessage("SALVO OFFLINE");
+                                            setMessage("SALVO NO CELULAR");
                                         } else {
                                             const trust = result.trust_level || 'L1';
                                             setLastTrust(trust);
@@ -161,27 +161,29 @@ export default function Registrar() {
 
                         {!selectedStopId && !location && (
                             <Card className="p-12 text-center border-dashed border-white/5 bg-white/[0.01]">
-                                <Loader2 className="animate-spin text-brand mx-auto mb-4" size={32} />
+                                <Loader2 className="animate-spin text-brand mx-auto mb-4" size={32} aria-hidden="true" />
                                 <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Iniciando auditoria...</p>
                             </Card>
                         )}
 
                         <div className="pt-4 space-y-3">
-                            <Divider label="OPÇÕES ADICIONAIS" />
+                            <Divider label="OUTRAS OPÇÕES" />
                             <div className="grid grid-cols-2 gap-3">
                                 <Button
                                     variant="secondary"
                                     onClick={() => setIsScannerOpen(true)}
-                                    className="h-14 !text-[10px] font-black uppercase tracking-widest border-white/5"
-                                    icon={<QrCode size={18} />}
+                                    className="h-16 !text-[10px] font-black uppercase tracking-widest border-white/5 focus-visible:ring-2 focus-visible:ring-brand/50"
+                                    icon={<QrCode size={18} aria-hidden="true" />}
+                                    aria-label="Escanear QR Code no ponto parceiro"
                                 >
                                     QR CODE
                                 </Button>
                                 <Button
                                     variant="secondary"
                                     onClick={() => { /* toggle observation */ }}
-                                    className="h-14 !text-[10px] font-black uppercase tracking-widest border-white/5"
-                                    icon={<ChevronDown size={18} />}
+                                    className="h-16 !text-[10px] font-black uppercase tracking-widest border-white/5 focus-visible:ring-2 focus-visible:ring-brand/50"
+                                    icon={<ChevronDown size={18} aria-hidden="true" />}
+                                    aria-label="Adicionar uma observação ao relato"
                                 >
                                     OBSERVAR
                                 </Button>
@@ -189,7 +191,7 @@ export default function Registrar() {
                         </div>
                     </>
                 ) : (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500" role="alert">
                         {message && (
                             <div className={`p-8 rounded-[2.5rem] text-center font-industrial text-2xl tracking-widest border-2 shadow-xl ${message.includes('ERRO')
                                 ? 'bg-danger/10 border-danger/20 text-danger'

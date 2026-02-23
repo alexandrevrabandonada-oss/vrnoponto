@@ -62,31 +62,32 @@ export default function Home() {
         <MutiraoBanner />
 
         {/* Hero Section */}
-        <Card className={`text-center !p-10 !rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-brand/10 transition-all duration-500 ${isHeroSuccess ? 'scale-[1.02] border-brand/40 shadow-brand/10' : ''}`} variant="surface">
-          <Badge variant="brand" className="mb-8 px-4 py-2 bg-brand/10 border-brand/20 !text-brand text-xs">
+        <Card className={`text-center !p-10 !rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-brand/10 transition-all duration-500 focus-within:ring-2 focus-within:ring-brand/50 ${isHeroSuccess ? 'scale-[1.02] border-brand/40 shadow-brand/10' : ''}`} variant="surface">
+          <Badge variant="brand" className="mb-8 px-4 py-2 bg-brand/10 border-brand/20 !text-brand text-xs font-bold">
             <Clock size={14} className="mr-2" />
-            Auditoria em 10 segundos
+            Veredito em 10 segundos
           </Badge>
 
           <h1 className="text-5xl font-industrial leading-[0.85] tracking-tighter text-white">
             TÁ NO PONTO?<br />
-            <span className="text-brand uppercase">REGISTRA AGORA.</span>
+            <span className="text-brand uppercase selection:bg-brand selection:text-black">REGISTRE AGORA</span>
           </h1>
 
           <Link href="/no-ponto" passHref legacyBehavior>
             <Button
-              className={`mt-12 w-full h-20 !text-2xl hover:scale-[1.05] active:scale-[0.95] shadow-brand/20 transition-all font-industrial tracking-tight ${isHeroSuccess ? '!bg-emerald-500 !text-white' : ''}`}
+              className={`mt-12 w-full h-20 !text-2xl hover:scale-[1.05] active:scale-[0.95] focus-visible:ring-4 focus-visible:ring-brand/50 shadow-brand/20 transition-all font-industrial tracking-tight ${isHeroSuccess ? '!bg-emerald-500 !text-white' : ''}`}
               icon={isHeroSuccess ? null : <ArrowRight size={28} />}
               iconPosition="right"
               loading={isHeroLoading}
               onClick={handleHeroClick}
+              aria-label="Iniciar registro de presença no ponto"
             >
               <div className="flex items-center gap-4">
                 {isHeroSuccess ? (
-                  <span className="animate-scale-in">REGISTRADO!</span>
+                  <span className="animate-scale-in">RELATO ENVIADO!</span>
                 ) : (
                   <>
-                    <MapPin size={28} />
+                    <MapPin size={28} aria-hidden="true" />
                     estou no ponto
                   </>
                 )}
@@ -97,20 +98,20 @@ export default function Home() {
           {/* Secondary Shortcuts - Discretos, abaixo do CTA principal */}
           <div className="mt-8 flex items-center justify-center gap-6">
             <Link href="/bairros"
-              className="flex items-center gap-1.5 text-muted-foreground text-[10px] font-black uppercase tracking-widest hover:text-brand transition">
-              <MapPin size={12} /> Ver Bairros
+              className="min-h-[44px] flex items-center gap-1.5 text-white/60 text-[10px] font-black uppercase tracking-widest hover:text-brand focus-visible:text-brand outline-none transition px-2">
+              <MapPin size={12} aria-hidden="true" /> Ver Bairros
             </Link>
-            <div className="w-1 h-1 rounded-full bg-white/10" />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/5" aria-hidden="true" />
             <Link href="/mapa/bairros"
-              className="flex items-center gap-1.5 text-muted-foreground text-[10px] font-black uppercase tracking-widest hover:text-brand transition">
-              <ChevronRight size={14} /> Ver Mapa
+              className="min-h-[44px] flex items-center gap-1.5 text-white/60 text-[10px] font-black uppercase tracking-widest hover:text-brand focus-visible:text-brand outline-none transition px-2">
+              <ChevronRight size={14} aria-hidden="true" /> Ver Mapa
             </Link>
           </div>
 
-          <div className="mt-8 pt-8 border-t border-white/5 space-y-1 font-sans opacity-60">
-            <p className="text-white text-[10px] font-black uppercase tracking-widest italic flex items-center justify-center gap-2">
-              <ShieldCheck size={12} className="text-brand" />
-              Anônimo. Sem login. Gratuito.
+          <div className="mt-8 pt-8 border-t border-white/5 space-y-1 font-sans">
+            <p className="text-white/80 text-[10px] font-black uppercase tracking-widest italic flex items-center justify-center gap-2">
+              <ShieldCheck size={12} className="text-brand" aria-hidden="true" />
+              Anonimato Garantido — Sem Login
             </p>
           </div>
         </Card>

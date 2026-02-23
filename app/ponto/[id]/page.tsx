@@ -136,7 +136,7 @@ export default function PontoDetailPage() {
                                 variant={alert.severity === 'CRIT' ? 'error' : 'warning'}
                                 title="Alerta de Demora"
                             >
-                                Aumento de <span className="text-white">+{alert.delta_pct}%</span> na mediana em relação à semana anterior.
+                                Aumento de <span className="text-white">+{alert.delta_pct}%</span> no tempo típico de espera em relação à semana anterior.
                             </InlineAlert>
                         ))}
                     </div>
@@ -149,7 +149,7 @@ export default function PontoDetailPage() {
                         <div className="text-2xl font-industrial italic text-brand">
                             {metrics.p50_wait_min ? `${metrics.p50_wait_min}M` : '--'}
                         </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Espera P50</div>
+                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Tempo Típico (P50)</div>
                     </Card>
                     <Card className="text-center transition-all border-white/5">
                         <BadgeAlert size={16} className="mx-auto mb-2 text-danger opacity-50" />
@@ -161,7 +161,7 @@ export default function PontoDetailPage() {
                     <Card className="text-center transition-all border-white/5">
                         <Users size={16} className="mx-auto mb-2 text-muted" />
                         <div className="text-2xl font-industrial text-white">{metrics.samples}</div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Amostras</div>
+                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Relatos</div>
                     </Card>
                     <Card className={`text-center transition-all border-white/5 ${isWorsening ? 'border-danger/20 bg-danger/5' : ''}`}>
                         <TrendingUp size={16} className={`mx-auto mb-2 ${isWorsening ? 'text-danger' : 'text-emerald-500'}`} />
@@ -195,7 +195,7 @@ export default function PontoDetailPage() {
                             <EmptyState
                                 icon={BarChart3}
                                 title="Histórico Vazio"
-                                description="Não há amostras suficientes para gerar o gráfico de tendência deste ponto."
+                                description="Ainda não recebemos relatos suficientes para gerar o gráfico de tendência deste ponto."
                             />
                         ) : (
                             weekly.slice().reverse().map((w) => (
@@ -205,7 +205,7 @@ export default function PontoDetailPage() {
                                     value={w.p50_wait_min}
                                     unit="min"
                                     trend={{
-                                        value: `${w.samples} amostras`,
+                                        value: `${w.samples} relatos`,
                                         isPositive: w.samples > 30
                                     }}
                                 />
@@ -260,7 +260,7 @@ export default function PontoDetailPage() {
                                         <div className={`text-lg font-industrial italic leading-none ${l.p50_wait_min > 15 ? 'text-danger' : 'text-brand'}`}>
                                             {l.p50_wait_min}m
                                         </div>
-                                        <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">p50</div>
+                                        <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">Típico</div>
                                     </div>
                                 }
                                 onClick={() => window.location.href = `/linha/${l.line_id}`}

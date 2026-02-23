@@ -199,8 +199,8 @@ export default function NoPonto() {
                     {/* ETAPA 2: Escolher Ponto */}
                     <div className={`transition-all duration-700 delay-100 ${location ? "opacity-100 translate-y-0" : "opacity-30 pointer-events-none translate-y-4"}`}>
                         <div className="flex items-center gap-2 mb-4 ml-1">
-                            <Badge variant="brand" className="h-5 w-5 !p-0 flex items-center justify-center rounded-full text-[10px]">2</Badge>
-                            <h2 className="text-[11px] font-black uppercase tracking-widest text-white/70">Onde você está?</h2>
+                            <Badge variant="brand" className="h-5 w-5 !p-0 flex items-center justify-center rounded-full text-[10px]" aria-hidden="true">2</Badge>
+                            <h2 className="text-[11px] font-black uppercase tracking-widest text-white/70">Qual é o seu ponto?</h2>
                         </div>
 
                         <Field
@@ -269,12 +269,13 @@ export default function NoPonto() {
                             onClick={handleArrived}
                             loading={isSubmitting}
                             disabled={!deviceId || !selectedStop}
-                            className="w-full h-24 !text-2xl !bg-brand !text-black hover:!scale-[1.05] active:!scale-[0.95] transition-all !rounded-[2rem] shadow-xl shadow-brand/10 border-0"
-                            icon={<ArrowRight size={28} />}
+                            className="w-full h-24 !text-2xl !bg-brand !text-black hover:!scale-[1.05] active:!scale-[0.95] focus-visible:ring-4 focus-visible:ring-brand/50 transition-all !rounded-[2rem] shadow-xl shadow-brand/10 border-0"
+                            icon={<ArrowRight size={28} aria-hidden="true" />}
                             iconPosition="right"
+                            aria-label="Confirmar que estou neste ponto para iniciar relato"
                         >
                             <div className="flex flex-col items-start text-left">
-                                <span className="text-[10px] uppercase font-black tracking-[0.2em] opacity-50 mb-1">Pronto para Auditar</span>
+                                <span className="text-[10px] uppercase font-black tracking-[0.2em] opacity-60 mb-1">Passo Final</span>
                                 <span className="font-industrial leading-none">ESTOU NO PONTO</span>
                             </div>
                         </Button>

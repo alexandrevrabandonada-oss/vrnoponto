@@ -172,8 +172,8 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                                         <tr>
                                             <th className="px-6 py-3 font-semibold">Rank</th>
                                             <th className="px-6 py-3 font-semibold">Ponto</th>
-                                            <th className="px-6 py-3 font-semibold text-right">Mediana (p50)</th>
-                                            <th className="px-6 py-3 font-semibold text-right">Crítico (p90)</th>
+                                            <th className="px-6 py-3 font-semibold text-right">Tempo Típico</th>
+                                            <th className="px-6 py-3 font-semibold text-right">Cenário Crítico</th>
                                             <th className="px-6 py-3 font-semibold text-center">Confiabilidade</th>
                                             <th className="px-6 py-3 font-semibold text-right">Var. %</th>
                                         </tr>
@@ -213,8 +213,8 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                                         <tr>
                                             <th className="px-6 py-3 font-semibold">Rank</th>
                                             <th className="px-6 py-3 font-semibold">Linha</th>
-                                            <th className="px-6 py-3 font-semibold text-right">Mediana (p50)</th>
-                                            <th className="px-6 py-3 font-semibold text-right">Crítico (p90)</th>
+                                            <th className="px-6 py-3 font-semibold text-right">Tempo Típico</th>
+                                            <th className="px-6 py-3 font-semibold text-right">Cenário Crítico</th>
                                             <th className="px-6 py-3 font-semibold text-center">Confiabilidade</th>
                                             <th className="px-6 py-3 font-semibold text-right">Var. %</th>
                                         </tr>
@@ -257,8 +257,8 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                             <strong>Aviso de Metodologia:</strong> Os dados deste relatório mensal são construídos de forma colaborativa (`crowdsourcing`), ou seja, alimentados pelos próprios passageiros que usam o sistema <em>VR no Ponto</em>.
                         </p>
                         <ul className="list-disc pl-5 space-y-1">
-                            <li><strong>Mediana (p50):</strong> Indica que 50% dos tempos reais registrados foram menores ou iguais a este valor. Utilizamos a mediana para eliminar pontos fora da curva (dados incorretos/extremos).</li>
-                            <li><strong>Crítico (p90):</strong> Indica o tempo em que 90% das passagens ocorreram (cenário de alta espera).</li>
+                            <li><strong>Tempo Típico (p50):</strong> Indica o tempo de espera que ocorre na maioria das vezes.</li>
+                            <li><strong>Cenário Crítico (p90):</strong> Indica o tempo em que 90% das passagens ocorreram (cenário de alta espera).</li>
                             <li>Apenas pontos/linhas com <strong>Mínimo de 3 amostras</strong> validadas no mês aparecem na consolidação final.</li>
                         </ul>
                     </div>

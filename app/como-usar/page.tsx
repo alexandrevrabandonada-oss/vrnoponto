@@ -8,7 +8,7 @@ export default function ComoUsar() {
         <AppShell title="GUIA DO USUÁRIO">
             <PageHeader
                 title="Como Funciona"
-                subtitle="O seu relato é a prova que falta"
+                subtitle="O seu relato é a prova de quem espera"
             />
 
             <div className="space-y-12">
@@ -43,9 +43,9 @@ export default function ComoUsar() {
                         <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
                             <Zap className="text-brand" size={20} />
                         </div>
-                        <h3 className="font-industrial text-lg italic uppercase tracking-widest text-white">2. Ação Simples</h3>
+                        <h3 className="font-industrial text-lg italic uppercase tracking-widest text-white">2. Relato Simples</h3>
                         <p className="text-[11px] text-muted font-black uppercase tracking-tight leading-relaxed">
-                            Basta um toque: &quot;Ônibus Passou&quot; ou &quot;Entrei&quot;. Sem formulários complexos.
+                            Basta um toque: &quot;Passou agora&quot; ou &quot;Entrei&quot;. Rápido e direto na parada.
                         </p>
                     </Card>
 
@@ -53,9 +53,9 @@ export default function ComoUsar() {
                         <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
                             <ShieldCheck className="text-brand" size={20} />
                         </div>
-                        <h3 className="font-industrial text-lg italic uppercase tracking-widest text-white">3. Prova L1-L3</h3>
+                        <h3 className="font-industrial text-lg italic uppercase tracking-widest text-white">3. Auditoria Coletiva</h3>
                         <p className="text-[11px] text-muted font-black uppercase tracking-tight leading-relaxed">
-                            Seu relato se une ao de outros para criar uma prova irrefutável de má prestação de serviço.
+                            Seu dado se une ao de outros para formar uma prova real da qualidade do serviço.
                         </p>
                     </Card>
                 </div>
@@ -101,7 +101,7 @@ export default function ComoUsar() {
                     <div className="space-y-2">
                         <h2 className="text-3xl font-industrial italic uppercase leading-none text-white">Auditoria Transparente</h2>
                         <p className="text-sm font-bold text-muted uppercase tracking-tight leading-relaxed max-w-md mx-auto">
-                            Ao usar o VR no Ponto, você contribui para um banco de dados público que expõe a realidade do transporte. Chega de intervalos &quot;fantasma&quot;.
+                            Ao usar o VR no Ponto, você alimenta um banco de dados público que expõe a realidade da nossa mobilidade.
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">

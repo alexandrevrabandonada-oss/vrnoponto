@@ -63,7 +63,7 @@ function ListView({ neighborhoods, critOnly }: { neighborhoods: NeighborhoodMapI
                                     <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
                                         <span>{n.stops_count} pontos</span>
                                         <span>·</span>
-                                        <span>{n.samples_total} amostras</span>
+                                        <span>{n.samples_total} relatos</span>
                                     </div>
                                 </div>
                             </div>
@@ -133,7 +133,7 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
                             </h1>
                         </div>
                         <p className="text-gray-500 dark:text-gray-400 mt-1">
-                            {hasPolygons ? 'Polígonos reais dos bairros' : 'Círculos por centroide'} — coloridos por nível de atraso (30d).
+                            {hasPolygons ? 'Mapa detalhado dos bairros' : 'Visualização aproximada por centroide'} — cores indicam o nível de atraso (30d).
                         </p>
                     </div>
 
