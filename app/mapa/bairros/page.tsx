@@ -4,6 +4,7 @@ import { Info, Loader2, Map as MapIcon, MenuSquare, Zap, MapPin, ArrowLeft, Hexa
 import NeighborhoodMapWrapper from '@/components/NeighborhoodMapWrapper';
 import { type NeighborhoodMapItem } from '@/components/NeighborhoodMap';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
+import { EmptyStateAudit } from '@/components/EmptyStateAudit';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,7 +78,7 @@ function ListView({ neighborhoods, critOnly }: { neighborhoods: NeighborhoodMapI
                     );
                 })}
                 {filtered.length === 0 && (
-                    <div className="text-center py-12 text-gray-400">Nenhum bairro encontrado com os filtros atuais.</div>
+                    <EmptyStateAudit />
                 )}
             </div>
         </div>

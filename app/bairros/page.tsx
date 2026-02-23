@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { AlertTriangle, BarChart3, Map as MapIcon } from 'lucide-react';
 import {
     AppShell, PageHeader, Button, Card, Divider,
-    EmptyState, SkeletonCard, SkeletonList, ListItem
+    SkeletonCard, SkeletonList, ListItem
 } from '@/components/ui';
+import { EmptyStateAudit } from '@/components/EmptyStateAudit';
 import { t } from '@/lib/copy';
 
 type NeighborhoodRow = {
@@ -98,8 +99,7 @@ export default function BairrosPage() {
 
                 <div className="space-y-3">
                     {neighborhoods.length === 0 ? (
-                        <EmptyState
-                            icon={BarChart3}
+                        <EmptyStateAudit
                             title="Sem Dados"
                             description="Não há dados de auditoria consolidados para gerar o ranking no momento."
                         />

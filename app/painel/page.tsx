@@ -5,8 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Clock, Bus, BarChart3 } from 'lucide-react';
 import {
     AppShell, PageHeader, Card, Divider,
-    EmptyState, SkeletonCard, SkeletonList, InlineAlert, MetricRow
+    SkeletonCard, SkeletonList, InlineAlert, MetricRow
 } from '@/components/ui';
+import { EmptyStateAudit } from '@/components/EmptyStateAudit';
 
 interface Line { id: string; code: string; name: string; }
 
@@ -173,10 +174,9 @@ function PainelContent() {
                 <Divider label="RANKING DE PIORES PONTOS" />
                 <div className="space-y-1">
                     {!stats?.criticalStops || stats.criticalStops.length === 0 ? (
-                        <EmptyState
-                            icon={BarChart3}
+                        <EmptyStateAudit
                             title="Operação Estável"
-                            description="Nenhum ponto de ônibus apresenta desvios críticos para os filtros selecionados."
+                            description="Nenhum ponto de ônibus apresenta desvios críticos para os filtros selecionados, ou dados insuficientes."
                         />
                     ) : (
                         <Card className="!p-0 overflow-hidden border-white/5">
