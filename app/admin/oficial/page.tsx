@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { PdfParserCard } from '@/components/admin/PdfParserCard';
+import { BatchPdfUploader } from '@/components/admin/BatchPdfUploader';
 import {
     PageHeader, Button, Card, Divider,
     Field, Input, Select, Switch
@@ -61,6 +62,10 @@ export default function AdminOficial() {
                 subtitle="Gestão de tabelas de horário e itinerários."
             />
 
+            <BatchPdfUploader onComplete={() => {
+                // Refresh logic if needed, PdfParserCard has its own timer or we can trigger it
+            }} />
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Upload Section */}
                 <Card className="border-white/5 bg-zinc-900/50">
@@ -103,8 +108,8 @@ export default function AdminOficial() {
 
                         {message && (
                             <div className={`p-4 rounded-xl text-[11px] font-bold flex items-center gap-2 animate-in slide-in-from-top-1 ${message.includes('ERRO')
-                                    ? 'bg-danger/10 border-danger/20 text-danger'
-                                    : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                ? 'bg-danger/10 border-danger/20 text-danger'
+                                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                                 }`}>
                                 {message.includes('ERRO') ? <AlertCircle size={14} /> : <CheckCircle2 size={14} />}
                                 {message}

@@ -14,20 +14,46 @@ export type ParseRunResult = {
         timesFound: number;
         daySectionsFound: number;
         errors: string[];
+        lineCode?: string | null;
+        validFrom?: string | null;
     };
 };
 
 /**
+ * Detecta metadados (Linha e Data) de um PDF da PMVR.
+ */
+export async function detectMetadataFromPdf(pdfBuffer: Buffer): Promise<{ lineCode: string | null, validFrom: string | null }> {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdf = require('pdf-parse');
+    const RAW = await pdf(pdfBuffer).catch(() => null);
+    if (!RAW) return { lineCode: null, validFrom: null };
+
+    const text = RAW.text.toUpperCase();
+
+    // Regex para Linha: Procura "LINHA:" seguido de números
+    const lineMatch = text.match(/LINHA:?\s*(\d+)/);
+    const lineCode = lineMatch ? lineMatch[1] : null;
+
+    // Regex para Data: Procura "PARTIR" seguido de uma data DD/MM/AAAA
+    const dateMatch = text.match(/PARTIR\s*(\d{2}\/\d{2}\/\d{4})/);
+    const validFrom = dateMatch ? dateMatch[1] : null;
+
+    return { lineCode, validFrom };
+}
+
+/**
  * Heurística de extração de PDFs da PMVR.
- * Procura por divisões de Dias Úteis, Sábado e Domingo.
- * Extrai todos os HH:MM (00:00 - 23:59) e os associa à última divisão lida.
  */
 export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResult> {
     const meta: ParseRunResult['meta'] = { timesFound: 0, daySectionsFound: 0, errors: [] };
 
+    // Detect Metadata (Line and ValidFrom)
+    const metadata = await detectMetadataFromPdf(pdfBuffer);
+    meta.lineCode = metadata.lineCode;
+    meta.validFrom = metadata.validFrom;
+
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const pdf = require('pdf-parse');
-
     const RAW = await pdf(pdfBuffer).catch((e: Error) => {
         meta.errors.push(`Falha fatal no pdf-parse: ${e.message}`);
         return null;
