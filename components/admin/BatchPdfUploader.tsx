@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { CloudUpload, FileText, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
+import { createClient } from '@/lib/supabase/client';
 
 interface BatchResult {
     fileName: string;
@@ -15,6 +16,56 @@ export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
     const [files, setFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [results, setResults] = useState<BatchResult[]>([]);
+
+    const loadRecentResults = useCallback(async () => {
+        try {
+            const supabase = createClient();
+            const { data } = await supabase
+                .from('official_schedules')
+                .select(`
+                    line_code,
+                    pdf_path,
+                    created_at,
+                    runs: official_schedule_parse_runs(status, parsed_at, meta)
+                `)
+                .eq('doc_type', 'HORARIO')
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            if (!data) return;
+
+            const mapped: BatchResult[] = data.map((doc: {
+                line_code: string | null;
+                pdf_path: string | null;
+                runs: Array<{ status: string; parsed_at: string; meta?: { errors?: string[]; timesFound?: number } }> | null;
+            }) => {
+                const runs = doc.runs || [];
+                const latestRun = runs.length > 0
+                    ? runs.sort((a, b) => new Date(b.parsed_at).getTime() - new Date(a.parsed_at).getTime())[0]
+                    : null;
+
+                const isFail = latestRun?.status === 'FAIL';
+                const errors = latestRun?.meta?.errors || [];
+                const fileName = doc.pdf_path?.split('/').pop() || `Linha ${doc.line_code || '-'}`;
+
+                return {
+                    fileName,
+                    lineCode: doc.line_code || undefined,
+                    status: isFail ? 'ERROR' : 'OK',
+                    error: isFail ? (errors[0] || 'Falha no processamento') : undefined,
+                    tripsCount: typeof latestRun?.meta?.timesFound === 'number' ? latestRun.meta.timesFound : undefined
+                };
+            });
+
+            setResults(mapped);
+        } catch {
+            // ignore loading errors and keep current results
+        }
+    }, []);
+
+    useEffect(() => {
+        loadRecentResults();
+    }, [loadRecentResults]);
 
     const onDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -81,6 +132,7 @@ export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
         }
 
         setIsUploading(false);
+        await loadRecentResults();
         if (onComplete) onComplete();
     };
 
@@ -162,7 +214,7 @@ export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
                 {/* Results List */}
                 {results.length > 0 && (
                     <div className="mt-8 space-y-4">
-                        <Divider label="RESULTADOS DO ÚLTIMO LOTE" />
+                        <Divider label="RESULTADOS RECENTES (PERSISTIDOS)" />
                         <div className="space-y-2">
                             {results.map((r, i) => (
                                 <div key={i} className={`p-4 rounded-2xl border flex items-center justify-between gap-4 ${r.status === 'OK' ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-danger/10 border-danger/20'
