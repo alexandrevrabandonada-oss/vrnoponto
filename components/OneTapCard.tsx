@@ -54,8 +54,8 @@ export const OneTapCard = ({
         LOW: 'Possível Opção'
     };
 
-    const passedLabel = mode === 'no-ponto' ? 'Ônibus Passou' : 'VAI PASSAR';
-    const boardingLabel = mode === 'no-ponto' ? 'Entrei' : 'EMBARCAR';
+    const passedLabel = "Passou agora";
+    const boardingLabel = "Entrei";
 
     return (
         <Card variant="surface2" className="border-brand/30 bg-brand/5 p-5 sm:p-6 overflow-hidden relative">
@@ -87,18 +87,18 @@ export const OneTapCard = ({
                 <Button
                     onClick={() => record('passed_by')}
                     loading={isSubmitting}
-                    className="h-16 !text-lg !bg-orange-600 hover:!bg-orange-500 !text-white flex-col !gap-0"
+                    className="h-20 !text-xl !bg-orange-600 hover:!bg-orange-500 !text-white flex-col !gap-1 !rounded-2xl"
                 >
-                    <span className="text-[10px] uppercase font-black tracking-widest opacity-70">Passou agora</span>
+                    <span className="text-[10px] uppercase font-black tracking-widest opacity-70 leading-none">Visto de Fora</span>
                     <span className="font-industrial tracking-tight">{passedLabel}</span>
                 </Button>
 
                 <Button
                     onClick={() => record('boarding')}
                     loading={isSubmitting}
-                    className="h-16 !text-lg !bg-emerald-600 hover:!bg-emerald-500 !text-white flex-col !gap-0"
+                    className="h-20 !text-xl !bg-emerald-600 hover:!bg-emerald-500 !text-white flex-col !gap-1 !rounded-2xl"
                 >
-                    <span className="text-[10px] uppercase font-black tracking-widest opacity-70">Entrar no</span>
+                    <span className="text-[10px] uppercase font-black tracking-widest opacity-70 leading-none">Vou Embarcar</span>
                     <span className="font-industrial tracking-tight">{boardingLabel}</span>
                 </Button>
             </div>

@@ -70,22 +70,12 @@ export default function Home() {
 
           <h1 className="text-5xl font-industrial leading-[0.85] tracking-tighter text-white">
             TÁ NO PONTO?<br />
-            <span className="text-brand">REGISTRA AGORA.</span>
+            <span className="text-brand uppercase">REGISTRA AGORA.</span>
           </h1>
-
-          <div className="mt-8 space-y-1 font-sans">
-            <p className="text-white text-sm font-black uppercase tracking-widest italic flex items-center justify-center gap-2">
-              <ShieldCheck size={14} className="text-brand" />
-              Anônimo. Sem login. Gratuito.
-            </p>
-            <p className="text-muted text-[10px] font-bold uppercase tracking-tight">
-              Seu registro vira dado de auditoria oficial.
-            </p>
-          </div>
 
           <Link href="/no-ponto" passHref legacyBehavior>
             <Button
-              className={`mt-12 w-full h-18 !text-2xl hover:scale-[1.02] active:scale-[0.98] shadow-brand/20 transition-all ${isHeroSuccess ? '!bg-emerald-500 !text-white' : ''}`}
+              className={`mt-12 w-full h-20 !text-2xl hover:scale-[1.05] active:scale-[0.95] shadow-brand/20 transition-all font-industrial tracking-tight ${isHeroSuccess ? '!bg-emerald-500 !text-white' : ''}`}
               icon={isHeroSuccess ? null : <ArrowRight size={28} />}
               iconPosition="right"
               loading={isHeroLoading}
@@ -104,17 +94,43 @@ export default function Home() {
             </Button>
           </Link>
 
-          <Link href="/como-usar"
-            className="mt-8 flex items-center justify-center gap-2 text-muted-foreground text-[10px] font-black uppercase tracking-widest hover:text-brand transition">
-            Entenda como a auditoria funciona <ChevronRight size={14} />
-          </Link>
+          {/* Secondary Shortcuts - Discretos, abaixo do CTA principal */}
+          <div className="mt-8 flex items-center justify-center gap-6">
+            <Link href="/bairros"
+              className="flex items-center gap-1.5 text-muted-foreground text-[10px] font-black uppercase tracking-widest hover:text-brand transition">
+              <MapPin size={12} /> Ver Bairros
+            </Link>
+            <div className="w-1 h-1 rounded-full bg-white/10" />
+            <Link href="/mapa/bairros"
+              className="flex items-center gap-1.5 text-muted-foreground text-[10px] font-black uppercase tracking-widest hover:text-brand transition">
+              <ChevronRight size={14} /> Ver Mapa
+            </Link>
+          </div>
+
+          <div className="mt-8 pt-8 border-t border-white/5 space-y-1 font-sans opacity-60">
+            <p className="text-white text-[10px] font-black uppercase tracking-widest italic flex items-center justify-center gap-2">
+              <ShieldCheck size={12} className="text-brand" />
+              Anônimo. Sem login. Gratuito.
+            </p>
+          </div>
         </Card>
 
-        {/* Favorites */}
-        <FavoritesSection />
+        {/* Mutirao Banner (Only shows if active) */}
+        <MutiraoBanner />
 
-        {/* Quick Actions */}
-        <QuickActions />
+        {/* Favorites & Quick Actions (Simplified display) */}
+        <div className="space-y-12 pb-10">
+          <FavoritesSection />
+
+          <div className="pt-4">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-[1px] flex-1 bg-white/5" />
+              <span className="text-[9px] font-black text-muted-foreground tracking-[0.3em] uppercase">Mais Consultas</span>
+              <div className="h-[1px] flex-1 bg-white/5" />
+            </div>
+            <QuickActions />
+          </div>
+        </div>
       </div>
 
       {/* Footer */}

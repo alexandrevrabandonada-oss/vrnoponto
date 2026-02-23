@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { HelpModal } from '@/components/HelpModal';
-import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle } from 'lucide-react';
+import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2 } from 'lucide-react';
 import { StopSuggestionModal } from '@/components/StopSuggestionModal';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
 import {
     AppShell, PageHeader, Card, Divider, Button,
-    Field, Select, InlineAlert
+    Field, Select, InlineAlert, Badge
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { enqueueEvent } from '@/lib/offlineQueue';
@@ -177,66 +177,43 @@ export default function NoPonto() {
             />
 
             <div className="space-y-6">
-                {/* Offline Queue UI */}
-                {(!isOnline || pendingCount > 0) && (
-                    <InlineAlert
-                        variant={isOnline ? "warning" : "error"}
-                        title={isOnline ? "Fila Aguardando Sincronismo" : "Conexão Instável (Offline)"}
-                    >
-                        <div className="flex flex-col gap-3 mt-1">
-                            <p className="text-xs">
-                                {!isOnline
-                                    ? "Você está offline. O check-in será salvo e enviado automaticamente quando a conexão voltar."
-                                    : "A rede voltou. Você possui check-ins salvos precisando ser despachados."}
-                            </p>
-                            {pendingCount > 0 && (
-                                <div className="flex items-center justify-between">
-                                    <span className="font-mono text-xs font-bold bg-black/20 px-2 py-1 rounded">PENDENTES: {pendingCount}</span>
-                                    <Button
-                                        variant="secondary"
-                                        disabled={!isOnline || isSyncing}
-                                        onClick={syncNow}
-                                        loading={isSyncing}
-                                        className="h-8 !text-xs !px-3"
-                                    >
-                                        Sincronizar Agora
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
-                    </InlineAlert>
-                )}
-
-                {/* Status GPS */}
-                <Card variant="surface2" className="border-brand/10 bg-brand/5">
-                    <div className="flex items-center gap-3">
-                        <Navigation size={16} className={location ? "text-brand" : "text-white/40 animate-pulse"} />
-                        <div className="flex-1">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-brand">Status do Sensor</p>
-                            <p className="text-xs font-bold text-white uppercase tracking-tight">{gpsStatus}</p>
-                        </div>
-                        {location && (
-                            <div className="text-right">
-                                <p className="text-[8px] font-mono text-white/40">LAT: {location.lat.toFixed(4)}</p>
-                                <p className="text-[8px] font-mono text-white/40">LNG: {location.lng.toFixed(4)}</p>
+                <div className="space-y-8">
+                    {/* ETAPA 1: GPS (Automático) */}
+                    <Card variant={location ? "surface" : "surface2"} className={`transition-all duration-500 border-l-4 ${location ? "border-l-brand bg-brand/5 shadow-brand/5" : "border-l-white/10"}`}>
+                        <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-2xl transition-all ${location ? "bg-brand text-black scale-110" : "bg-white/5 text-white/20 animate-pulse"}`}>
+                                {location ? <CheckCircle2 size={24} /> : <Navigation size={24} />}
                             </div>
-                        )}
-                    </div>
-                </Card>
+                            <div className="flex-1">
+                                <div className="flex items-center justify-between mb-1">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand">Passo 1</p>
+                                    {location && <span className="text-[8px] font-mono text-brand/50">{location.lat.toFixed(4)}, {location.lng.toFixed(4)}</span>}
+                                </div>
+                                <p className="text-sm font-black text-white uppercase tracking-tight">
+                                    {location ? "Posição Capturada" : gpsStatus}
+                                </p>
+                            </div>
+                        </div>
+                    </Card>
 
-                {/* Seleção de Parada Dinâmica */}
-                {!hasArrived && (
-                    <div className="space-y-6">
+                    {/* ETAPA 2: Escolher Ponto */}
+                    <div className={`transition-all duration-700 delay-100 ${location ? "opacity-100 translate-y-0" : "opacity-30 pointer-events-none translate-y-4"}`}>
+                        <div className="flex items-center gap-2 mb-4 ml-1">
+                            <Badge variant="brand" className="h-5 w-5 !p-0 flex items-center justify-center rounded-full text-[10px]">2</Badge>
+                            <h2 className="text-[11px] font-black uppercase tracking-widest text-white/70">Onde você está?</h2>
+                        </div>
+
                         <Field
-                            label="Onde você está?"
-                            hint={isLoadingStops ? "Buscando pontos próximos..." : "Selecione o ponto correto para validar"}
+                            label=""
+                            hint={isLoadingStops ? "Buscando pontos próximos..." : ""}
                         >
                             {nearestStops.length > 0 ? (
                                 <Select
                                     id="stop"
                                     value={selectedStop}
                                     onChange={(e) => setSelectedStop(e.target.value)}
-                                    icon={<MapPin size={16} />}
+                                    icon={<MapPin size={18} className="text-brand" />}
+                                    className="h-16 !text-base font-bold !bg-white/[0.03] !border-white/10"
                                 >
                                     {nearestStops.map((stop) => (
                                         <option key={stop.id} value={stop.id} className="bg-zinc-900">
@@ -245,44 +222,64 @@ export default function NoPonto() {
                                     ))}
                                 </Select>
                             ) : (
-                                <div className="p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01] text-center space-y-4">
-                                    <AlertCircle size={28} className="mx-auto text-white/20" />
-                                    <p className="text-[10px] text-muted font-black uppercase tracking-tight leading-relaxed">
-                                        {location ? "Nenhum ponto encontrado perto de você." : "Aguardando GPS para listar pontos..."}
-                                    </p>
+                                <div className="p-8 border-2 border-dashed border-white/5 rounded-[2rem] bg-white/[0.01] text-center space-y-5">
+                                    <div className="p-4 bg-white/5 w-fit mx-auto rounded-2xl">
+                                        <AlertCircle size={32} className="text-white/20" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-xs text-white/60 font-bold uppercase tracking-tight">
+                                            {location ? "Nenhum ponto por perto" : "Aguardando GPS..."}
+                                        </p>
+                                        <p className="text-[10px] text-white/30 font-medium leading-relaxed">
+                                            Não encontramos paradas no raio de 300m da sua posição atual.
+                                        </p>
+                                    </div>
+
                                     {location && !isLoadingStops && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                trackTelemetry('stop_suggestion_open');
-                                                setShowSuggestionModal(true);
-                                            }}
-                                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand/10 border border-brand/20 text-brand text-xs font-black uppercase tracking-widest hover:bg-brand/20 transition-colors"
-                                        >
-                                            <PlusCircle size={16} />
-                                            Sugerir ponto aqui
-                                        </button>
+                                        <div className="flex flex-col gap-3 pt-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    trackTelemetry('stop_suggestion_open');
+                                                    setShowSuggestionModal(true);
+                                                }}
+                                                className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-brand text-black text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                            >
+                                                <PlusCircle size={18} />
+                                                Sugerir ponto aqui
+                                            </button>
+                                            <Link href="/bairros" className="text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-white transition-colors py-2">
+                                                Ou buscar manualmente
+                                            </Link>
+                                        </div>
                                     )}
                                 </div>
                             )}
                         </Field>
-
-                        <Divider label="AÇÃO DE AUDITORIA" />
-
-                        <div className="space-y-4">
-                            <Button
-                                onClick={handleArrived}
-                                loading={isSubmitting}
-                                disabled={!deviceId || !selectedStop}
-                                className="w-full h-20 !text-xl !bg-brand !text-black hover:!scale-[1.02] active:!scale-[0.98] transition-all"
-                                icon={<MapPin size={24} />}
-                                iconPosition="right"
-                            >
-                                ESTOU NO PONTO
-                            </Button>
-                        </div>
                     </div>
-                )}
+
+                    {/* ETAPA 3: Ação Final */}
+                    <div className={`transition-all duration-700 delay-200 ${selectedStop && !hasArrived ? "opacity-100 translate-y-0" : "opacity-30 pointer-events-none translate-y-4"}`}>
+                        <div className="flex items-center gap-2 mb-4 ml-1">
+                            <Badge variant="brand" className="h-5 w-5 !p-0 flex items-center justify-center rounded-full text-[10px]">3</Badge>
+                            <h2 className="text-[11px] font-black uppercase tracking-widest text-white/70">Confirmar Presença</h2>
+                        </div>
+
+                        <Button
+                            onClick={handleArrived}
+                            loading={isSubmitting}
+                            disabled={!deviceId || !selectedStop}
+                            className="w-full h-24 !text-2xl !bg-brand !text-black hover:!scale-[1.05] active:!scale-[0.95] transition-all !rounded-[2rem] shadow-xl shadow-brand/10 border-0"
+                            icon={<ArrowRight size={28} />}
+                            iconPosition="right"
+                        >
+                            <div className="flex flex-col items-start text-left">
+                                <span className="text-[10px] uppercase font-black tracking-[0.2em] opacity-50 mb-1">Pronto para Auditar</span>
+                                <span className="font-industrial leading-none">ESTOU NO PONTO</span>
+                            </div>
+                        </Button>
+                    </div>
+                </div>
 
                 {/* Feedback da Chegada */}
                 {message && (
