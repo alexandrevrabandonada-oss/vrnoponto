@@ -11,6 +11,14 @@ function extractLineCodeFromFileName(fileName: string): string | null {
     return generic ? generic[1] : null;
 }
 
+function normalizeLineCode(value: string): string {
+    return value
+        .toUpperCase()
+        .replace(/^LINHA[\s_-]*/i, '')
+        .replace(/\s+/g, '')
+        .trim();
+}
+
 export async function POST(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
@@ -39,7 +47,8 @@ export async function POST(req: Request) {
             const fileName = file.name;
             const buffer = Buffer.from(await file.arrayBuffer());
 
-            const lineCode = extractLineCodeFromFileName(fileName);
+            const detectedLineCode = extractLineCodeFromFileName(fileName);
+            const lineCode = detectedLineCode ? normalizeLineCode(detectedLineCode) : null;
             const normalizedValidFrom = new Date().toISOString().slice(0, 10);
 
             if (!lineCode) {
@@ -47,15 +56,47 @@ export async function POST(req: Request) {
                 continue;
             }
 
-            const { data: line, error: lineErr } = await supabase
+            const { data: lineByCode, error: lineErr } = await supabase
                 .from('lines')
                 .select('id, code')
                 .eq('code', lineCode)
-                .single();
+                .limit(1)
+                .maybeSingle();
 
-            if (lineErr || !line) {
-                results.push({ fileName, lineCode, status: 'ERROR', error: `Linha ${lineCode} não encontrada no sistema` });
+            if (lineErr) {
+                results.push({
+                    fileName,
+                    lineCode,
+                    status: 'ERROR',
+                    error: `Falha ao consultar linha ${lineCode}: ${lineErr.message || 'erro desconhecido'}`
+                });
                 continue;
+            }
+
+            let line = lineByCode;
+
+            if (!line) {
+                const { data: createdLine, error: createLineErr } = await supabase
+                    .from('lines')
+                    .insert({
+                        code: lineCode,
+                        name: `Linha ${lineCode}`,
+                        is_active: true
+                    })
+                    .select('id, code')
+                    .single();
+
+                if (createLineErr || !createdLine) {
+                    results.push({
+                        fileName,
+                        lineCode,
+                        status: 'ERROR',
+                        error: `Falha ao criar linha ${lineCode}: ${createLineErr?.message || 'erro desconhecido'}`
+                    });
+                    continue;
+                }
+
+                line = createdLine;
             }
 
             let { data: variant } = await supabase
