@@ -25,6 +25,7 @@ Gerado em: 2026-02-22T21:13:40.791Z
 - /admin/parceiros
 - /admin/pontos
 - /admin/sugestoes
+- /admin/sugestoes/mapa
 - /admin/status
 - /alertas
 - /bairro/[slug]
@@ -60,8 +61,10 @@ Gerado em: 2026-02-22T21:13:40.791Z
 - /api/admin/run-alerts
 - /api/admin/stop-suggestions
 - /api/admin/stop-suggestions/approve
+- /api/admin/stop-suggestions/map
 - /api/admin/stop-suggestions/reject
 - /api/admin/stops/import
+- /api/admin/stops/import-osm
 - /api/admin/sync-official
 - /api/admin/system-status
 - /api/admin/telegram/digest

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { CheckCircle, XCircle, MapPin, Clock, RefreshCw, Users } from 'lucide-react';
+import { CheckCircle, XCircle, MapPin, Clock, RefreshCw, Users, Map as MapIcon } from 'lucide-react';
+import Link from 'next/link';
 
 interface Suggestion {
     id: string;
@@ -109,13 +110,22 @@ export default function AdminSugestoes() {
                     <h1 className="text-2xl font-bold text-white">Sugestões de Pontos</h1>
                     <p className="text-sm text-white/50">Aprove ou rejeite sugestões de novos pontos de ônibus.</p>
                 </div>
-                <button
-                    onClick={fetchSuggestions}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-white/60 hover:text-white hover:bg-white/10 transition-colors"
-                >
-                    <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-                    Atualizar
-                </button>
+                <div className="flex items-center gap-2">
+                    <Link
+                        href="/admin/sugestoes/mapa"
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-brand/10 border border-brand/20 text-xs font-bold text-brand hover:bg-brand/20 transition-colors"
+                    >
+                        <MapIcon size={14} />
+                        Mapa
+                    </Link>
+                    <button
+                        onClick={fetchSuggestions}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                        Atualizar
+                    </button>
+                </div>
             </div>
 
             {/* Status filter tabs */}
