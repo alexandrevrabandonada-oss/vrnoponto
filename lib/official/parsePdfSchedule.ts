@@ -19,6 +19,12 @@ type PdfJsModule = {
     }) => PdfLoadingTask;
 };
 
+type TextExtractResult = {
+    text: string | null;
+    engine: 'pdf-parse' | 'pdfjs' | null;
+    errors: string[];
+};
+
 export type ParsedHourlyTrip = {
     dayGroup: 'WEEKDAY' | 'SAT' | 'SUN';
     hour: number;
@@ -35,12 +41,56 @@ export type ParseRunResult = {
         errors: string[];
         lineCode?: string | null;
         validFrom?: string | null;
+        parserEngine?: string | null;
+        extractErrors?: string[];
     };
 };
+
+function errorToMessage(err: unknown): string {
+    if (err instanceof Error) return err.message;
+    if (typeof err === 'string') return err;
+    return String(err);
+}
 
 async function loadPdfJs(): Promise<PdfJsModule> {
     const mod = await import('pdfjs-dist/legacy/build/pdf.mjs');
     return mod as unknown as PdfJsModule;
+}
+
+type PdfParseTextResult = {
+    text: string | null;
+    error: string | null;
+};
+
+type PdfParseInstance = {
+    getText: () => Promise<{ text?: string | null }>;
+    destroy?: () => Promise<void>;
+};
+
+async function extractPdfTextWithPdfParse(pdfBuffer: Buffer): Promise<PdfParseTextResult> {
+    let parser: PdfParseInstance | null = null;
+
+    try {
+        const mod = await import('pdf-parse');
+        const PDFParseCtor = (mod as { PDFParse?: new (opts: { data: Buffer }) => PdfParseInstance }).PDFParse;
+
+        if (typeof PDFParseCtor !== 'function') {
+            return { text: null, error: 'Export PDFParse não encontrado no pacote pdf-parse.' };
+        }
+
+        const parserInstance = new PDFParseCtor({ data: pdfBuffer });
+        parser = parserInstance;
+
+        const result = await parserInstance.getText();
+        const text = typeof result?.text === 'string' ? result.text : null;
+        return { text, error: null };
+    } catch (err) {
+        return { text: null, error: errorToMessage(err) };
+    } finally {
+        if (parser?.destroy) {
+            await parser.destroy().catch(() => undefined);
+        }
+    }
 }
 
 async function extractPageText(page: PdfPage): Promise<string> {
@@ -67,7 +117,7 @@ async function extractPageText(page: PdfPage): Promise<string> {
     return lines.join('\n');
 }
 
-async function extractPdfText(pdfBuffer: Buffer): Promise<string | null> {
+async function extractPdfTextWithPdfJs(pdfBuffer: Buffer): Promise<PdfParseTextResult> {
     let document: PdfDocument | null = null;
 
     try {
@@ -89,9 +139,9 @@ async function extractPdfText(pdfBuffer: Buffer): Promise<string | null> {
             page.cleanup?.();
         }
 
-        return pages.join('\n');
-    } catch {
-        return null;
+        return { text: pages.join('\n'), error: null };
+    } catch (err) {
+        return { text: null, error: errorToMessage(err) };
     } finally {
         if (document) {
             await document.destroy().catch(() => undefined);
@@ -99,10 +149,41 @@ async function extractPdfText(pdfBuffer: Buffer): Promise<string | null> {
     }
 }
 
-export async function detectMetadataFromPdf(pdfBuffer: Buffer): Promise<{ lineCode: string | null, validFrom: string | null }> {
-    const textRaw = await extractPdfText(pdfBuffer);
-    if (!textRaw) return { lineCode: null, validFrom: null };
+async function extractPdfText(pdfBuffer: Buffer): Promise<TextExtractResult> {
+    const errors: string[] = [];
 
+    const pdfParseResult = await extractPdfTextWithPdfParse(pdfBuffer);
+    if (pdfParseResult.text) {
+        return {
+            text: pdfParseResult.text,
+            engine: 'pdf-parse',
+            errors
+        };
+    }
+    if (pdfParseResult.error) {
+        errors.push(`pdf-parse: ${pdfParseResult.error}`);
+    }
+
+    const pdfJsResult = await extractPdfTextWithPdfJs(pdfBuffer);
+    if (pdfJsResult.text) {
+        return {
+            text: pdfJsResult.text,
+            engine: 'pdfjs',
+            errors
+        };
+    }
+    if (pdfJsResult.error) {
+        errors.push(`pdfjs: ${pdfJsResult.error}`);
+    }
+
+    return {
+        text: null,
+        engine: null,
+        errors
+    };
+}
+
+function detectMetadataFromText(textRaw: string): { lineCode: string | null, validFrom: string | null } {
     const text = textRaw.toUpperCase();
 
     const lineMatch = text.match(/LINHA[:\s-]*([0-9]{2,3}[A-Z]?)/);
@@ -115,20 +196,35 @@ export async function detectMetadataFromPdf(pdfBuffer: Buffer): Promise<{ lineCo
     return { lineCode, validFrom };
 }
 
+export async function detectMetadataFromPdf(pdfBuffer: Buffer): Promise<{ lineCode: string | null, validFrom: string | null }> {
+    const extraction = await extractPdfText(pdfBuffer);
+    if (!extraction.text) return { lineCode: null, validFrom: null };
+
+    return detectMetadataFromText(extraction.text);
+}
+
 export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResult> {
     const meta: ParseRunResult['meta'] = { timesFound: 0, daySectionsFound: 0, errors: [] };
 
-    const metadata = await detectMetadataFromPdf(pdfBuffer);
-    meta.lineCode = metadata.lineCode;
-    meta.validFrom = metadata.validFrom;
+    const extraction = await extractPdfText(pdfBuffer);
+    meta.parserEngine = extraction.engine;
+    if (extraction.errors.length > 0) {
+        meta.extractErrors = extraction.errors;
+    }
 
-    const text = await extractPdfText(pdfBuffer);
-    if (!text) {
+    if (!extraction.text) {
         meta.errors.push('Falha fatal no parser de PDF.');
+        if (extraction.errors.length > 0) {
+            meta.errors.push(extraction.errors[0]);
+        }
         return { status: 'FAIL', hourlyTrips: [], meta };
     }
 
-    const lines = text.split('\n');
+    const metadata = detectMetadataFromText(extraction.text);
+    meta.lineCode = metadata.lineCode;
+    meta.validFrom = metadata.validFrom;
+
+    const lines = extraction.text.split('\n');
 
     const tripsMap: Record<'WEEKDAY' | 'SAT' | 'SUN', Record<number, number>> = {
         WEEKDAY: {},
@@ -162,11 +258,11 @@ export async function parsePdfSchedule(pdfBuffer: Buffer): Promise<ParseRunResul
             continue;
         }
 
-        const timeMatches = line.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g);
+        const timeMatches = line.match(/([01]?\d|2[0-3])[:Hh.]([0-5]\d)/g);
         if (!timeMatches) continue;
 
         for (const t of timeMatches) {
-            const hourStr = t.split(':')[0];
+            const hourStr = t.split(/[:Hh.]/)[0];
             const hour = parseInt(hourStr, 10);
             if (hour < 0 || hour > 23) continue;
 
