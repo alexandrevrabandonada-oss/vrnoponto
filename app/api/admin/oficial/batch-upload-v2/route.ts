@@ -1,21 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
-import {
-    detectMetadataFromPdf,
-    parsePdfSchedule,
-    type ParseRunResult
-} from '@/lib/official/parsePdfSchedule';
 
 export const dynamic = 'force-dynamic';
-
-function normalizeValidFrom(value: string | null): string | null {
-    if (!value) return null;
-    const iso = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
-    const br = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (br) return `${br[3]}-${br[2]}-${br[1]}`;
-    return null;
-}
 
 function extractLineCodeFromFileName(fileName: string): string | null {
     const upper = fileName.toUpperCase();
@@ -23,20 +9,6 @@ function extractLineCodeFromFileName(fileName: string): string | null {
     if (named) return named[1];
     const generic = upper.match(/\b([0-9]{2,3}[A-Z]?)\b/);
     return generic ? generic[1] : null;
-}
-
-function fallbackParseResult(message: string, lineCode: string | null, validFrom: string | null): ParseRunResult {
-    return {
-        status: 'FAIL',
-        hourlyTrips: [],
-        meta: {
-            timesFound: 0,
-            daySectionsFound: 0,
-            errors: [message],
-            lineCode,
-            validFrom
-        }
-    };
 }
 
 export async function POST(req: Request) {
@@ -67,22 +39,8 @@ export async function POST(req: Request) {
             const fileName = file.name;
             const buffer = Buffer.from(await file.arrayBuffer());
 
-            let lineCode: string | null = null;
-            let validFrom: string | null = null;
-
-            try {
-                const detected = await detectMetadataFromPdf(buffer);
-                lineCode = detected.lineCode;
-                validFrom = detected.validFrom;
-            } catch {
-                // Fallback below (filename parsing)
-            }
-
-            if (!lineCode) {
-                lineCode = extractLineCodeFromFileName(fileName);
-            }
-
-            const normalizedValidFrom = normalizeValidFrom(validFrom) || new Date().toISOString().slice(0, 10);
+            const lineCode = extractLineCodeFromFileName(fileName);
+            const normalizedValidFrom = new Date().toISOString().slice(0, 10);
 
             if (!lineCode) {
                 results.push({ fileName, status: 'ERROR', error: 'Código da linha não encontrado no PDF nem no nome do arquivo' });
@@ -147,16 +105,16 @@ export async function POST(req: Request) {
                 continue;
             }
 
-            let parseResult: ParseRunResult;
-            try {
-                parseResult = await parsePdfSchedule(buffer);
-            } catch (err: unknown) {
-                const parserError = err instanceof Error ? err.message : String(err);
-                parseResult = fallbackParseResult(`Falha no parser: ${parserError}`, lineCode, normalizedValidFrom);
-            }
-
-            parseResult.meta.lineCode = parseResult.meta.lineCode || lineCode;
-            parseResult.meta.validFrom = parseResult.meta.validFrom || normalizedValidFrom;
+            const parseResult = {
+                status: 'WARN',
+                meta: {
+                    timesFound: 0,
+                    daySectionsFound: 0,
+                    errors: ['Parser temporariamente desativado no upload em lote (fallback operacional).'],
+                    lineCode,
+                    validFrom: normalizedValidFrom
+                }
+            };
 
             await supabase.from('official_schedule_parse_runs').insert({
                 schedule_id: schedule.id,
@@ -165,24 +123,13 @@ export async function POST(req: Request) {
                 meta: parseResult.meta
             });
 
-            if (parseResult.status !== 'FAIL' && parseResult.hourlyTrips.length > 0) {
-                const rowsToInsert = parseResult.hourlyTrips.map(t => ({
-                    schedule_id: schedule.id,
-                    day_group: t.dayGroup,
-                    hour: t.hour,
-                    trips: t.trips,
-                    promised_headway_min: t.promisedHeadwayMin
-                }));
-                await supabase.from('official_schedule_hourly').insert(rowsToInsert);
-            }
-
             results.push({
                 fileName,
                 lineCode,
                 status: 'OK',
                 scheduleId: schedule.id,
                 parseStatus: parseResult.status,
-                tripsCount: parseResult.meta.timesFound
+                tripsCount: 0
             });
         }
 
