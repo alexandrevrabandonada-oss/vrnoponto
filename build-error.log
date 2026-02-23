@@ -1,0 +1,97 @@
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 3 errors:
+./app/admin/qualidade/page.tsx:8:1
+Module not found: Can't resolve '@/components/admin/AdminHeader'
+   6 |     RefreshCcw, Crosshairs, Loader2
+   7 | } from 'lucide-react';
+>  8 | import { AdminHeader } from '@/components/admin/AdminHeader';
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 | import { Card, Button, Divider } from '@/components/ui';
+  10 |
+  11 | interface DataQualityMetrics {
+
+Import map: aliased to relative './components/admin/AdminHeader' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./app/admin/qualidade/page.tsx [Client Component Browser]
+    ./app/admin/qualidade/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/admin/qualidade/page.tsx [Client Component SSR]
+    ./app/admin/qualidade/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/admin/qualidade/page.tsx:4:1
+Export Crosshairs doesn't exist in target module
+   2 |
+   3 | import { useEffect, useState } from 'react';
+>  4 | import {
+     | ^^^^^^^^
+>  5 |     AlertTriangle, ShieldCheck, Database, MapPin, Search,
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  6 |     RefreshCcw, Crosshairs, Loader2
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  7 | } from 'lucide-react';
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import { AdminHeader } from '@/components/admin/AdminHeader';
+   9 | import { Card, Button, Divider } from '@/components/ui';
+  10 |
+
+The export Crosshairs was not found in module [project]/node_modules/lucide-react/dist/esm/lucide-react.js [app-client] (ecmascript).
+Did you mean to import Crosshair?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./app/admin/qualidade/page.tsx [Client Component Browser]
+    ./app/admin/qualidade/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/admin/qualidade/page.tsx [Client Component SSR]
+    ./app/admin/qualidade/page.tsx [Server Component]
+
+
+./app/admin/qualidade/page.tsx:4:1
+Export Crosshairs doesn't exist in target module
+   2 |
+   3 | import { useEffect, useState } from 'react';
+>  4 | import {
+     | ^^^^^^^^
+>  5 |     AlertTriangle, ShieldCheck, Database, MapPin, Search,
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  6 |     RefreshCcw, Crosshairs, Loader2
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  7 | } from 'lucide-react';
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import { AdminHeader } from '@/components/admin/AdminHeader';
+   9 | import { Card, Button, Divider } from '@/components/ui';
+  10 |
+
+The export Crosshairs was not found in module [project]/node_modules/lucide-react/dist/esm/lucide-react.js [app-ssr] (ecmascript).
+Did you mean to import Crosshair?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./app/admin/qualidade/page.tsx [Client Component Browser]
+    ./app/admin/qualidade/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/admin/qualidade/page.tsx [Client Component SSR]
+    ./app/admin/qualidade/page.tsx [Server Component]
+
+
+    at <unknown> (./app/admin/qualidade/page.tsx:8:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/admin/qualidade/page.tsx:4:1)
+    at <unknown> (./app/admin/qualidade/page.tsx:4:1)
