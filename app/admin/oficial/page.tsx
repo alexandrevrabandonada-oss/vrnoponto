@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { PdfParserCard } from '@/components/admin/PdfParserCard';
 import { BatchPdfUploader } from '@/components/admin/BatchPdfUploader';
 import {
@@ -21,9 +20,16 @@ export default function AdminOficial() {
 
     useEffect(() => {
         async function loadLines() {
-            const supabase = createClient();
-            const { data } = await supabase.from('lines').select('id, code, name').order('code');
-            if (data) setLines(data);
+            try {
+                const res = await fetch('/api/lines', { cache: 'no-store' });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    setLines(data);
+                }
+            } catch {
+                // no-op
+            }
         }
         loadLines();
     }, []);

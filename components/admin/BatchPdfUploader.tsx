@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { CloudUpload, FileText, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
-import { createClient } from '@/lib/supabase/client';
 
 interface BatchResult {
     fileName: string;
@@ -9,7 +8,17 @@ interface BatchResult {
     status: 'OK' | 'ERROR';
     error?: string;
     tripsCount?: number;
+    scheduleId?: string;
+    parseStatus?: 'OK' | 'WARN' | 'FAIL';
 }
+
+type RecentDoc = {
+    id: string;
+    line_code: string | null;
+    valid_from: string | null;
+    pdf_path: string | null;
+    runs: Array<{ status: 'OK' | 'WARN' | 'FAIL'; parsed_at: string; meta?: { errors?: string[]; timesFound?: number } }> | null;
+};
 
 export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
     const [isDragging, setIsDragging] = useState(false);
@@ -19,41 +28,35 @@ export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
 
     const loadRecentResults = useCallback(async () => {
         try {
-            const supabase = createClient();
-            const { data } = await supabase
-                .from('official_schedules')
-                .select(`
-                    line_code,
-                    pdf_path,
-                    created_at,
-                    runs: official_schedule_parse_runs(status, parsed_at, meta)
-                `)
-                .eq('doc_type', 'HORARIO')
-                .order('created_at', { ascending: false })
-                .limit(20);
+            const res = await fetch('/api/admin/oficial/recent?limit=20', { cache: 'no-store' });
+            if (!res.ok) return;
+            const payload = await res.json();
+            const data = Array.isArray(payload?.data) ? (payload.data as RecentDoc[]) : [];
 
-            if (!data) return;
-
-            const mapped: BatchResult[] = data.map((doc: {
-                line_code: string | null;
-                pdf_path: string | null;
-                runs: Array<{ status: string; parsed_at: string; meta?: { errors?: string[]; timesFound?: number } }> | null;
-            }) => {
+            const mapped: BatchResult[] = data.map((doc) => {
                 const runs = doc.runs || [];
                 const latestRun = runs.length > 0
-                    ? runs.sort((a, b) => new Date(b.parsed_at).getTime() - new Date(a.parsed_at).getTime())[0]
+                    ? [...runs].sort((a, b) => new Date(b.parsed_at).getTime() - new Date(a.parsed_at).getTime())[0]
                     : null;
 
-                const isFail = latestRun?.status === 'FAIL';
+                const parseStatus = latestRun?.status;
                 const errors = latestRun?.meta?.errors || [];
+                const timesFound = typeof latestRun?.meta?.timesFound === 'number'
+                    ? latestRun.meta.timesFound
+                    : undefined;
+                const isFail = !latestRun || parseStatus === 'FAIL';
                 const fileName = doc.pdf_path?.split('/').pop() || `Linha ${doc.line_code || '-'}`;
 
                 return {
                     fileName,
                     lineCode: doc.line_code || undefined,
                     status: isFail ? 'ERROR' : 'OK',
-                    error: isFail ? (errors[0] || 'Falha no processamento') : undefined,
-                    tripsCount: typeof latestRun?.meta?.timesFound === 'number' ? latestRun.meta.timesFound : undefined
+                    error: isFail
+                        ? (errors[0] || (latestRun ? 'Falha no processamento' : 'Documento salvo, aguardando parse.'))
+                        : undefined,
+                    tripsCount: timesFound,
+                    scheduleId: doc.id,
+                    parseStatus
                 };
             });
 
@@ -225,7 +228,12 @@ export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
                                             <span className="text-[11px] font-bold text-white truncate max-w-[200px]">{r.fileName}</span>
                                             {r.lineCode && <span className="text-[9px] font-black bg-white/10 px-2 py-0.5 rounded uppercase">Linha {r.lineCode}</span>}
                                         </div>
-                                        <p className="text-[10px] text-white/50">{r.status === 'OK' ? `Sucesso: ${r.tripsCount} horários extraídos.` : r.error}</p>
+                                        <p className="text-[10px] text-white/50">{r.status === 'OK' ? `Sucesso: ${r.tripsCount ?? 0} horários extraídos.` : r.error}</p>
+                                        {r.scheduleId && (
+                                            <p className="text-[9px] text-white/30 mt-1 font-mono">
+                                                Registro: {r.scheduleId}
+                                            </p>
+                                        )}
                                     </div>
                                     {r.status === 'OK' && (
                                         <div className="text-[10px] font-black text-emerald-400 uppercase tracking-tighter shrink-0 ring-1 ring-emerald-400/30 px-2 py-1 rounded">PRONTO</div>

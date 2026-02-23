@@ -5,7 +5,7 @@ export default async function AdminLinhas() {
     const supabase = await createClient();
 
     // Buscar linhas existentes
-    const { data: lines } = await supabase
+    const { data: lines, error: linesError } = await supabase
         .from('lines')
         .select('*')
         .order('code');
@@ -49,6 +49,11 @@ export default async function AdminLinhas() {
             </div>
 
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                {linesError && (
+                    <div className="p-4 border-b border-red-200 bg-red-50 text-red-700 text-sm font-medium">
+                        Falha ao carregar linhas: {linesError.message}
+                    </div>
+                )}
                 <table className="w-full text-left text-sm">
                     <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>

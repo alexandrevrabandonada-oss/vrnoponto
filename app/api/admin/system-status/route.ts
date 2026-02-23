@@ -36,7 +36,11 @@ export async function GET(req: Request) {
             const eRes = await fetch(`${baseUrl}/api/env-audit?t=${process.env.ADMIN_TOKEN}`);
             if (eRes.ok) {
                 const eData = await eRes.json();
-                envAudit = eData.missing && eData.missing.length === 0 ? 'OK' : 'MISSING';
+                const envOk =
+                    typeof eData?.env?.ok === 'boolean'
+                        ? eData.env.ok
+                        : (Array.isArray(eData?.missing) ? eData.missing.length === 0 : false);
+                envAudit = envOk ? 'OK' : 'MISSING';
             }
         } catch { }
 

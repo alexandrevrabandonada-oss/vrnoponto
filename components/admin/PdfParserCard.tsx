@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { RefreshCw, FileText, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Card, Button, InlineAlert } from '@/components/ui';
 
 type ScheduleDocs = {
     id: string;
-    line_code: string;
-    valid_from: string;
+    line_code: string | null;
+    valid_from: string | null;
     pdf_path: string | null;
-    runs: { status: string, parsed_at: string, meta: { errors?: string[], timesFound?: number, daySectionsFound?: number } }[] | null;
+    runs: { status: 'OK' | 'WARN' | 'FAIL', parsed_at: string, meta: { errors?: string[], timesFound?: number, daySectionsFound?: number } }[] | null;
 };
 
 export function PdfParserCard() {
@@ -23,19 +22,19 @@ export function PdfParserCard() {
 
     async function loadSchedules() {
         setLoading(true);
-        const supabase = createClient();
-
-        const { data } = await supabase
-            .from('official_schedules')
-            .select(`
-id, line_code, valid_from, pdf_path,
-    runs: official_schedule_parse_runs(status, parsed_at, meta)
-        `)
-            .eq('doc_type', 'HORARIO')
-            .order('created_at', { ascending: false });
-
-        if (data) setSchedules(data);
-        setLoading(false);
+        try {
+            const res = await fetch('/api/admin/oficial/recent?limit=100', { cache: 'no-store' });
+            if (!res.ok) {
+                throw new Error(await res.text());
+            }
+            const payload = await res.json();
+            const data = Array.isArray(payload?.data) ? payload.data : [];
+            setSchedules(data);
+        } catch (err: unknown) {
+            setError('Erro ao carregar histórico: ' + (err instanceof Error ? err.message : String(err)));
+        } finally {
+            setLoading(false);
+        }
     }
 
     async function handleParse(scheduleId: string) {
@@ -81,18 +80,18 @@ id, line_code, valid_from, pdf_path,
 
             <div className="space-y-4">
                 {schedules.map(doc => {
-                    const run = doc.runs && doc.runs.length > 0 ? doc.runs.sort((a, b) => new Date(b.parsed_at).getTime() - new Date(a.parsed_at).getTime())[0] : null;
+                    const run = doc.runs && doc.runs.length > 0 ? [...doc.runs].sort((a, b) => new Date(b.parsed_at).getTime() - new Date(a.parsed_at).getTime())[0] : null;
                     const meta = run ? run.meta : null;
 
                     return (
                         <div key={doc.id} className="border border-white/5 rounded-2xl p-5 bg-white/[0.02] flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center hover:bg-white/[0.04] transition-colors">
                             <div className="flex-1 space-y-3">
                                 <div className="flex items-center gap-3">
-                                    <h3 className="font-industrial text-sm text-white uppercase tracking-widest">Linha {doc.line_code}</h3>
+                                    <h3 className="font-industrial text-sm text-white uppercase tracking-widest">Linha {doc.line_code || '-'}</h3>
                                     {doc.pdf_path && <span className="text-[9px] font-black bg-brand/10 text-brand px-2 py-0.5 rounded-full uppercase">PDF Ativo</span>}
                                 </div>
                                 <div className="flex flex-wrap items-center gap-4 text-[10px] font-medium text-muted uppercase tracking-tight">
-                                    <span className="flex items-center gap-1"><FileText size={12} /> Vigência: {doc.valid_from}</span>
+                                    <span className="flex items-center gap-1"><FileText size={12} /> Vigência: {doc.valid_from || 'N/I'}</span>
                                     {run ? (
                                         <div className="flex items-center gap-3">
                                             {run.status === 'OK' && <span className="flex items-center text-emerald-400 gap-1"><CheckCircle2 className="w-3 h-3" /> Processado</span>}

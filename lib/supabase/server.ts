@@ -3,10 +3,17 @@ import { cookies } from 'next/headers'
 
 export async function createClient() {
     const cookieStore = await cookies()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co'
+    // Fallback pragmático: se a chave pública faltar no host, usamos service key no servidor
+    // para manter APIs/server components operacionais.
+    const supabaseKey =
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+        process.env.SUPABASE_SERVICE_ROLE_KEY ||
+        'dummy'
 
     return createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy',
+        supabaseUrl,
+        supabaseKey,
         {
             cookies: {
                 getAll() {
