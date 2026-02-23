@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { X } from 'lucide-react';
+import { X, Shield, ChevronRight, Lock } from 'lucide-react';
 import { IconButton } from './IconButton';
 import { useUiPrefs } from '@/lib/useUiPrefs';
 
@@ -104,8 +104,76 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                             </button>
                         </div>
                     </div>
+
+                    {/* Admin Access Section */}
+                    <div className="pt-6 border-t border-white/5 space-y-4">
+                        <div className="flex items-center gap-2 mb-1">
+                            <Shield size={16} className="text-brand" />
+                            <p className="text-white font-medium">Acesso Administrativo</p>
+                        </div>
+
+                        <AdminLogin />
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
+
+const AdminLogin = () => {
+    const [showInput, setShowInput] = React.useState(false);
+    const [token, setToken] = React.useState('');
+
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (token.trim()) {
+            window.location.href = `/admin?t=${encodeURIComponent(token.trim())}`;
+        }
+    };
+
+    if (!showInput) {
+        return (
+            <button
+                onClick={() => setShowInput(true)}
+                className="w-full flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/5 transition-colors group"
+            >
+                <div className="flex items-center gap-3">
+                    <Lock size={18} className="text-white/30 group-hover:text-brand transition-colors" />
+                    <span className="text-sm text-white/70">Painel de Administração</span>
+                </div>
+                <ChevronRight size={18} className="text-white/20" />
+            </button>
+        );
+    }
+
+    return (
+        <form onSubmit={handleLogin} className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="relative">
+                <input
+                    type="password"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                    placeholder="Cole seu token de acesso..."
+                    autoFocus
+                    className="w-full bg-surface-2 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-brand/50 transition-colors"
+                />
+            </div>
+            <div className="flex gap-2">
+                <button
+                    type="submit"
+                    className="flex-1 bg-brand text-black font-black uppercase tracking-tight py-3 rounded-xl text-xs hover:brightness-110 active:scale-95 transition-all"
+                >
+                    Acessar Painel
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setShowInput(false)}
+                    className="px-4 py-3 rounded-xl bg-white/5 text-white/50 text-xs hover:text-white transition-colors"
+                >
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    );
+};
+
