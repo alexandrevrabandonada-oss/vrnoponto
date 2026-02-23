@@ -98,7 +98,7 @@ export function StopsImportCard() {
                 <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 space-y-2">
                     <div className="flex items-center gap-2">
                         {result.dryRun ? (
-                            <FileText size={16} className="text-blue-500" />
+                            <FileText size={16} className="text-yellow-400" />
                         ) : (
                             <CheckCircle size={16} className="text-green-500" />
                         )}
@@ -116,7 +116,7 @@ export function StopsImportCard() {
                             <div className="text-[10px] text-gray-500 font-bold uppercase">Inseridos</div>
                         </div>
                         <div className="p-2 rounded bg-white border">
-                            <div className="text-lg font-bold text-blue-600">{result.updated}</div>
+                            <div className="text-lg font-bold text-yellow-300">{result.updated}</div>
                             <div className="text-[10px] text-gray-500 font-bold uppercase">Atualizados</div>
                         </div>
                         <div className="p-2 rounded bg-white border">
