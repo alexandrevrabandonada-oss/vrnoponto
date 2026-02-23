@@ -12,6 +12,7 @@ if (typeof global !== 'undefined' && !global.DOMMatrix) {
         rotate() { return new DummyDOMMatrix(); }
         inverse() { return new DummyDOMMatrix(); }
         transformPoint(p: any) { return p || { x: 0, y: 0, z: 0, w: 1 }; }
+        setMatrixValue() { return new DummyDOMMatrix(); }
     }
     (global as any).DOMMatrix = DummyDOMMatrix;
     (global as any).DOMPoint = class DOMPoint {
@@ -20,11 +21,17 @@ if (typeof global !== 'undefined' && !global.DOMMatrix) {
     (global as any).DOMRect = class DOMRect {
         constructor(public x = 0, public y = 0, public width = 0, public height = 0) { }
     };
+    // Additional polyfills for pdf.js compatibility in Node
+    (global as any).ImageData = class ImageData { constructor() { } };
+    (global as any).HTMLCanvasElement = class HTMLCanvasElement { constructor() { } };
+    (global as any).HTMLElement = class HTMLElement { constructor() { } };
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParser = require('pdf-parse');
+const _pdfParser = require('pdf-parse');
+// Handle ESM/CJS interop: some environments might wrap the function in a .default property
+const pdfParser = (typeof _pdfParser === 'function') ? _pdfParser : (_pdfParser.default || _pdfParser);
 
 export type ParsedHourlyTrip = {
     dayGroup: 'WEEKDAY' | 'SAT' | 'SUN';
