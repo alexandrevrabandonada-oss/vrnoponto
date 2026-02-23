@@ -19,6 +19,70 @@ type PdfJsModule = {
     }) => PdfLoadingTask;
 };
 
+function ensurePdfDomPolyfills(): void {
+    const g = globalThis as typeof globalThis & {
+        DOMMatrix?: unknown;
+        DOMMatrixReadOnly?: unknown;
+        WebKitCSSMatrix?: unknown;
+    };
+    const target = g as unknown as {
+        DOMMatrix?: unknown;
+        DOMMatrixReadOnly?: unknown;
+        WebKitCSSMatrix?: unknown;
+    };
+
+    if (target.DOMMatrix) return;
+
+    class SimpleDOMMatrix {
+        a = 1;
+        b = 0;
+        c = 0;
+        d = 1;
+        e = 0;
+        f = 0;
+
+        m11 = 1; m12 = 0; m13 = 0; m14 = 0;
+        m21 = 0; m22 = 1; m23 = 0; m24 = 0;
+        m31 = 0; m32 = 0; m33 = 1; m34 = 0;
+        m41 = 0; m42 = 0; m43 = 0; m44 = 1;
+
+        is2D = true;
+        isIdentity = true;
+
+        constructor(_init?: unknown) { }
+
+        multiplySelf(_other?: unknown) { return this; }
+        preMultiplySelf(_other?: unknown) { return this; }
+        translateSelf(_tx?: number, _ty?: number, _tz?: number) { return this; }
+        scaleSelf(_sx?: number, _sy?: number, _sz?: number, _ox?: number, _oy?: number, _oz?: number) { return this; }
+        rotateSelf(_rx?: number, _ry?: number, _rz?: number) { return this; }
+        rotateAxisAngleSelf(_x?: number, _y?: number, _z?: number, _angle?: number) { return this; }
+        skewXSelf(_sx?: number) { return this; }
+        skewYSelf(_sy?: number) { return this; }
+        invertSelf() { return this; }
+        setMatrixValue(_value: string) { return this; }
+        toFloat32Array() { return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); }
+        toFloat64Array() { return new Float64Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); }
+        inverse() { return new SimpleDOMMatrix(); }
+        transformPoint(point?: { x?: number; y?: number; z?: number; w?: number }) {
+            return {
+                x: point?.x ?? 0,
+                y: point?.y ?? 0,
+                z: point?.z ?? 0,
+                w: point?.w ?? 1
+            };
+        }
+
+        static fromFloat32Array(_array: Float32Array) { return new SimpleDOMMatrix(); }
+        static fromFloat64Array(_array: Float64Array) { return new SimpleDOMMatrix(); }
+        static fromMatrix(_other?: unknown) { return new SimpleDOMMatrix(); }
+    }
+
+    target.DOMMatrix = SimpleDOMMatrix;
+    target.DOMMatrixReadOnly = SimpleDOMMatrix;
+    target.WebKitCSSMatrix = SimpleDOMMatrix;
+}
+
 type TextExtractResult = {
     text: string | null;
     engine: 'pdf-parse' | 'pdfjs' | null;
@@ -53,6 +117,7 @@ function errorToMessage(err: unknown): string {
 }
 
 async function loadPdfJs(): Promise<PdfJsModule> {
+    ensurePdfDomPolyfills();
     const mod = await import('pdfjs-dist/legacy/build/pdf.mjs');
     return mod as unknown as PdfJsModule;
 }
@@ -71,6 +136,7 @@ async function extractPdfTextWithPdfParse(pdfBuffer: Buffer): Promise<PdfParseTe
     let parser: PdfParseInstance | null = null;
 
     try {
+        ensurePdfDomPolyfills();
         const mod = await import('pdf-parse');
         const PDFParseCtor = (mod as { PDFParse?: new (opts: { data: Buffer }) => PdfParseInstance }).PDFParse;
 
