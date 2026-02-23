@@ -9,6 +9,7 @@ import {
     AlertCircle,
     BarChart3,
     ArrowRight,
+    MessageCircle,
 } from 'lucide-react';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateBulletinCaption } from '@/lib/editorial/templates';
@@ -74,6 +75,37 @@ export default function BoletimPage() {
 
     const handleDownload = (format: 'square' | 'story') => {
         window.open(`/api/bulletin/card?format=${format}&days=${days}`, '_blank');
+        fetch('/api/telemetry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event: `bulletin_card_download_${format}` }),
+        }).catch(() => { });
+    };
+
+    const handleWhatsAppShare = () => {
+        if (!data) return;
+
+        const shortCaption = `${data.summary?.critCount || 0} alertas críticos em VR esta semana. Pior ponto: ${data.worstStops?.[0]?.stop_name || '--'}.`;
+        const url = window.location.href;
+        const text = `${shortCaption}\n\nConfira o boletim completo em: ${url}`;
+
+        fetch('/api/telemetry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event: 'bulletin_share_wa' }),
+        }).catch(() => { });
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'Boletim VR no Ponto',
+                text: text,
+                url: url
+            }).catch(() => {
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            });
+        } else {
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
     };
 
     // Loading skeleton
@@ -208,7 +240,7 @@ export default function BoletimPage() {
                             />
                         )}
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <Button
                                 variant="secondary"
                                 onClick={() => handleDownload('square')}
@@ -222,6 +254,12 @@ export default function BoletimPage() {
                                 className="h-16 !text-[11px]"
                             >
                                 <Download size={18} className="mr-2" /> Story (9:16)
+                            </Button>
+                            <Button
+                                onClick={handleWhatsAppShare}
+                                className="h-16 !text-[11px] !bg-[#25D366] !text-white border-none shadow-lg shadow-[#25D366]/20"
+                            >
+                                <MessageCircle size={18} className="mr-2" /> WhatsApp
                             </Button>
                         </div>
 
