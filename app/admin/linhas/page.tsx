@@ -27,55 +27,81 @@ export default async function AdminLinhas() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-bold text-gray-900">Linhas</h1>
-                <p className="text-gray-600">Gerencie as linhas de ônibus do sistema.</p>
+                <h1 className="font-industrial text-4xl uppercase tracking-tight text-white">Linhas</h1>
+                <p className="text-xs font-bold text-white/50 uppercase tracking-wider mt-1">
+                    Gerencie as linhas de ônibus do sistema.
+                </p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                <h2 className="text-xl font-bold mb-4">Cadastrar Nova Linha</h2>
-                <form action={createLine} className="flex gap-4 items-end">
-                    <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Código (Ex: P200)</label>
-                        <input type="text" name="code" required className="w-full p-2 border rounded-md" />
+            <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-6 shadow-[0_12px_32px_rgba(0,0,0,0.35)]">
+                <h2 className="font-industrial text-xl uppercase tracking-wide text-white mb-5">Cadastrar Nova Linha</h2>
+                <form action={createLine} className="grid grid-cols-1 lg:grid-cols-[1fr_2fr_auto] gap-4 items-end">
+                    <div>
+                        <label className="block text-[11px] font-black text-white/70 mb-2 uppercase tracking-wider">
+                            Código (Ex: P200)
+                        </label>
+                        <input
+                            type="text"
+                            name="code"
+                            required
+                            className="w-full h-12 px-4 rounded-xl border border-white/15 bg-black/30 text-white placeholder:text-white/35 outline-none focus:border-brand focus:ring-2 focus:ring-brand/25"
+                        />
                     </div>
-                    <div className="flex-[2]">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Nome (Ex: Vila Rica / Centro)</label>
-                        <input type="text" name="name" required className="w-full p-2 border rounded-md" />
+                    <div>
+                        <label className="block text-[11px] font-black text-white/70 mb-2 uppercase tracking-wider">
+                            Nome (Ex: Vila Rica / Centro)
+                        </label>
+                        <input
+                            type="text"
+                            name="name"
+                            required
+                            className="w-full h-12 px-4 rounded-xl border border-white/15 bg-black/30 text-white placeholder:text-white/35 outline-none focus:border-brand focus:ring-2 focus:ring-brand/25"
+                        />
                     </div>
-                    <button type="submit" className="bg-brand text-black px-6 py-2 rounded-md font-medium hover:bg-brand/90 transition">
+                    <button
+                        type="submit"
+                        className="h-12 px-7 rounded-xl bg-brand text-black text-sm font-black uppercase tracking-wide hover:brightness-110 transition"
+                    >
                         Salvar
                     </button>
                 </form>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="rounded-2xl border border-white/10 bg-zinc-900/60 overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,0.35)]">
                 {linesError && (
-                    <div className="p-4 border-b border-red-200 bg-red-50 text-red-700 text-sm font-medium">
+                    <div className="p-4 border-b border-red-500/30 bg-red-500/10 text-red-300 text-sm font-semibold">
                         Falha ao carregar linhas: {linesError.message}
                     </div>
                 )}
                 <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 border-b border-gray-200">
+                    <thead className="bg-white/[0.03] border-b border-white/10">
                         <tr>
-                            <th className="p-4 font-semibold text-gray-600">Código</th>
-                            <th className="p-4 font-semibold text-gray-600">Nome</th>
-                            <th className="p-4 font-semibold text-gray-600">Status</th>
+                            <th className="p-4 text-[11px] font-black uppercase tracking-wider text-white/70">Código</th>
+                            <th className="p-4 text-[11px] font-black uppercase tracking-wider text-white/70">Nome</th>
+                            <th className="p-4 text-[11px] font-black uppercase tracking-wider text-white/70">Status</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-white/10">
                         {lines?.map(line => (
-                            <tr key={line.id}>
-                                <td className="p-4 font-bold">{line.code}</td>
-                                <td className="p-4">{line.name}</td>
+                            <tr key={line.id} className="hover:bg-white/[0.02] transition-colors">
+                                <td className="p-4 font-black text-brand">{line.code}</td>
+                                <td className="p-4 text-white/85">{line.name}</td>
                                 <td className="p-4">
-                                    <span className={`px-2 py-1 rounded text-xs ${line.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wide border ${line.is_active
+                                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                                        : 'bg-red-500/15 text-red-300 border-red-500/30'
+                                        }`}>
                                         {line.is_active ? 'Ativo' : 'Inativo'}
                                     </span>
                                 </td>
                             </tr>
                         ))}
                         {(!lines || lines.length === 0) && (
-                            <tr><td colSpan={3} className="p-8 text-center text-gray-500">Nenhuma linha cadastrada.</td></tr>
+                            <tr>
+                                <td colSpan={3} className="p-10 text-center text-sm font-semibold text-white/45">
+                                    Nenhuma linha cadastrada.
+                                </td>
+                            </tr>
                         )}
                     </tbody>
                 </table>
