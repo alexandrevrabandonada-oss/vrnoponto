@@ -51,3 +51,7 @@ full_lint.txt
 lint_results_final.txt
 reports/BUILD_FAIL.txt
 
+
+# local lint logs
+lint_boletim.txt
+
