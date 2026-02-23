@@ -14,9 +14,13 @@ type PdfJsModule = {
     getDocument: (opts: {
         data: Uint8Array;
         disableWorker?: boolean;
+        worker?: unknown;
         isEvalSupported?: boolean;
         stopAtErrors?: boolean;
     }) => PdfLoadingTask;
+    GlobalWorkerOptions?: {
+        workerSrc?: string;
+    };
 };
 
 function ensurePdfDomPolyfills(): void {
@@ -119,6 +123,10 @@ function errorToMessage(err: unknown): string {
 async function loadPdfJs(): Promise<PdfJsModule> {
     ensurePdfDomPolyfills();
     const mod = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    const inlineWorkerSrc = await getInlineWorkerSrc();
+    if (inlineWorkerSrc && mod.GlobalWorkerOptions) {
+        mod.GlobalWorkerOptions.workerSrc = inlineWorkerSrc;
+    }
     return mod as unknown as PdfJsModule;
 }
 
@@ -132,16 +140,38 @@ type PdfParseInstance = {
     destroy?: () => Promise<void>;
 };
 
+type PdfParseConstructor = {
+    new (opts: { data: Buffer }): PdfParseInstance;
+    setWorker?: (workerSrc?: string) => string;
+};
+
+async function getInlineWorkerSrc(): Promise<string | null> {
+    try {
+        const worker = await import('pdf-parse/worker');
+        if (typeof worker.getData === 'function') {
+            return worker.getData();
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
 async function extractPdfTextWithPdfParse(pdfBuffer: Buffer): Promise<PdfParseTextResult> {
     let parser: PdfParseInstance | null = null;
 
     try {
         ensurePdfDomPolyfills();
         const mod = await import('pdf-parse');
-        const PDFParseCtor = (mod as { PDFParse?: new (opts: { data: Buffer }) => PdfParseInstance }).PDFParse;
+        const PDFParseCtor = (mod as { PDFParse?: PdfParseConstructor }).PDFParse;
 
         if (typeof PDFParseCtor !== 'function') {
             return { text: null, error: 'Export PDFParse não encontrado no pacote pdf-parse.' };
+        }
+
+        const inlineWorkerSrc = await getInlineWorkerSrc();
+        if (inlineWorkerSrc && typeof PDFParseCtor.setWorker === 'function') {
+            PDFParseCtor.setWorker(inlineWorkerSrc);
         }
 
         const parserInstance = new PDFParseCtor({ data: pdfBuffer });
