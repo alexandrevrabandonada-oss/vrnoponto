@@ -1,7 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { DownloadCloud, CheckCircle, AlertCircle, Map, FileText } from 'lucide-react';
+import { DownloadCloud, CheckCircle, AlertCircle, FileText, ArrowRight } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const MapContainer = dynamic(() => import('react-leaflet').then(m => m.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then(m => m.TileLayer), { ssr: false });
+const CircleMarker = dynamic(() => import('react-leaflet').then(m => m.CircleMarker), { ssr: false });
+const Tooltip = dynamic(() => import('react-leaflet').then(m => m.Tooltip), { ssr: false });
+
+import 'leaflet/dist/leaflet.css';
 
 interface OsmImportResult {
     dryRun: boolean;
@@ -11,6 +19,8 @@ interface OsmImportResult {
     total: number;
     errors?: string[];
     cacheHit?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    nodes?: any[];
 }
 
 export function OsmImportCard() {
@@ -61,17 +71,10 @@ export function OsmImportCard() {
                     <div className="flex flex-wrap gap-2">
                         <button
                             type="button"
-                            onClick={() => setBbox('-22.56,-44.15,-22.47,-44.05')}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg border flex items-center gap-1 ${bbox === '-22.56,-44.15,-22.47,-44.05' ? 'bg-brand/10 border-brand text-brand' : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'}`}
+                            onClick={() => { setBbox('-22.5350,-44.1150,-22.5050,-44.0850'); setDryRun(false); setLimit(50); }}
+                            className={`px-3 py-1.5 text-xs font-bold rounded-lg border flex items-center gap-1 ${bbox === '-22.5350,-44.1150,-22.5050,-44.0850' ? 'bg-purple-100 border-purple-500 text-purple-700' : 'bg-purple-50 border-purple-200 text-purple-600 hover:bg-purple-100'}`}
                         >
-                            <Map size={14} /> Centro Expandido
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setBbox('-22.60,-44.20,-22.40,-44.00')}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg border flex items-center gap-1 ${bbox === '-22.60,-44.20,-22.40,-44.00' ? 'bg-brand/10 border-brand text-brand' : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'}`}
-                        >
-                            <Map size={14} /> VR Inteira
+                            🌱 Seed Mínimo VR (50 pts)
                         </button>
                     </div>
                     <input
@@ -159,6 +162,40 @@ export function OsmImportCard() {
                             {result.errors.map((err, i) => (
                                 <div key={i}>{err}</div>
                             ))}
+                        </div>
+                    )}
+
+                    {!result.dryRun && result.nodes && result.nodes.length > 0 && (
+                        <div className="mt-4 border border-gray-200 rounded-lg overflow-hidden bg-white">
+                            <div className="h-48 w-full relative z-0">
+                                <MapContainer
+                                    center={[result.nodes[0].lat, result.nodes[0].lon]}
+                                    zoom={13}
+                                    scrollWheelZoom={false}
+                                    style={{ height: '100%', width: '100%' }}
+                                >
+                                    <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                    {result.nodes.map((node: any, idx: number) => (
+                                        <CircleMarker
+                                            key={idx}
+                                            center={[node.lat, node.lon]}
+                                            radius={5}
+                                            pathOptions={{
+                                                color: node.action === 'inserted' ? '#10b981' : node.action === 'updated' ? '#eab308' : '#9ca3af',
+                                                fillOpacity: 0.7
+                                            }}
+                                        >
+                                            <Tooltip>{node.name} ({node.action})</Tooltip>
+                                        </CircleMarker>
+                                    ))}
+                                </MapContainer>
+                            </div>
+                            <div className="p-2 bg-gray-50 border-t border-gray-200 flex justify-end">
+                                <a href="/mapa" target="_blank" className="text-xs font-bold flex items-center gap-1 text-brand hover:underline">
+                                    Ver Mapa Completo <ArrowRight size={12} />
+                                </a>
+                            </div>
                         </div>
                     )}
                 </div>

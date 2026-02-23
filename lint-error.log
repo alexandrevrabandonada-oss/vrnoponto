@@ -1,0 +1,10 @@
+
+C:\Projetos\vrnoponto\app\api\admin\stops\import-osm\route.ts
+  10:11  warning  'OsmImportResult' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\admin\OsmImportCard.tsx
+    4:51  warning  'Map' is defined but never used           @typescript-eslint/no-unused-vars
+  178:62  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 3 problems (1 error, 2 warnings)
+

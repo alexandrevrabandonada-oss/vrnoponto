@@ -98,13 +98,17 @@ export async function POST(request: NextRequest) {
         let updated = 0;
         let skipped = 0;
         const errors: string[] = [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const processedNodes: any[] = [];
 
         for (const el of elements) {
             try {
                 if (el.type !== 'node' || typeof el.lat !== 'number' || typeof el.lon !== 'number') continue;
 
                 const rawName = el.tags?.name || el.tags?.nome || el.tags?.Name;
-                const nameStr = rawName ? String(rawName).trim() : 'Ponto sem nome'; // Fallback
+                const latRounded = el.lat.toFixed(4);
+                const lonRounded = el.lon.toFixed(4);
+                const nameStr = rawName ? String(rawName).trim() : `Ponto (${latRounded}/${lonRounded})`; // Fallback
 
                 // Check proximity: find existing stop within 15m
                 const { data: nearby } = await supabase.rpc('rpc_nearest_stops', {
@@ -140,10 +144,13 @@ export async function POST(request: NextRequest) {
                             errors.push(`Erro ao atualizar OSM node ${el.id}: ${error.message}`);
                         } else {
                             updated++;
+                            processedNodes.push({ id: closestStop.id, name: nameStr, lat: el.lat, lon: el.lon, action: 'updated' });
                         }
                     } else {
                         // Nothing to update
                         skipped++;
+                        // We also track skipped for drawing on map
+                        processedNodes.push({ id: closestStop.id, name: closestStop.name || nameStr, lat: el.lat, lon: el.lon, action: 'skipped' });
                     }
                 } else {
                     // New stop
@@ -166,6 +173,7 @@ export async function POST(request: NextRequest) {
                         errors.push(`Erro ao inserir OSM node ${el.id}: ${error.message}`);
                     } else {
                         inserted++;
+                        processedNodes.push({ id: el.id, name: nameStr, lat: el.lat, lon: el.lon, action: 'inserted' });
                     }
                 }
             } catch (err: unknown) {
@@ -182,7 +190,8 @@ export async function POST(request: NextRequest) {
             skipped,
             total: elements.length,
             errors: errors.length > 0 ? errors : undefined,
-            cacheHit: !!(cached && cached.expiresAt > now)
+            cacheHit: !!(cached && cached.expiresAt > now),
+            nodes: processedNodes
         });
 
     } catch (err: unknown) {
