@@ -39,40 +39,48 @@ export function BatchPdfUploader({ onComplete }: { onComplete?: () => void }) {
         setIsUploading(true);
         setResults([]);
 
-        const formData = new FormData();
-        files.forEach(f => formData.append('files', f));
-
-        try {
-            let adminToken = localStorage.getItem('vrnp_admin_token') || localStorage.getItem('admin_token');
-
-            if (!adminToken) {
-                adminToken = prompt('Digite o token de ADMIN para autorizar o envio:');
-                if (adminToken) {
-                    localStorage.setItem('vrnp_admin_token', adminToken);
-                }
-            }
-
-            if (!adminToken) {
+        const adminToken = localStorage.getItem('vrnp_admin_token') || localStorage.getItem('admin_token');
+        if (!adminToken) {
+            const token = prompt('Digite o token de ADMIN para autorizar o envio:');
+            if (!token) {
                 setIsUploading(false);
                 return;
             }
-
-            const res = await fetch(`/api/admin/oficial/batch-upload?t=${adminToken}`, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!res.ok) throw new Error('Erro na comunicação com o servidor');
-
-            const data = await res.json();
-            setResults(data.results || []);
-            setFiles([]);
-            if (onComplete) onComplete();
-        } catch (err: unknown) {
-            setResults([{ fileName: 'Lote', status: 'ERROR', error: err instanceof Error ? err.message : 'Erro fatal' }]);
-        } finally {
-            setIsUploading(false);
+            localStorage.setItem('vrnp_admin_token', token);
         }
+
+        const queue = [...files];
+        setFiles([]); // Limpa a fila visual para focar no processamento
+
+        for (const file of queue) {
+            const formData = new FormData();
+            formData.append('files', file);
+
+            try {
+                const res = await fetch(`/api/admin/oficial/batch-upload?t=${adminToken}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(errorText || `Erro ${res.status}`);
+                }
+
+                const data = await res.json();
+                const fileResult = data.results?.[0] || { fileName: file.name, status: 'ERROR', error: 'Resposta inválida' };
+                setResults(prev => [fileResult, ...prev]);
+            } catch (err: unknown) {
+                setResults(prev => [{
+                    fileName: file.name,
+                    status: 'ERROR',
+                    error: err instanceof Error ? err.message : 'Erro de rede'
+                }, ...prev]);
+            }
+        }
+
+        setIsUploading(false);
+        if (onComplete) onComplete();
     };
 
     return (
