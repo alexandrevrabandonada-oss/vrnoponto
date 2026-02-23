@@ -5,6 +5,7 @@ import { useDeviceId } from '@/hooks/useDeviceId';
 import { HelpModal } from '@/components/HelpModal';
 import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle } from 'lucide-react';
 import { StopSuggestionModal } from '@/components/StopSuggestionModal';
+import { TrustMixBadge } from '@/components/TrustMixBadge';
 import {
     AppShell, PageHeader, Card, Divider, Button,
     Field, Select, InlineAlert
@@ -27,6 +28,10 @@ export default function NoPonto() {
     const [isLoadingStops, setIsLoadingStops] = useState(false);
     const [hasArrived, setHasArrived] = useState(false);
     const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+
+    // Top Lines Logic
+    const [topLines, setTopLines] = useState<{ line_id: string, code: string, name: string, count: number, pctVerified: number }[]>([]);
+    const [isLoadingTopLines, setIsLoadingTopLines] = useState(false);
 
     const { isOnline, isSyncing, pendingCount, syncNow, refreshPending } = useOfflineSync();
 
@@ -81,6 +86,29 @@ export default function NoPonto() {
         }
         fetchStops();
     }, [location]);
+
+    // Efeito para buscar linhas top do ponto selecionado
+    useEffect(() => {
+        async function fetchTopLines() {
+            if (!selectedStop) {
+                setTopLines([]);
+                return;
+            }
+            setIsLoadingTopLines(true);
+            try {
+                const res = await fetch(`/api/stop/top-lines?stop_id=${selectedStop}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setTopLines(data.lines || []);
+                }
+            } catch (err) {
+                console.error("Erro ao buscar top linhas:", err);
+            } finally {
+                setIsLoadingTopLines(false);
+            }
+        }
+        fetchTopLines();
+    }, [selectedStop]);
 
     const handleArrived = async () => {
         if (!deviceId) return;
@@ -263,6 +291,57 @@ export default function NoPonto() {
                         : 'bg-brand/10 border-brand/20 text-brand'
                         }`}>
                         {message}
+                    </div>
+                )}
+
+                {/* Painel de Histórico / Top Linhas */}
+                {selectedStop && (
+                    <div className="space-y-4 animate-in fade-in duration-500">
+                        <Divider label="LINHAS MAIS VISTAS AQUI (30D)" />
+
+                        {isLoadingTopLines ? (
+                            <div className="p-8 border border-white/5 rounded-2xl bg-white/[0.01] text-center text-white/40 text-xs font-bold uppercase tracking-widest animate-pulse">
+                                Buscando Histórico...
+                            </div>
+                        ) : topLines.length > 0 ? (
+                            <div className="space-y-3">
+                                {topLines.map((line) => (
+                                    <div key={line.line_id} className="flex flex-col gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition-colors relative overflow-hidden group">
+                                        <div className="flex justify-between items-start gap-4 z-10">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="font-industrial text-lg text-brand tracking-widest leading-none bg-brand/10 px-2 py-0.5 rounded-md">
+                                                        {line.code}
+                                                    </span>
+                                                    <span className="text-sm font-bold text-white truncate max-w-[150px] sm:max-w-[200px]">
+                                                        {line.name}
+                                                    </span>
+                                                </div>
+                                                <TrustMixBadge total={line.count} pctVerified={line.pctVerified} />
+                                            </div>
+
+                                        </div>
+
+                                        {/* Botão de Registro Rápido */}
+                                        <div className="pt-2 border-t border-white/5">
+                                            <Link
+                                                href={`/registrar?stopId=${selectedStop}&lineId=${line.line_id}`}
+                                                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white/5 hover:bg-brand/20 hover:text-brand text-white text-xs font-black uppercase tracking-widest transition-colors border border-white/5 hover:border-brand/30"
+                                            >
+                                                <Bus size={14} />
+                                                Registrar 1-toque
+                                            </Link>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01] text-center space-y-2">
+                                <AlertCircle size={24} className="mx-auto text-white/20 mb-2" />
+                                <p className="text-xs text-white/60 font-medium">Sem dados ainda neste ponto.</p>
+                                <p className="text-[10px] text-brand/80 font-black uppercase tracking-widest">Seja o primeiro a registrar abaixo! 👑</p>
+                            </div>
+                        )}
                     </div>
                 )}
 
