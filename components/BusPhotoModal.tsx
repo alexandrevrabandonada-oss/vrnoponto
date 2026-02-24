@@ -18,6 +18,10 @@ type AnalyzeResponse = {
     ai_confidence: number | null;
 };
 
+const MAX_DIMENSION = 1280;
+const TARGET_QUALITY = 0.72;
+const MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
+
 interface BusPhotoModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -29,7 +33,7 @@ interface BusPhotoModalProps {
     onSaved?: (draft: BusPhotoDraft) => void;
 }
 
-function toDataUrl(file: File): Promise<string> {
+function toDataUrl(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result || ''));
@@ -43,6 +47,68 @@ function confidenceLabel(value: number | null): string {
     if (value >= 80) return 'alta';
     if (value >= 50) return 'média';
     return 'baixa';
+}
+
+async function supportsWebp(): Promise<boolean> {
+    if (typeof document === 'undefined') return false;
+    const canvas = document.createElement('canvas');
+    return canvas.toDataURL('image/webp').startsWith('data:image/webp');
+}
+
+function loadImage(file: File): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            resolve(img);
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('Não foi possível ler a imagem.'));
+        };
+        img.src = url;
+    });
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (!blob) {
+                reject(new Error('Falha ao processar imagem.'));
+                return;
+            }
+            resolve(blob);
+        }, type, quality);
+    });
+}
+
+async function compressForProof(file: File): Promise<{ blob: Blob; mimeType: string; ext: 'webp' | 'jpg' }> {
+    const image = await loadImage(file);
+    const ratio = Math.min(1, MAX_DIMENSION / Math.max(image.width, image.height));
+    const width = Math.max(1, Math.round(image.width * ratio));
+    const height = Math.max(1, Math.round(image.height * ratio));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        throw new Error('Falha ao preparar compressão.');
+    }
+
+    // Draw in canvas to strip EXIF/metadata and keep only pixel data.
+    ctx.drawImage(image, 0, 0, width, height);
+
+    const useWebp = await supportsWebp();
+    const mimeType = useWebp ? 'image/webp' : 'image/jpeg';
+    const blob = await canvasToBlob(canvas, mimeType, TARGET_QUALITY);
+    return { blob, mimeType, ext: useWebp ? 'webp' : 'jpg' };
+}
+
+function blobToFile(blob: Blob, baseName: string, ext: 'webp' | 'jpg', mimeType: string): File {
+    const normalized = baseName.replace(/\.[a-z0-9]+$/i, '');
+    return new File([blob], `${normalized}.${ext}`, { type: mimeType });
 }
 
 export function BusPhotoModal({
@@ -189,16 +255,22 @@ export function BusPhotoModal({
             return;
         }
         setError(null);
+        setIsUploading(true);
+        try {
+            const compressed = await compressForProof(file);
+            if (compressed.blob.size > MAX_UPLOAD_BYTES) {
+                throw new Error('A foto ficou muito pesada. Tente novamente com melhor enquadramento.');
+            }
+            const processedFile = blobToFile(compressed.blob, file.name || 'bus-proof', compressed.ext, compressed.mimeType);
 
-        if (!isOnline) {
-            try {
-                const dataUrl = await toDataUrl(file);
+            if (!isOnline) {
+                const dataUrl = await toDataUrl(compressed.blob);
                 const taskId = crypto.randomUUID();
                 await enqueueProofTask({
                     id: taskId,
                     device_id: deviceId,
                     photo_data_url: dataUrl,
-                    mime_type: file.type || 'image/jpeg',
+                    mime_type: compressed.mimeType,
                     stop_id: stopId || null,
                     line_id: lineId || manualLineId || null,
                     lat: location?.lat ?? null,
@@ -231,16 +303,11 @@ export function BusPhotoModal({
                 trackTelemetry('bus_photo_uploaded');
                 trackTelemetry('bus_photo_fallback_manual');
                 onClose();
-            } catch (err: unknown) {
-                setError(err instanceof Error ? err.message : 'Falha ao salvar foto offline.');
+                return;
             }
-            return;
-        }
 
-        setIsUploading(true);
-        try {
             const uploadData = new FormData();
-            uploadData.append('photo', file);
+            uploadData.append('photo', processedFile);
             uploadData.append('device_id', deviceId);
 
             const uploadRes = await fetch('/api/proof/upload-photo', {

@@ -270,6 +270,14 @@ export default function StatusDashboard() {
                             <span className="font-bold text-gray-900">{proof.pct_confirmed_7d}%</span>
                         </div>
                     </div>
+                    <button
+                        onClick={() => triggerAction('proof_cleanup', '/api/admin/proof/cleanup-old')}
+                        disabled={actionLoading === 'proof_cleanup'}
+                        className="w-full flex items-center justify-center gap-2 bg-brand/10 hover:bg-brand/20 text-brand px-3 py-2 rounded-xl text-xs font-bold transition disabled:opacity-50"
+                    >
+                        {actionLoading === 'proof_cleanup' ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                        Limpar fotos antigas (manual)
+                    </button>
                 </div>
 
                 {/* Web Push Card */}

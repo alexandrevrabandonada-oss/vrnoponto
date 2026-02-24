@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+const MAX_UPLOADS_PER_DAY = 6;
+const COOLDOWN_SECONDS = 60;
+const MAX_FILE_SIZE_BYTES = 3 * 1024 * 1024;
 
 function safeExt(fileName: string, mimeType: string): string {
     const fromName = fileName.split('.').pop()?.toLowerCase();
@@ -10,6 +13,65 @@ function safeExt(fileName: string, mimeType: string): string {
     if (mimeType.includes('webp')) return 'webp';
     if (mimeType.includes('heic')) return 'heic';
     return 'jpg';
+}
+
+function isValidDeviceId(deviceId: string): boolean {
+    return /^[a-zA-Z0-9_-]{8,128}$/.test(deviceId);
+}
+
+async function checkUploadLimits(
+    supabaseUrl: string,
+    serviceKey: string,
+    deviceId: string
+): Promise<{ ok: true } | { ok: false; status: number; message: string }> {
+    const supabase = createClient(supabaseUrl, serviceKey);
+    const startOfDay = new Date();
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    const dayIso = startOfDay.toISOString();
+
+    const { count: dailyCount, error: dailyErr } = await supabase
+        .from('bus_photo_events')
+        .select('id', { count: 'exact', head: true })
+        .eq('device_id', deviceId)
+        .gte('created_at', dayIso);
+
+    if (dailyErr) {
+        return { ok: false, status: 500, message: dailyErr.message };
+    }
+
+    if ((dailyCount || 0) >= MAX_UPLOADS_PER_DAY) {
+        return {
+            ok: false,
+            status: 429,
+            message: 'Você já enviou o limite de fotos de hoje. Tente novamente amanhã.'
+        };
+    }
+
+    const { data: recentRowsRaw, error: recentErr } = await supabase
+        .from('bus_photo_events')
+        .select('created_at')
+        .eq('device_id', deviceId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+    if (recentErr) {
+        return { ok: false, status: 500, message: recentErr.message };
+    }
+
+    const recentRows = (recentRowsRaw || []) as Array<{ created_at: string }>;
+    const lastCreatedAt = recentRows[0]?.created_at;
+    if (lastCreatedAt) {
+        const secondsSinceLast = (Date.now() - new Date(lastCreatedAt).getTime()) / 1000;
+        if (secondsSinceLast < COOLDOWN_SECONDS) {
+            return {
+                ok: false,
+                status: 429,
+                message: 'Aguarde 1 minuto antes de enviar outra foto.'
+            };
+        }
+    }
+
+    return { ok: true };
 }
 
 export async function POST(req: Request) {
@@ -28,12 +90,21 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'photo and device_id are required' }, { status: 400 });
         }
 
+        if (!isValidDeviceId(deviceId)) {
+            return NextResponse.json({ error: 'device_id inválido.' }, { status: 400 });
+        }
+
         if (!file.type.startsWith('image/')) {
             return NextResponse.json({ error: 'Only image files are accepted' }, { status: 400 });
         }
 
-        if (file.size > 8 * 1024 * 1024) {
-            return NextResponse.json({ error: 'Image too large (max 8MB)' }, { status: 413 });
+        if (file.size > MAX_FILE_SIZE_BYTES) {
+            return NextResponse.json({ error: 'Imagem muito pesada. Limite de 3MB.' }, { status: 413 });
+        }
+
+        const limits = await checkUploadLimits(supabaseUrl, serviceKey, deviceId);
+        if (!limits.ok) {
+            return NextResponse.json({ error: limits.message }, { status: limits.status });
         }
 
         const supabase = createClient(supabaseUrl, serviceKey);
