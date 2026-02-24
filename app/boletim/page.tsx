@@ -153,6 +153,8 @@ export default function BoletimPage() {
                             value="Crítico"
                             sublabel="Exemplo ilustrativo"
                             className="w-full"
+                            hintTitle="Por que está vazio?"
+                            hintContent="Se ninguém registrou nada nos últimos dias, o painel fica limpo até alguém avisar."
                         />
                     </EmptyState>
                 </div>
@@ -221,6 +223,8 @@ export default function BoletimPage() {
                             onAction={() => window.location.href = '/no-ponto'}
                             secondaryActionLabel="Como Funciona"
                             onSecondaryAction={() => window.location.href = '/como-usar'}
+                            hintTitle="Amostra mínima"
+                            hintContent="Número de registros necessários pra que o cálculo faça sentido e seja real."
                         />
                     ) : (
                         <>

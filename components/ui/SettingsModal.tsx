@@ -1,9 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { X, Shield, ChevronRight, Lock } from 'lucide-react';
+import { X, Shield, ChevronRight, Lock, Clock, History, MapPin, Bell, Type, Trash2, AlertTriangle } from 'lucide-react';
 import { IconButton } from './IconButton';
 import { useUiPrefs } from '@/lib/useUiPrefs';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
 import Link from 'next/link';
 
 interface SettingsModalProps {
@@ -12,7 +13,49 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
-    const { uiMode, density, setUiMode, setDensity } = useUiPrefs();
+    const {
+        uiMode,
+        density,
+        stopMode,
+        notifMode,
+        setUiMode,
+        setDensity,
+        setStopMode,
+        setNotifMode
+    } = useUiPrefs();
+    const { pendingCount } = useOfflineSync();
+
+    const [isClearing, setIsClearing] = React.useState(false);
+    const [showConfirmClear, setShowConfirmClear] = React.useState(false);
+
+    const handleClearData = async () => {
+        setIsClearing(true);
+        try {
+            // 1. Clear LocalStorage
+            localStorage.clear();
+
+            // 2. Clear Cookies
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                const eqPos = cookie.indexOf("=");
+                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+            }
+
+            // 3. Clear IndexedDB
+            const dbs = ['VRNP_OfflineQueue', 'VRNP_OfflineProofQueue'];
+            for (const dbName of dbs) {
+                indexedDB.deleteDatabase(dbName);
+            }
+
+            // 4. Force reload to home
+            window.location.href = '/';
+        } catch (err) {
+            console.error('Falha ao limpar dados:', err);
+            setIsClearing(false);
+        }
+    };
 
     // Focus trapping and Escape key closing
     React.useEffect(() => {
@@ -55,74 +98,129 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 </div>
 
                 {/* Modal Body */}
-                <div className="p-6 space-y-8">
-                    {/* UI Mode Toggle */}
+                <div className="p-6 space-y-8 overflow-y-auto max-h-[70vh]">
+                    {/* 1. Localização (Auto GPS) */}
                     <div className="space-y-4">
-                        <div>
-                            <p className="text-white font-medium mb-1">Tamanho e Conforto</p>
-                            <p className="text-white/50 text-sm">Para facilitar leitura e toque, remove os fundos em vidro transparente.</p>
-                        </div>
-
-                        <div className="flex bg-surface-2 rounded-xl p-1 border border-white/5">
-                            <button
-                                onClick={() => setUiMode('default')}
-                                className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors ${uiMode === 'default' ? 'bg-surface text-brand shadow border border-white/10' : 'text-white/50 hover:text-white'}`}
-                                aria-pressed={uiMode === 'default'}
-                            >
-                                Padrão
-                            </button>
-                            <button
-                                onClick={() => setUiMode('legivel')}
-                                className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors ${uiMode === 'legivel' ? 'bg-surface text-brand shadow border border-white/10' : 'text-white/50 hover:text-white'}`}
-                                aria-pressed={uiMode === 'legivel'}
-                            >
-                                Letras Maiores
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Density Toggle */}
-                    <div className="space-y-4">
-                        <div>
-                            <p className="text-white font-medium mb-1">Densidade da Interface</p>
-                            <p className="text-white/50 text-sm">Ajusta o espaçamento de listas e caixas da aplicação.</p>
-                        </div>
-
-                        <div className="flex bg-surface-2 rounded-xl p-1 border border-white/5">
-                            <button
-                                onClick={() => setDensity('comfort')}
-                                className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors ${density === 'comfort' ? 'bg-surface text-brand shadow border border-white/10' : 'text-white/50 hover:text-white'}`}
-                                aria-pressed={density === 'comfort'}
-                            >
-                                Conforto
-                            </button>
-                            <button
-                                onClick={() => setDensity('compact')}
-                                className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors ${density === 'compact' ? 'bg-surface text-brand shadow border border-white/10' : 'text-white/50 hover:text-white'}`}
-                                aria-pressed={density === 'compact'}
-                            >
-                                Mais Itens
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Admin Access Section */}
-                    <div className="pt-6 border-t border-white/5 space-y-4">
                         <div className="flex items-center gap-2 mb-1">
-                            <Shield size={16} className="text-brand" />
-                            <p className="text-white font-medium">Acesso Administrativo</p>
+                            <MapPin size={16} className="text-brand" />
+                            <p className="text-white font-medium uppercase text-[10px] tracking-widest opacity-60">Localização</p>
                         </div>
-
                         <div className="space-y-3">
-                            <Link href="/admin/dia1" onClick={onClose} className="w-full flex items-center justify-between p-4 rounded-xl bg-brand/10 border border-brand/20 hover:bg-brand/20 transition-colors group">
-                                <div className="flex items-center gap-3">
-                                    <Shield size={18} className="text-brand" />
-                                    <span className="text-sm text-brand font-bold uppercase tracking-widest">Setup Dia 1 (2 min)</span>
-                                </div>
-                                <ChevronRight size={18} className="text-brand/50" />
-                            </Link>
-                            <AdminLogin />
+                            <p className="text-white/50 text-[10px] uppercase font-bold leading-relaxed px-1">
+                                No modo automático, sugerimos o ponto mais próximo via GPS.
+                            </p>
+                            <div className="flex bg-surface-2 rounded-xl p-1 border border-white/5">
+                                <button
+                                    onClick={() => setStopMode('auto')}
+                                    className={`flex-1 py-3 px-4 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${stopMode === 'auto' ? 'bg-brand text-black shadow-lg' : 'text-white/50 hover:text-white'}`}
+                                >
+                                    Automático
+                                </button>
+                                <button
+                                    onClick={() => setStopMode('manual')}
+                                    className={`flex-1 py-3 px-4 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${stopMode === 'manual' ? 'bg-brand text-black shadow-lg' : 'text-white/50 hover:text-white'}`}
+                                >
+                                    Manual
+                                </button>
+                            </div>
                         </div>
+                    </div>
+
+                    {/* 2. Notificações */}
+                    <div className="space-y-4 pt-6 border-t border-white/5">
+                        <div className="flex items-center gap-2 mb-1">
+                            <Bell size={16} className="text-brand" />
+                            <p className="text-white font-medium uppercase text-[10px] tracking-widest opacity-60">Notificações</p>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex bg-surface-2 rounded-xl p-1 border border-white/5">
+                                <button
+                                    onClick={() => setNotifMode('digest')}
+                                    className={`flex-1 py-3 px-4 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${notifMode === 'digest' ? 'bg-brand text-black shadow-lg' : 'text-white/50 hover:text-white'}`}
+                                >
+                                    Resumo
+                                </button>
+                                <button
+                                    onClick={() => setNotifMode('immediate')}
+                                    className={`flex-1 py-3 px-4 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${notifMode === 'immediate' ? 'bg-brand text-black shadow-lg' : 'text-white/50 hover:text-white'}`}
+                                >
+                                    Imediato
+                                </button>
+                            </div>
+                            {notifMode === 'immediate' && (
+                                <p className="text-rust text-[9px] font-bold uppercase leading-relaxed px-1 flex items-start gap-1.5 animate-in fade-in slide-in-from-top-1">
+                                    <AlertTriangle size={12} className="shrink-0 mt-0.5" />
+                                    <span>Pode gerar muitas mensagens. Ative com moderação.</span>
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* 3. Acessibilidade */}
+                    <div className="space-y-4 pt-6 border-t border-white/5">
+                        <div className="flex items-center gap-2 mb-1">
+                            <Type size={16} className="text-brand" />
+                            <p className="text-white font-medium uppercase text-[10px] tracking-widest opacity-60">Acessibilidade</p>
+                        </div>
+                        <div className="flex items-center justify-between p-4 rounded-xl bg-surface-2 border border-white/5">
+                            <span className="text-sm text-white/70">Texto Maior</span>
+                            <button
+                                onClick={() => setUiMode(uiMode === 'legivel' ? 'default' : 'legivel')}
+                                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors focus:outline-none ${uiMode === 'legivel' ? 'bg-brand' : 'bg-white/10'}`}
+                            >
+                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${uiMode === 'legivel' ? 'translate-x-6' : 'translate-x-1'}`} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* 4. Privacidade */}
+                    <div className="space-y-4 pt-6 border-t border-white/5">
+                        <div className="flex items-center gap-2 mb-1">
+                            <Trash2 size={16} className="text-danger" />
+                            <p className="text-danger font-medium uppercase text-[10px] tracking-widest opacity-60">Privacidade</p>
+                        </div>
+                        {!showConfirmClear ? (
+                            <button
+                                onClick={() => setShowConfirmClear(true)}
+                                className="w-full flex items-center justify-between p-4 rounded-xl bg-danger/5 border border-danger/20 hover:bg-danger/10 transition-colors group"
+                            >
+                                <span className="text-sm text-danger/80">Limpar dados do aparelho</span>
+                                <ChevronRight size={18} className="text-danger/40" />
+                            </button>
+                        ) : (
+                            <div className="p-4 rounded-xl bg-danger/10 border border-danger/30 space-y-4 animate-in zoom-in-95">
+                                <p className="text-[10px] font-bold text-danger uppercase leading-relaxed text-center">
+                                    Recomendado apenas se estiver saindo do aparelho. Esta ação é definitiva.
+                                </p>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setShowConfirmClear(false)}
+                                        className="flex-1 py-3 px-2 rounded-lg bg-white/5 text-white/70 text-[10px] font-black uppercase"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={handleClearData}
+                                        disabled={isClearing}
+                                        className="flex-1 py-3 px-2 rounded-lg bg-danger text-white text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all"
+                                    >
+                                        {isClearing ? 'Limpando...' : 'Confirmar'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Links Extras */}
+                    <div className="pt-6 border-t border-white/5 space-y-3">
+                        <Link href="/meu" onClick={onClose} className="w-full flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/5 transition-colors group">
+                            <div className="flex items-center gap-3">
+                                <History size={18} className="text-white/30 group-hover:text-brand transition-colors" />
+                                <span className="text-sm text-white/70">Minha Auditoria</span>
+                            </div>
+                            <ChevronRight size={18} className="text-white/20" />
+                        </Link>
+                        <AdminLogin />
                     </div>
                 </div>
             </div>

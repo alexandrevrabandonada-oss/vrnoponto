@@ -1,32 +1,38 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import { AppShell, PublicTopBar, SectionCard } from '@/components/ui';
 
 export default function Loading() {
     return (
-        <main className="min-h-screen bg-[#070707] p-4 md:p-8 text-white">
-            <div className="fixed inset-0 industrial-texture opacity-15 pointer-events-none" />
-            <div className="max-w-7xl mx-auto space-y-6 relative z-10">
+        <AppShell hideHeader>
+            <PublicTopBar title="Mapa de Bairros" />
+
+            <div className="max-w-7xl mx-auto py-4 space-y-8">
                 {/* Header Skeleton */}
-                <div className="rounded-2xl border border-white/10 bg-[#0c0f14] p-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
-                            <div className="h-8 w-64 bg-white/10 rounded-lg animate-pulse" />
+                <SectionCard>
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                        <div className="flex-1 space-y-4">
+                            <div className="h-8 w-64 bg-white/5 rounded-lg animate-pulse" />
+                            <div className="h-4 w-96 max-w-full bg-white/5 rounded animate-pulse" />
                         </div>
-                        <div className="h-4 w-96 bg-white/10 rounded animate-pulse" />
+                        <div className="h-12 w-48 bg-white/5 rounded-xl animate-pulse" />
+                    </div>
+                </SectionCard>
+
+                <div className="space-y-6">
+                    {/* Legend Skeleton */}
+                    <div className="bg-white/[0.02] border border-white/5 h-16 rounded-2xl animate-pulse" />
+
+                    {/* Map Area Skeleton */}
+                    <div className="min-h-[600px] h-[calc(100vh-450px)] relative bg-white/[0.02] rounded-3xl border border-white/5 overflow-hidden flex flex-col items-center justify-center">
+                        <Loader2 className="animate-spin text-brand/20 mb-4" size={32} />
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/10 animate-pulse">
+                            Sincronizando Geo-Dados...
+                        </p>
                     </div>
                 </div>
-
-                {/* Legend Skeleton */}
-                <div className="bg-[#0c0f14] p-4 rounded-xl border border-white/10 h-16 animate-pulse" />
-
-                {/* Map Area Skeleton */}
-                <div className="min-h-[600px] h-[calc(100vh-300px)] relative bg-[#0c0f14] rounded-2xl border border-white/10 overflow-hidden flex flex-col items-center justify-center">
-                    <Loader2 className="animate-spin text-brand mb-4" size={48} />
-                    <p className="text-white/70 font-industrial text-xs tracking-widest uppercase animate-pulse">Sincronizando Geo-Dados...</p>
-                </div>
             </div>
-        </main>
+        </AppShell>
     );
 }

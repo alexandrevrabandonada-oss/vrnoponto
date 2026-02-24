@@ -1,11 +1,13 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { Info, Loader2, Map as MapIcon, MenuSquare, Zap, MapPin, ArrowLeft, Hexagon, CircleDot } from 'lucide-react';
+import { Loader2, CircleDot } from 'lucide-react';
 import NeighborhoodMapWrapper from '@/components/NeighborhoodMapWrapper';
 import { type NeighborhoodMapItem } from '@/components/NeighborhoodMap';
-import { TrustMixBadge } from '@/components/TrustMixBadge';
-import { EmptyState, MetricCard } from '@/components/ui';
-import { AlertTriangle } from 'lucide-react';
+import {
+    AppShell, PublicTopBar, PageHeader, SectionCard,
+    SecondaryCTA
+} from '@/components/ui';
+import { NeighborhoodListView } from './NeighborhoodListView';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,91 +23,6 @@ async function fetchNeighborhoods(baseUrl: string, polygons: boolean): Promise<A
     } catch {
         return { type: 'circles', data: [] };
     }
-}
-
-function getRiskColor(band: string): string {
-    switch (band) {
-        case 'CRIT': return 'text-red-600 bg-red-50 border-red-200';
-        case 'BAD': return 'text-orange-600 bg-orange-50 border-orange-200';
-        case 'ATTENTION': return 'text-amber-600 bg-amber-50 border-amber-200';
-        default: return 'text-emerald-600 bg-emerald-50 border-emerald-200';
-    }
-}
-
-function getRiskLabel(band: string): string {
-    switch (band) {
-        case 'CRIT': return 'CRÍTICO';
-        case 'BAD': return 'RUIM';
-        case 'ATTENTION': return 'ATENÇÃO';
-        default: return 'OK';
-    }
-}
-
-function ListView({ neighborhoods, critOnly }: { neighborhoods: NeighborhoodMapItem[], critOnly: boolean }) {
-    let filtered = [...neighborhoods].sort((a, b) => b.avg_delta_min - a.avg_delta_min);
-    if (critOnly) filtered = filtered.filter(n => n.risk_band === 'CRIT' || n.risk_band === 'BAD');
-
-    return (
-        <div className="rounded-2xl p-4 md:p-6 bg-[#0c0f14] border border-white/10 shadow-2xl">
-            <h2 className="text-xl font-industrial tracking-wide italic uppercase text-white mb-6">Bairros por atraso (30 dias)</h2>
-            <div className="space-y-3">
-                {filtered.map((n, i) => {
-                    const riskClasses = getRiskColor(n.risk_band);
-                    return (
-                        <Link
-                            key={n.neighborhood}
-                            href={`/bairro/${encodeURIComponent(n.neighborhood)}`}
-                            className={`block p-4 rounded-xl border flex flex-col sm:flex-row justify-between sm:items-center gap-3 transition hover:scale-[1.01] ${riskClasses}`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className="text-sm font-black text-white/40 w-6">{i + 1}</span>
-                                <div>
-                                    <h3 className="font-bold text-zinc-900">{n.neighborhood}</h3>
-                                    <div className="text-xs text-zinc-600 mt-0.5 flex items-center gap-2">
-                                        <span>{n.stops_count} pontos</span>
-                                        <span>·</span>
-                                        <span>{n.samples_total} relatos</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <TrustMixBadge total={n.samples_total} pctVerified={n.pct_verified_avg} />
-                                <div className="text-center">
-                                    <div className="font-black text-lg">+{n.avg_delta_min}m</div>
-                                    <div className="text-[10px] font-bold uppercase">{getRiskLabel(n.risk_band)}</div>
-                                </div>
-                            </div>
-                        </Link>
-                    );
-                })}
-                {filtered.length === 0 && (
-                    <EmptyState
-                        icon={AlertTriangle}
-                        title="Mapa Sem Dados"
-                        description="Nenhum bairro atingiu a amostragem mínima para visualização espacial hoje."
-                        actionLabel="Gerar primeiros dados agora"
-                        onAction={() => window.location.href = '/no-ponto'}
-                        secondaryActionLabel="Ver Ranking"
-                        onSecondaryAction={() => window.location.href = '/bairros'}
-                        className="bg-transparent border-none text-white"
-                    >
-                        <div className="grid grid-cols-2 gap-4 w-full max-w-sm mt-4">
-                            <MetricCard
-                                label="Bairro Exemplo"
-                                value="+15m"
-                                sublabel="Simulação"
-                            />
-                            <MetricCard
-                                label="Confiabilidade"
-                                value="78%"
-                                sublabel="Exemplo"
-                            />
-                        </div>
-                    </EmptyState>
-                )}
-            </div>
-        </div>
-    );
 }
 
 export default async function MapaBairrosPage(props: { searchParams: Promise<{ m?: string; f?: string; v?: string }> }) {
@@ -142,105 +59,120 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
     };
 
     return (
-        <main className="min-h-screen bg-[#070707] text-white p-4 md:p-8">
-            <div className="fixed inset-0 industrial-texture opacity-15 pointer-events-none" />
-            <div className="max-w-7xl mx-auto space-y-6 relative z-10">
-                {/* Header */}
-                <div className="rounded-2xl border border-white/10 bg-[#0c0f14] p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                    <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <Link href="/bairros" className="text-white/50 hover:text-brand transition-colors">
-                                <ArrowLeft size={20} />
-                            </Link>
-                            <h1 className="text-3xl font-industrial italic uppercase tracking-wide text-white flex items-center gap-3">
-                                Mapa de bairros <MapPin className="text-brand" />
-                            </h1>
-                        </div>
-                        <p className="text-white/70 mt-1">
-                            {hasPolygons ? 'Mapa detalhado dos bairros' : 'Visualização aproximada por centroide'} — cores indicam o nível de atraso (30d).
-                        </p>
-                    </div>
+        <AppShell hideHeader>
+            <PublicTopBar title="Mapa de Bairros" />
 
-                    <div className="flex flex-wrap gap-2">
-                        {/* View Mode Toggle */}
-                        <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
-                            <a href={toggleParam('m', '__clear__').replace('m=__clear__&', '').replace('?m=__clear__', '').replace('&m=__clear__', '')}
-                                className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${!listMode ? 'bg-brand/20 text-brand border border-brand/30' : 'text-white/70 hover:text-white'}`}>
-                                <MapIcon size={14} /> Mapa
-                            </a>
-                            <a href={toggleParam('m', 'lista')}
-                                className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${listMode ? 'bg-brand/20 text-brand border border-brand/30' : 'text-white/70 hover:text-white'}`}>
-                                <MenuSquare size={14} /> Lista
-                            </a>
+            <div className="max-w-7xl mx-auto py-4 space-y-8">
+                <SectionCard>
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                        <div className="flex-1">
+                            <PageHeader
+                                title="Mapa de Bairros"
+                                subtitle={hasPolygons ? 'Mapa detalhado com áreas geodemográficas (30d)' : 'Visualização aproximada por centroide (30d)'}
+                                className="!pb-0"
+                            />
                         </div>
 
-                        {/* Layer Toggle */}
-                        {!listMode && (
-                            <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
-                                <a href={`/mapa/bairros${searchParams.f ? `?f=${searchParams.f}` : ''}`}
-                                    className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${!polyMode ? 'bg-brand/20 text-brand border border-brand/30' : 'text-white/70 hover:text-white'}`}>
-                                    <CircleDot size={14} /> Círculos
-                                </a>
-                                <a href={`/mapa/bairros?v=polygons${searchParams.f ? `&f=${searchParams.f}` : ''}`}
-                                    className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${polyMode ? 'bg-brand/20 text-brand border border-brand/30' : 'text-white/70 hover:text-white'}`}>
-                                    <Hexagon size={14} /> Polígonos
-                                </a>
+                        <div className="flex flex-wrap gap-3">
+                            {/* View Mode */}
+                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                <Link
+                                    href={toggleParam('m', '__clear__').replace('m=__clear__&', '').replace('?m=__clear__', '').replace('&m=__clear__', '')}
+                                    className={`px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all ${!listMode ? 'bg-brand text-black shadow-lg shadow-brand/20' : 'text-white/40 hover:text-white'}`}
+                                >
+                                    Mapa
+                                </Link>
+                                <Link
+                                    href={toggleParam('m', 'lista')}
+                                    className={`px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all ${listMode ? 'bg-brand text-black shadow-lg shadow-brand/20' : 'text-white/40 hover:text-white'}`}
+                                >
+                                    Lista
+                                </Link>
                             </div>
-                        )}
 
-                        {/* Critical Filter */}
-                        <a href={critOnly ? '/mapa/bairros' : `/mapa/bairros?f=criticos${polyMode ? '&v=polygons' : ''}`}
-                            className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition border ${critOnly ? 'bg-red-500/15 text-red-400 border-red-500/40' : 'bg-white/5 text-white/70 border-white/10 hover:text-white'}`}>
-                            <Zap size={14} /> Críticos
-                        </a>
+                            {/* Type Mode (Circles vs Polygons) */}
+                            {!listMode && (
+                                <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                    <Link
+                                        href={`/mapa/bairros${searchParams.f ? `?f=${searchParams.f}` : ''}`}
+                                        className={`px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all ${!polyMode ? 'bg-brand text-black shadow-lg shadow-brand/20' : 'text-white/40 hover:text-white'}`}
+                                    >
+                                        Círculos
+                                    </Link>
+                                    <Link
+                                        href={`/mapa/bairros?v=polygons${searchParams.f ? `&f=${searchParams.f}` : ''}`}
+                                        className={`px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all ${polyMode ? 'bg-brand text-black shadow-lg shadow-brand/20' : 'text-white/40 hover:text-white'}`}
+                                    >
+                                        Polígonos
+                                    </Link>
+                                </div>
+                            )}
+
+                            {/* Critical Filter */}
+                            <Link
+                                href={critOnly ? '/mapa/bairros' : `/mapa/bairros?f=criticos${polyMode ? '&v=polygons' : ''}`}
+                                className={`px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border ${critOnly ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-white/5 text-white/40 border-white/5 hover:text-white hover:border-white/10'}`}
+                            >
+                                Críticos
+                            </Link>
+                        </div>
                     </div>
-                </div>
+                </SectionCard>
 
-                {/* Polygon fallback notice */}
                 {polyMode && !hasPolygons && (
-                    <div className="bg-amber-500/10 border border-amber-400/30 p-4 rounded-xl text-sm text-amber-200 flex items-center gap-2">
-                        <Info size={16} />
-                        Polígonos não disponíveis. Exibindo modo círculos. Importe um GeoJSON pelo painel admin.
-                    </div>
+                    <SecondaryCTA className="w-full !justify-start !bg-red-500/10 !border-red-500/20 !text-red-400 !h-auto !py-4">
+                        <div className="flex items-center gap-3">
+                            <CircleDot className="animate-pulse" />
+                            <div className="text-left">
+                                <p className="font-bold uppercase tracking-widest text-[10px]">Aviso Técnico</p>
+                                <p className="text-xs opacity-80">Polígonos em processamento. Usando centroides temporariamente.</p>
+                            </div>
+                        </div>
+                    </SecondaryCTA>
                 )}
 
-                {/* Legend */}
-                {!listMode && (
-                    <div className="bg-[#0c0f14] p-4 rounded-xl border border-white/10 flex flex-wrap gap-4 items-center justify-between text-sm">
-                        <div className="flex items-center gap-2 text-white/90 font-semibold">
-                            <Info size={16} className="text-brand" /> Legenda de Risco:
+                {listMode ? (
+                    <NeighborhoodListView neighborhoods={neighborhoods} critOnly={critOnly} />
+                ) : (
+                    <div className="space-y-6">
+                        {/* Legend */}
+                        <div className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl flex flex-wrap items-center justify-center gap-6">
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-red-600 shadow-[0_0_10px_rgba(239,68,68,0.4)]" />
+                                <span className="text-[10px] font-black uppercase text-white/50 tracking-widest">Crítico (+15m)</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-orange-500" />
+                                <span className="text-[10px] font-black uppercase text-white/50 tracking-widest">Ruim (+10m)</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-amber-400" />
+                                <span className="text-[10px] font-black uppercase text-white/50 tracking-widest">Atenção (+5m)</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                                <span className="text-[10px] font-black uppercase text-white/50 tracking-widest">Normal</span>
+                            </div>
                         </div>
-                        <div className="flex flex-wrap gap-3 font-medium text-white/80">
-                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-emerald-500"></span> OK (&lt;=3m)</span>
-                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Atenção (3-8m)</span>
-                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-orange-500"></span> Ruim (8-15m)</span>
-                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-red-500"></span> Crítico (+15m)</span>
-                        </div>
-                    </div>
-                )}
 
-                {/* Content */}
-                <div className="min-h-[600px] h-[calc(100vh-300px)] relative">
-                    {listMode ? (
-                        <ListView neighborhoods={neighborhoods} critOnly={critOnly} />
-                    ) : (
-                        <div className="w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative z-0 bg-[#0c0f14]">
+                        {/* Map Container */}
+                        <div className="min-h-[600px] h-[calc(100vh-450px)] relative bg-white/[0.02] rounded-3xl border border-white/5 overflow-hidden shadow-2xl">
                             <Suspense fallback={
-                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0c0f14] text-white/70">
-                                    <Loader2 className="animate-spin mb-3" size={32} />
-                                    <span className="font-medium text-sm">Carregando mapa...</span>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/20 backdrop-blur-sm">
+                                    <Loader2 className="animate-spin text-brand mb-4" size={32} />
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Renderizando Geometrias...</p>
                                 </div>
                             }>
                                 <NeighborhoodMapWrapper
                                     neighborhoods={neighborhoods}
-                                    geojsonData={hasPolygons ? apiResponse.geojson : undefined}
-                                    mode={hasPolygons ? 'polygons' : 'circles'}
+                                    geojsonData={apiResponse.geojson}
+                                    mode={polyMode ? 'polygons' : 'circles'}
                                 />
                             </Suspense>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
-        </main>
+        </AppShell>
     );
 }

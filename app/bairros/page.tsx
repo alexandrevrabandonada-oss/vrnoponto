@@ -101,6 +101,8 @@ export default function BairrosPage() {
                         <MetricCard
                             label="Relatos"
                             value={neighborhoods.reduce((a, b) => a + b.samples_total, 0)}
+                            hintTitle="Amostra mínima"
+                            hintContent="Número de registros necessários pra que o cálculo faça sentido e seja real."
                         />
                     </div>
 
@@ -116,6 +118,8 @@ export default function BairrosPage() {
                                     onAction={() => window.location.href = '/no-ponto'}
                                     secondaryActionLabel="Como Funciona"
                                     onSecondaryAction={() => window.location.href = '/como-usar'}
+                                    hintTitle="Amostra mínima"
+                                    hintContent="Número de registros necessários pra que o cálculo faça sentido e seja real."
                                 />
                             ) : (
                                 neighborhoods.map((n, i) => (

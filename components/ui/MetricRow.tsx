@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
+import { GlossaryHint } from './GlossaryHint';
 
 export interface MetricRowProps {
     label: string;
@@ -18,6 +19,8 @@ export interface MetricRowProps {
         value: number | string;
         isPositive: boolean;
     };
+    hintTitle?: string;
+    hintContent?: string;
 }
 
 export const MetricRow = ({
@@ -30,8 +33,12 @@ export const MetricRow = ({
     className = '',
     // Legacy
     unit,
-    trend
+    trend,
+    hintTitle,
+    hintContent
 }: MetricRowProps) => {
+
+
     // Map legacy
     const finalDelta = delta || (trend ? (trend.isPositive ? 'positive' : 'negative') : undefined);
     const finalDeltaLabel = deltaLabel || (trend ? `${trend.isPositive ? '+' : ''}${trend.value}` : undefined);
@@ -47,9 +54,14 @@ export const MetricRow = ({
         <div className={`flex justify-between items-center py-3 border-b border-white/5 last:border-0 ${className}`}>
             {/* Left side: Label & Sublabel */}
             <div className="flex flex-col">
-                <span className="font-industrial text-[11px] text-muted uppercase tracking-widest opacity-80">
-                    {label}
-                </span>
+                <div className="flex items-center gap-1.5 opacity-80">
+                    <span className="font-industrial text-[11px] text-muted uppercase tracking-widest">
+                        {label}
+                    </span>
+                    {hintTitle && hintContent && (
+                        <GlossaryHint title={hintTitle} content={hintContent} />
+                    )}
+                </div>
                 {finalSublabel && (
                     <span className="text-[9px] font-bold text-muted uppercase tracking-tight opacity-40">
                         {finalSublabel}

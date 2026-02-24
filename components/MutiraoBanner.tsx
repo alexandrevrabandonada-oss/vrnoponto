@@ -39,9 +39,9 @@ export function MutiraoBanner() {
                     </p>
                 </div>
             </div>
-            <Link href="/no-ponto" className="shrink-0">
+            <Link href="/mutirao" className="shrink-0">
                 <Button className="!bg-brand !text-black !rounded-xl !px-4 !h-9 !text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform">
-                    Participar <ArrowRight size={14} className="ml-1" />
+                    Ver Mutirão <ArrowRight size={14} className="ml-1" />
                 </Button>
             </Link>
         </div>

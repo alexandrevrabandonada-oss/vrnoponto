@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Card } from './Card';
+import { GlossaryHint } from './GlossaryHint';
 
 interface MetricCardProps {
     label: string;
@@ -11,6 +12,8 @@ interface MetricCardProps {
     trend?: string;
     trendColor?: 'brand' | 'danger' | 'success' | 'muted';
     icon?: React.ReactNode;
+    hintTitle?: string;
+    hintContent?: string;
 }
 
 export const MetricCard = ({
@@ -20,7 +23,9 @@ export const MetricCard = ({
     className = '',
     trend,
     trendColor = 'brand',
-    icon
+    icon,
+    hintTitle,
+    hintContent
 }: MetricCardProps) => {
     const trendStyles = {
         brand: 'text-brand',
@@ -46,16 +51,19 @@ export const MetricCard = ({
                     </div>
                 )}
             </div>
-            <div className="pt-2 border-t border-white/5">
+            <div className="flex items-center justify-center gap-1.5 pt-2 border-t border-white/5">
                 <div className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">
                     {label}
                 </div>
-                {sublabel && (
-                    <div className="text-[8px] font-bold text-white/20 uppercase tracking-tight">
-                        {sublabel}
-                    </div>
+                {hintTitle && hintContent && (
+                    <GlossaryHint title={hintTitle} content={hintContent} />
                 )}
             </div>
+            {sublabel && (
+                <div className="text-[8px] font-bold text-white/20 uppercase tracking-tight">
+                    {sublabel}
+                </div>
+            )}
         </Card>
     );
 };

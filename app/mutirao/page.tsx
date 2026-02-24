@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Share2, MapPin, Zap } from 'lucide-react';
-import { AppShell, Button } from '@/components/ui';
+import { Share2, MapPin, Zap, CheckCircle2, MessageSquare, BarChart3 } from 'lucide-react';
+import { AppShell, Button, SectionCard } from '@/components/ui';
 import Link from 'next/link';
 
 export default function MutiraoPage() {
@@ -26,8 +26,8 @@ export default function MutiraoPage() {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: status?.mutirao?.title || 'Mutirão VR no Ponto',
-                    text: 'Bora bater a meta de registros hoje!',
+                    title: status?.mutirao?.title || 'Mutirão de Auditoria',
+                    text: 'Bora bater a meta de registros hoje no VR no Ponto!',
                     url: shareUrl,
                 });
             } catch { }
@@ -59,60 +59,86 @@ export default function MutiraoPage() {
     const goal = m.goal || 50;
     const pct = Math.min(100, (progress / goal) * 100);
 
+    const tasks = [
+        { icon: MapPin, title: 'Estou no ponto', desc: 'Capture sua posição GPS exata.' },
+        { icon: MessageSquare, title: 'Registrar 1 evento', desc: 'Diga se o ônibus passou ou se você entrou.' },
+        { icon: BarChart3, title: 'Compartilhar boletim', desc: 'Fortaleça a rede e ajude mais pessoas.' }
+    ];
+
     return (
         <AppShell title="MUTIRÃO DE AUDITORIA">
-            <div className="space-y-12 py-8 animate-fade-in-up flex flex-col items-center">
-                <div className="text-center space-y-4 max-w-xs">
+            <div className="space-y-10 py-8 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700 flex flex-col items-center">
+                <div className="text-center space-y-3 max-w-xs">
                     <h1 className="text-4xl font-industrial text-white tracking-tight leading-none italic uppercase">
                         {m.title}
                     </h1>
                     <p className="text-brand text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed">
-                        Campanha de auditoria coletiva.<br />Cada registro fortalece o sistema.
+                        Gerando os primeiros dados da rede.
                     </p>
                 </div>
 
-                {/* Large Progress Counter */}
-                <div className="relative group">
-                    <div className="absolute inset-0 bg-brand/5 blur-3xl rounded-full scale-150 animate-pulse" />
-                    <div className="relative flex flex-col items-center justify-center">
-                        <div className="text-[100px] font-industrial leading-none text-white tracking-tighter italic">
-                            {progress}<span className="text-white/20 text-4xl not-italic">/{goal}</span>
-                        </div>
-                        <div className="text-[10px] font-black uppercase tracking-[0.3em] text-brand mt-4">
-                            Relatos Coletados Hoje
+                {/* Progress Visual */}
+                <div className="w-full max-w-sm space-y-6">
+                    <div className="relative p-8 rounded-3xl bg-white/[0.02] border border-white/5 overflow-hidden flex flex-col items-center">
+                        <div className="absolute inset-0 bg-brand/5 blur-3xl rounded-full scale-150 animate-pulse" />
+                        <div className="relative text-center">
+                            <div className="text-7xl font-industrial leading-none text-white tracking-tighter italic">
+                                {progress}<span className="text-white/20 text-2xl not-italic">/{goal}</span>
+                            </div>
+                            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-brand mt-4">
+                                Relatos Hoje
+                            </p>
                         </div>
                     </div>
-                </div>
 
-                {/* Progress Bar & Main CTA */}
-                <div className="w-full max-w-sm px-8 space-y-10">
-                    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                    <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-brand transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(255,204,0,0.5)]"
+                            className="h-full bg-brand transition-all duration-1000 ease-out"
                             style={{ width: `${pct}%` }}
                         />
                     </div>
+                </div>
 
-                    <div className="grid grid-cols-1 gap-4">
-                        <Link href="/no-ponto">
+                {/* The 3 Tasks */}
+                <div className="w-full max-w-sm space-y-4">
+                    <SectionCard title="Sua Missão" subtitle="Complete as 3 tarefas abaixo">
+                        <div className="space-y-6 py-2">
+                            {tasks.map((task, i) => (
+                                <div key={i} className="flex items-start gap-4 group">
+                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-brand/10 transition-colors">
+                                        <task.icon size={16} className="text-white/40 group-hover:text-brand transition-colors" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-white leading-none mb-1">
+                                            {i + 1}. {task.title}
+                                        </p>
+                                        <p className="text-[11px] text-white/40 font-medium">
+                                            {task.desc}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </SectionCard>
+
+                    <div className="pt-4 space-y-4">
+                        <Link href="/no-ponto" className="block">
                             <Button
                                 className="w-full h-16 !text-lg !bg-brand !text-black shadow-2xl shadow-brand/10 uppercase font-black italic tracking-widest"
-                                icon={<MapPin size={24} />}
+                                icon={<CheckCircle2 size={24} />}
                             >
-                                estou no ponto
+                                COMEÇAR AGORA
                             </Button>
                         </Link>
 
-                        <div className="pt-4">
-                            <Button
-                                variant="ghost"
-                                className="w-full h-12 !text-[10px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 transition-opacity"
-                                onClick={handleShare}
-                                icon={<Share2 size={16} />}
-                            >
-                                {copySuccess ? 'LINK COPIADO!' : 'CHAMAR GALERA PARA AUDITAR'}
-                            </Button>
-                        </div>
+                        <Button
+                            variant="ghost"
+                            className="w-full h-12 !text-[9px] font-black uppercase tracking-[0.2em] opacity-40 hover:opacity-100 transition-opacity"
+                            onClick={handleShare}
+                            icon={<Share2 size={14} />}
+                        >
+                            {copySuccess ? 'LINK COPIADO!' : 'CONVOCAR MAIS PESSOAS'}
+                        </Button>
                     </div>
                 </div>
             </div>

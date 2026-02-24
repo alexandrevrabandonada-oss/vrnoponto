@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LucideIcon, MapPin, Search } from 'lucide-react';
 import { Button } from './Button';
+import { GlossaryHint } from './GlossaryHint';
 
 interface EmptyStateProps {
     icon: LucideIcon;
@@ -15,6 +16,8 @@ interface EmptyStateProps {
     samplesMissing?: number;
     className?: string;
     children?: React.ReactNode;
+    hintTitle?: string;
+    hintContent?: string;
 }
 
 export const EmptyState = ({
@@ -27,7 +30,9 @@ export const EmptyState = ({
     onSecondaryAction,
     samplesMissing,
     className = '',
-    children
+    children,
+    hintTitle,
+    hintContent
 }: EmptyStateProps) => {
     return (
         <div className={`flex flex-col items-center justify-center p-12 text-center animate-in fade-in zoom-in-95 duration-500 bg-white/[0.01] border border-dashed border-white/5 rounded-3xl ${className}`}>
@@ -39,8 +44,11 @@ export const EmptyState = ({
             </div>
 
             <div className="space-y-3 max-w-sm mx-auto mb-8">
-                <h3 className="font-industrial text-xl uppercase tracking-widest text-white italic">
+                <h3 className="flex items-center justify-center gap-2 font-industrial text-xl uppercase tracking-widest text-white italic">
                     {title}
+                    {hintTitle && hintContent && (
+                        <GlossaryHint title={hintTitle} content={hintContent} />
+                    )}
                 </h3>
                 <p className="text-[10px] font-bold text-muted uppercase tracking-tight leading-relaxed opacity-60">
                     {description}

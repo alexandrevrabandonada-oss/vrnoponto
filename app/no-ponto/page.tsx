@@ -13,6 +13,7 @@ import {
     PublicTopBar, NextStepBlock, PageHeader
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { useUiPrefs } from '@/lib/useUiPrefs';
 import { enqueueEvent } from '@/lib/offlineQueue';
 import { OneTapCard } from '@/components/OneTapCard';
 import { BusPhotoModal } from '@/components/BusPhotoModal';
@@ -51,9 +52,10 @@ export default function NoPonto() {
     const [rewardStopInfo, setRewardStopInfo] = useState<{ name: string, neighborhood?: string } | null>(null);
 
     const { isOnline, refreshPending } = useOfflineSync();
+    const { stopMode, setStopMode } = useUiPrefs();
+
     const HUMAN_RATE_LIMIT_MESSAGE =
         'Calma, já recebemos um check-in seu agora há pouco. Tentar de novo em alguns minutos.';
-    const STOP_MODE_STORAGE_KEY = 'vrnp_stop_mode';
 
     // Telemetry helper
     const trackTelemetry = useCallback((event: string) => {
@@ -88,26 +90,13 @@ export default function NoPonto() {
 
     // Efeito para GPS
     useEffect(() => {
-        try {
-            const storedMode = localStorage.getItem(STOP_MODE_STORAGE_KEY);
-            if (storedMode === 'manual') {
-                setAutoNearestStop(false);
-            } else if (storedMode === 'auto') {
-                setAutoNearestStop(true);
-            }
-        } catch {
-            // ignore localStorage read errors
-        }
+        setAutoNearestStop(stopMode === 'auto');
         refreshGpsPosition();
-    }, [refreshGpsPosition]);
+    }, [refreshGpsPosition, stopMode]);
 
     useEffect(() => {
-        try {
-            localStorage.setItem(STOP_MODE_STORAGE_KEY, autoNearestStop ? 'auto' : 'manual');
-        } catch {
-            // ignore localStorage write errors
-        }
-    }, [autoNearestStop]);
+        setStopMode(autoNearestStop ? 'auto' : 'manual');
+    }, [autoNearestStop, setStopMode]);
 
     // Efeito para buscar pontos quando o GPS atualizar
     useEffect(() => {

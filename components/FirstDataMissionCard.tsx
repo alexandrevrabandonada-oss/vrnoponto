@@ -8,15 +8,15 @@ interface FirstDataMissionCardProps {
     title?: string;
 }
 
-export function FirstDataMissionCard({ title = 'Missão de hoje (10 min)' }: FirstDataMissionCardProps) {
+export function FirstDataMissionCard({ title = 'Mutirão de Auditoria' }: FirstDataMissionCardProps) {
     const handleShare = async () => {
-        const text = 'Ajuda a subir a base do VR no Ponto: faça 2 registros rápidos e compartilhe o boletim.';
+        const text = 'Ajuda a gerar os primeiros dados no VR no Ponto: registre um evento rápido e compartilhe o boletim.';
         const url = typeof window !== 'undefined' ? window.location.origin + '/boletim' : '/boletim';
 
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'VR no Ponto - Primeiros Dados',
+                    title: 'Mutirão de Auditoria',
                     text,
                     url
                 });
@@ -38,19 +38,19 @@ export function FirstDataMissionCard({ title = 'Missão de hoje (10 min)' }: Fir
             <div className="space-y-4">
                 <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-brand/80">{title}</p>
-                    <p className="text-xs text-white/70 mt-1">Três passos rápidos para criar a amostra mínima.</p>
+                    <p className="text-xs text-white/70 mt-1">Três passos para fortalecer o sistema.</p>
                 </div>
 
                 <div className="space-y-2">
                     <Link href="/no-ponto" className="block">
                         <Button variant="primary" className="w-full h-11 !text-[10px] font-black uppercase tracking-widest">
-                            1. Registrar em 1 ponto agora
+                            1. Estou no ponto
                         </Button>
                     </Link>
 
                     <Link href="/no-ponto" className="block">
                         <Button variant="secondary" className="w-full h-11 !text-[10px] font-black uppercase tracking-widest">
-                            2. Registrar em mais 1 ponto
+                            2. Registrar 1 evento
                         </Button>
                     </Link>
 
@@ -60,7 +60,7 @@ export function FirstDataMissionCard({ title = 'Missão de hoje (10 min)' }: Fir
                         className="w-full h-11 !text-[10px] font-black uppercase tracking-widest bg-white/[0.04]"
                         icon={<Share2 size={14} />}
                     >
-                        3. Compartilhar o boletim
+                        3. Compartilhar boletim
                     </Button>
                 </div>
             </div>
