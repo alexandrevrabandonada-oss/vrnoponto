@@ -46,7 +46,7 @@ export default function MeuAuditoriaPage() {
 
     const [events, setEvents] = React.useState<AuditEvent[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
-    const [lastSync, setLastSync] = React.useState<Date | null>(null);
+    const [syncFeedback, setSyncFeedback] = React.useState<string | null>(null);
 
     const loadData = React.useCallback(async () => {
         if (!deviceId) return;
@@ -68,7 +68,7 @@ export default function MeuAuditoriaPage() {
             const localEvents: AuditEvent[] = pendingParams.map(p => ({
                 id: p.id,
                 stopId: p.payload.stopId as string,
-                stopName: 'Ponto (sincronizando...)', // Local pending events don't have names in payload
+                stopName: 'Ponto (sincronizando...)',
                 lineId: p.payload.lineId as string,
                 lineCode: '...',
                 lineName: '...',
@@ -86,7 +86,6 @@ export default function MeuAuditoriaPage() {
             });
 
             setEvents(allEvents.slice(0, 20));
-            setLastSync(new Date());
         } catch (err) {
             console.error('Failed to load audit history:', err);
         } finally {
@@ -97,6 +96,18 @@ export default function MeuAuditoriaPage() {
     React.useEffect(() => {
         loadData();
     }, [loadData, pendingCount]);
+
+    const handleSync = async () => {
+        if (!isOnline) {
+            setSyncFeedback('Sem conexão no momento.');
+            setTimeout(() => setSyncFeedback(null), 3000);
+            return;
+        }
+        await syncNow();
+        setSyncFeedback('Dados enviados com sucesso!');
+        setTimeout(() => setSyncFeedback(null), 3000);
+        loadData();
+    };
 
     const formatEventAction = (type: string, line: string) => {
         switch (type) {
@@ -127,116 +138,107 @@ export default function MeuAuditoriaPage() {
         <AppShell hideHeader>
             <PublicTopBar title="Minha Auditoria" />
 
-            <div className="max-w-md mx-auto py-6 px-4 space-y-8">
+            <div className="max-w-md mx-auto py-6 px-4 space-y-10 animate-in fade-in duration-700">
                 <PageHeader
                     title="Minha Auditoria"
-                    subtitle="Seus últimos registros e status de sincronização."
+                    subtitle="Seu impacto na qualidade do transporte."
                 />
 
-                {/* Sync Status Card */}
-                <Card className={`relative overflow-hidden border-white/5 ${pendingCount > 0 ? 'bg-brand/5 border-brand/20' : 'bg-white/[0.02]'}`}>
-                    <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-xl ${pendingCount > 0 ? 'bg-brand/20 text-brand' : 'bg-white/5 text-white/40'}`}>
-                                {isSyncing ? <RefreshCw size={20} className="animate-spin" /> : <History size={20} />}
+                {/* Large Sync Status Card */}
+                <div className="space-y-4">
+                    <Card className={`relative overflow-hidden border-brand/20 ${pendingCount > 0 ? 'bg-brand/5 border-brand/30' : 'bg-white/[0.02] border-white/5'}`}>
+                        <div className="absolute inset-0 bg-brand/5 blur-3xl rounded-full scale-150" />
+
+                        <div className="relative flex flex-col items-center text-center p-6 space-y-4">
+                            <div className="text-6xl font-industrial italic text-white tracking-tighter">
+                                {pendingCount}
                             </div>
-                            <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Sincronização</p>
-                                <p className="text-sm font-bold text-white uppercase italic">
-                                    {pendingCount > 0 ? `${pendingCount} pendente${pendingCount > 1 ? 's' : ''}` : 'Tudo atualizado'}
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand">
+                                    Pendências para sincronizar
+                                </p>
+                                <p className="text-[12px] text-white/40 font-medium">
+                                    {isOnline ? 'Pronto para enviar ao sistema.' : 'Aguardando conexão com a internet.'}
                                 </p>
                             </div>
-                        </div>
 
-                        {isOnline && pendingCount > 0 && (
                             <Button
                                 variant="primary"
-                                onClick={syncNow}
+                                onClick={handleSync}
                                 loading={isSyncing}
-                                className="!h-9 !px-4 !text-[10px] !py-0"
+                                disabled={pendingCount === 0 || !isOnline}
+                                className="w-full !h-16 !text-xs font-black uppercase tracking-widest !rounded-2xl shadow-xl shadow-brand/10"
+                                icon={isSyncing ? <RefreshCw className="animate-spin" /> : <CheckCircle2 size={18} />}
                             >
-                                Sincronizar
+                                {syncFeedback || (isSyncing ? 'Sincronizando...' : 'Sincronizar Agora')}
                             </Button>
-                        )}
 
-                        {!isOnline && (
-                            <div className="flex items-center gap-1.5 px-3 py-1 bg-danger/10 border border-danger/20 rounded-full">
-                                <WifiOff size={10} className="text-danger" />
-                                <span className="text-[8px] font-black text-danger uppercase">Offline</span>
-                            </div>
-                        )}
-                    </div>
-                </Card>
+                            {!isOnline && (
+                                <div className="flex items-center gap-2 text-danger animate-pulse">
+                                    <WifiOff size={14} />
+                                    <span className="text-[9px] font-black uppercase tracking-widest">Você está offline</span>
+                                </div>
+                            )}
+                        </div>
+                    </Card>
+                </div>
 
                 {/* History List */}
                 <div className="space-y-4">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 px-2">
+                        Últimos 20 registros neste device
+                    </h3>
+
                     {isLoading && events.length === 0 ? (
-                        <div className="py-12 flex flex-col items-center justify-center gap-4 text-white/20">
+                        <div className="py-20 flex flex-col items-center justify-center gap-4 text-white/20">
                             <RefreshCw size={32} className="animate-spin" />
-                            <p className="text-[10px] font-black uppercase tracking-widest">Carregando...</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest italic">Acessando histórico...</p>
                         </div>
                     ) : events.length === 0 ? (
                         <EmptyState
                             icon={MapPin}
                             title="Sem registros ainda"
-                            description="Você ainda não registrou sua presença nos pontos de VR."
+                            description="Seus relatos aparecerão aqui após você visitar um ponto."
                             actionLabel="Estou no ponto"
                             onAction={() => window.location.href = '/no-ponto'}
                         />
                     ) : (
                         <div className="space-y-3">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-white/30 px-2 flex items-center justify-between">
-                                <span>Últimas 20 atividades</span>
-                                {lastSync && <span className="font-normal opacity-50">Atulizado às {lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
-                            </h3>
-
                             {events.map((ev) => (
-                                <Card key={ev.id} className="group hover:bg-white/[0.04] transition-colors border-white/5">
-                                    <div className="flex items-start gap-4">
-                                        <div className="mt-1">
-                                            {ev.status === 'SENT' ? (
-                                                <div className="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center text-brand">
-                                                    <CheckCircle2 size={16} />
-                                                </div>
-                                            ) : ev.status === 'FAILED' ? (
-                                                <div className="w-8 h-8 rounded-full bg-danger/10 flex items-center justify-center text-danger">
-                                                    <AlertCircle size={16} />
-                                                </div>
-                                            ) : (
-                                                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/30 animate-pulse">
-                                                    <Clock size={16} />
-                                                </div>
-                                            )}
-                                        </div>
-
+                                <Card key={ev.id} className="group hover:bg-white/[0.04] transition-all border-white/5 active:scale-[0.98]">
+                                    <div className="flex items-center gap-4">
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-start justify-between gap-2">
+                                            <div className="flex items-center justify-between gap-2 mb-1">
                                                 <p className="text-sm font-bold text-white uppercase italic tracking-tight truncate">
                                                     {formatEventAction(ev.eventType, ev.lineCode)}
                                                 </p>
-                                                <span className="text-[10px] font-medium text-white/30 whitespace-nowrap">
+                                                <span className="text-[10px] font-medium text-white/20 tabular-nums">
                                                     {formatTime(ev.occurredAt)}
                                                 </span>
                                             </div>
 
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <MapPin size={10} className="text-white/20" />
-                                                <p className="text-[10px] font-medium text-white/50 truncate">
+                                            <div className="flex items-center gap-1 opacity-40">
+                                                <MapPin size={10} className="text-white" />
+                                                <p className="text-[10px] font-medium text-white truncate">
                                                     {ev.stopName}
                                                 </p>
                                             </div>
 
-                                            <div className="flex items-center gap-2 mt-2">
-                                                <Badge variant="muted" className={`!text-[8px] !px-2 !py-0.5`}>
+                                            <div className="flex items-center gap-2 mt-3">
+                                                <Badge
+                                                    variant={ev.status === 'SENT' ? 'brand' : ev.status === 'FAILED' ? 'danger' : 'muted'}
+                                                    className="!text-[8px] !px-2 !py-0.5 uppercase font-black tracking-widest"
+                                                >
                                                     {ev.status === 'SENT' ? 'Enviado' : ev.status === 'FAILED' ? 'Erro' : 'Pendente'}
                                                 </Badge>
                                                 {ev.status === 'SENT' && (
-                                                    <Badge variant="brand" className="!text-[8px] !px-2 !py-0.5 border-brand/20">
+                                                    <span className="text-[9px] font-black text-brand/40 uppercase tracking-tighter">
                                                         Confiança {ev.trustLevel}
-                                                    </Badge>
+                                                    </span>
                                                 )}
                                             </div>
                                         </div>
+                                        <ChevronRight size={16} className="text-white/10 group-hover:text-white/40 group-hover:translate-x-1 transition-all" />
                                     </div>
                                 </Card>
                             ))}
@@ -244,23 +246,40 @@ export default function MeuAuditoriaPage() {
                     )}
                 </div>
 
-                {/* Final CTAs */}
-                <div className="space-y-4 pt-4">
+                {/* Privacy & Data Management Section */}
+                <div className="pt-6 border-t border-white/5 space-y-6">
+                    <div className="space-y-1 px-2">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Gestão de Dados</h4>
+                        <p className="text-[11px] text-white/20 leading-relaxed font-medium">
+                            Não coletamos dados pessoais. Suas preferências e histórico local são armazenados apenas neste aparelho.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <Button
+                            variant="ghost"
+                            onClick={() => window.location.href = '/config#privacidade'}
+                            className="w-full !h-12 border border-white/5 hover:bg-white/5 !text-white/50 font-black uppercase tracking-widest text-[9px]"
+                        >
+                            Privacidade
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            onClick={() => window.location.href = '/config'}
+                            className="w-full !h-12 border border-white/5 hover:bg-white/5 !text-white/50 font-black uppercase tracking-widest text-[9px]"
+                        >
+                            Limpar Dados
+                        </Button>
+                    </div>
+                </div>
+
+                <div className="pt-4">
                     <Button
                         onClick={() => window.location.href = '/no-ponto'}
-                        className="w-full !h-14 !bg-brand !text-black font-black uppercase tracking-widest text-xs flex items-center justify-between px-6 group"
+                        className="w-full !h-20 !bg-brand !text-black font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 !rounded-[2rem] shadow-2xl shadow-brand/20 active:scale-95 transition-all italic"
                     >
-                        <span>Estou no Ponto Agora</span>
-                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                    </Button>
-
-                    <Button
-                        variant="ghost"
-                        onClick={() => window.location.href = '/boletim'}
-                        className="w-full !h-14 border border-white/5 hover:bg-white/5 !text-white/70 font-black uppercase tracking-widest text-[10px] flex items-center justify-between px-6"
-                    >
-                        <span>Ver Boletim da Cidade</span>
-                        <BarChart2 size={16} />
+                        ESTOU NO PONTO AGORA
+                        <ArrowRight size={20} />
                     </Button>
                 </div>
             </div>
