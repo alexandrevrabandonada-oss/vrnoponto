@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { HelpModal } from '@/components/HelpModal';
-import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2, HelpCircle, Camera } from 'lucide-react';
+import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2, HelpCircle, Camera, LocateFixed } from 'lucide-react';
 import { StopSuggestionModal } from '@/components/StopSuggestionModal';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
 import { useRouter } from 'next/navigation';
@@ -28,6 +28,7 @@ export default function NoPonto() {
     const [nearestStops, setNearestStops] = useState<{ id: string, name: string, distance_m: number }[]>([]);
 
     const [selectedStop, setSelectedStop] = useState('');
+    const [autoNearestStop, setAutoNearestStop] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState('');
     const [isLoadingStops, setIsLoadingStops] = useState(false);
@@ -43,6 +44,9 @@ export default function NoPonto() {
     const [isLoadingTopLines, setIsLoadingTopLines] = useState(false);
 
     const { isOnline, refreshPending } = useOfflineSync();
+    const HUMAN_RATE_LIMIT_MESSAGE =
+        'Calma, já recebemos um check-in seu agora há pouco. Tentar de novo em alguns minutos.';
+    const STOP_MODE_STORAGE_KEY = 'vrnp_stop_mode';
 
     // Telemetry helper
     const trackTelemetry = useCallback((event: string) => {
@@ -53,25 +57,50 @@ export default function NoPonto() {
         }).catch(() => { /* silent */ });
     }, []);
 
+    const refreshGpsPosition = useCallback(() => {
+        if (!('geolocation' in navigator)) {
+            queueMicrotask(() => setGpsStatus('Geolocalização não suportada neste navegador.'));
+            return;
+        }
+
+        setGpsStatus('Atualizando GPS...');
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setLocation({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                });
+                setGpsStatus('GPS Capturado 🎉');
+            },
+            (error) => {
+                setGpsStatus('Erro ao capturar GPS: ' + error.message);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }, []);
+
     // Efeito para GPS
     useEffect(() => {
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setLocation({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                    });
-                    setGpsStatus('GPS Capturado 🎉');
-                },
-                (error) => {
-                    setGpsStatus('Erro ao capturar GPS: ' + error.message);
-                }
-            );
-        } else {
-            queueMicrotask(() => setGpsStatus('Geolocalização não suportada neste navegador.'));
+        try {
+            const storedMode = localStorage.getItem(STOP_MODE_STORAGE_KEY);
+            if (storedMode === 'manual') {
+                setAutoNearestStop(false);
+            } else if (storedMode === 'auto') {
+                setAutoNearestStop(true);
+            }
+        } catch {
+            // ignore localStorage read errors
         }
-    }, []);
+        refreshGpsPosition();
+    }, [refreshGpsPosition]);
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(STOP_MODE_STORAGE_KEY, autoNearestStop ? 'auto' : 'manual');
+        } catch {
+            // ignore localStorage write errors
+        }
+    }, [autoNearestStop]);
 
     // Efeito para buscar pontos quando o GPS atualizar
     useEffect(() => {
@@ -83,7 +112,7 @@ export default function NoPonto() {
                 if (res.ok) {
                     const data = await res.json();
                     setNearestStops(data.stops || []);
-                    if (data.stops?.length > 0) {
+                    if (autoNearestStop && data.stops?.length > 0) {
                         setSelectedStop(data.stops[0].id); // Auto-seleciona o mais próximo
                     }
                 }
@@ -94,7 +123,14 @@ export default function NoPonto() {
             }
         }
         fetchStops();
-    }, [location]);
+    }, [location, autoNearestStop]);
+
+    useEffect(() => {
+        if (!autoNearestStop || nearestStops.length === 0) return;
+        if (selectedStop !== nearestStops[0].id) {
+            setSelectedStop(nearestStops[0].id);
+        }
+    }, [autoNearestStop, nearestStops, selectedStop]);
 
     // Efeito para buscar linhas top do ponto selecionado e PREFETCH
     useEffect(() => {
@@ -127,6 +163,10 @@ export default function NoPonto() {
         if (!deviceId) return;
         setIsSubmitting(true);
         setMessage('');
+
+        // Increment PWA action count
+        const currentCount = parseInt(localStorage.getItem('pwa_action_count') || '0', 10);
+        localStorage.setItem('pwa_action_count', (currentCount + 1).toString());
 
         if (!selectedStop) {
             setMessage('ERRO: SELECIONE UM PONTO PRIMEIRO.');
@@ -168,13 +208,22 @@ export default function NoPonto() {
 
             const data = await res.json();
             if (!res.ok) {
+                if (res.status === 429) {
+                    setMessage(HUMAN_RATE_LIMIT_MESSAGE);
+                    return;
+                }
                 throw new Error(data.error || 'Erro desconhecido');
             }
             setMessage('PRESENÇA REGISTRADA! NÍVEL: ' + (data.event?.trust_level || 'L1'));
             setHasArrived(true);
         } catch (err: unknown) {
             const errMessage = err instanceof Error ? err.message : 'Erro desconhecido';
-            setMessage('ERRO NO REGISTRO: ' + errMessage.toUpperCase());
+            const normalized = errMessage.toLowerCase();
+            if (normalized.includes('rate limit') || normalized.includes('429')) {
+                setMessage(HUMAN_RATE_LIMIT_MESSAGE);
+            } else {
+                setMessage('ERRO NO REGISTRO: ' + errMessage.toUpperCase());
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -214,14 +263,30 @@ export default function NoPonto() {
 
                         {/* ETAPA 2: Escolher Ponto */}
                         <div className={`transition-all duration-700 delay-100 ${location ? "opacity-100 translate-y-0" : "opacity-30 pointer-events-none translate-y-4"}`}>
-                            <div className="flex items-center gap-2 mb-4 ml-1">
-                                <Badge variant="brand" className="h-5 w-5 !p-0 flex items-center justify-center rounded-full text-[10px]" aria-hidden="true">2</Badge>
-                                <h2 className="text-[11px] font-black uppercase tracking-widest text-white/70">Qual é o seu ponto?</h2>
+                            <div className="flex items-center justify-between gap-3 mb-4 ml-1">
+                                <div className="flex items-center gap-2">
+                                    <Badge variant="brand" className="h-5 w-5 !p-0 flex items-center justify-center rounded-full text-[10px]" aria-hidden="true">2</Badge>
+                                    <h2 className="text-[11px] font-black uppercase tracking-widest text-white/70">Qual é o seu ponto?</h2>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setAutoNearestStop((prev) => !prev)}
+                                    className={`h-7 px-3 rounded-full text-[9px] font-black uppercase tracking-widest border transition-colors ${autoNearestStop
+                                        ? 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300'
+                                        : 'bg-white/[0.03] border-white/10 text-white/60'
+                                        }`}
+                                >
+                                    {autoNearestStop ? 'Auto' : 'Manual'}
+                                </button>
                             </div>
 
                             <Field
                                 label=""
-                                hint={isLoadingStops ? "Buscando pontos próximos..." : ""}
+                                hint={isLoadingStops
+                                    ? "Buscando pontos próximos..."
+                                    : autoNearestStop
+                                        ? "Modo Uber: conectado automaticamente ao ponto mais próximo."
+                                        : "Modo manual: selecione o ponto da lista."}
                                 className="min-h-[64px]"
                             >
                                 {isLoadingStops ? (
@@ -230,19 +295,36 @@ export default function NoPonto() {
                                         <div className="h-4 w-1/2 bg-white/10 rounded-md" />
                                     </div>
                                 ) : nearestStops.length > 0 ? (
-                                    <Select
-                                        id="stop"
-                                        value={selectedStop}
-                                        onChange={(e) => setSelectedStop(e.target.value)}
-                                        icon={<MapPin size={18} className="text-brand" />}
-                                        className="h-16 !text-base font-bold !bg-white/[0.03] !border-white/10"
-                                    >
-                                        {nearestStops.map((stop) => (
-                                            <option key={stop.id} value={stop.id} className="bg-zinc-900">
-                                                {stop.name} ({stop.distance_m}m)
-                                            </option>
-                                        ))}
-                                    </Select>
+                                    <>
+                                        <Select
+                                            id="stop"
+                                            value={selectedStop}
+                                            onChange={(e) => {
+                                                const nextStopId = e.target.value;
+                                                setSelectedStop(nextStopId);
+                                                setAutoNearestStop(false);
+                                            }}
+                                            icon={<MapPin size={18} className="text-brand" />}
+                                            className="h-16 !text-base font-bold !bg-white/[0.03] !border-white/10"
+                                        >
+                                            {nearestStops.map((stop) => (
+                                                <option key={stop.id} value={stop.id} className="bg-zinc-900">
+                                                    {stop.name} ({stop.distance_m}m)
+                                                </option>
+                                            ))}
+                                        </Select>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setAutoNearestStop(true);
+                                                refreshGpsPosition();
+                                            }}
+                                            className="mt-3 w-full h-10 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-[10px] font-black uppercase tracking-widest text-white/80 transition-colors inline-flex items-center justify-center gap-2"
+                                        >
+                                            <LocateFixed size={14} className="text-brand" />
+                                            Atualizar ponto pelo GPS
+                                        </button>
+                                    </>
                                 ) : (
                                     <div className="p-8 border-2 border-dashed border-white/5 rounded-[2rem] bg-white/[0.01] text-center space-y-5">
                                         <div className="p-4 bg-white/5 w-fit mx-auto rounded-2xl">
