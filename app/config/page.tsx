@@ -6,11 +6,7 @@ import {
     Bell,
     Type,
     Trash2,
-    ChevronRight,
-    Info,
-    Check,
     AlertTriangle,
-    Navigation,
     LocateFixed
 } from 'lucide-react';
 import {
@@ -18,11 +14,9 @@ import {
     PageHeader,
     SectionCard,
     Button,
-    Divider,
     InlineAlert
 } from '@/components/ui';
-import { useUiPrefs, StopMode, NotifMode } from '@/lib/useUiPrefs';
-import { useRouter } from 'next/navigation';
+import { useUiPrefs } from '@/lib/useUiPrefs';
 
 export default function ConfigPage() {
     const {
@@ -33,10 +27,10 @@ export default function ConfigPage() {
         setStopMode,
         setNotifMode
     } = useUiPrefs();
-    const router = useRouter();
 
     const [isClearing, setIsClearing] = React.useState(false);
     const [showConfirmClear, setShowConfirmClear] = React.useState(false);
+    const [confirmFavoritesLoss, setConfirmFavoritesLoss] = React.useState(false);
 
     const handleClearData = async () => {
         setIsClearing(true);
@@ -66,6 +60,18 @@ export default function ConfigPage() {
             setIsClearing(false);
         }
     };
+
+    React.useEffect(() => {
+        if (!showConfirmClear) return;
+        const onEsc = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setShowConfirmClear(false);
+                setConfirmFavoritesLoss(false);
+            }
+        };
+        window.addEventListener('keydown', onEsc);
+        return () => window.removeEventListener('keydown', onEsc);
+    }, [showConfirmClear]);
 
     return (
         <AppShell title="Configurações">
@@ -215,21 +221,48 @@ export default function ConfigPage() {
                     {!showConfirmClear ? (
                         <Button
                             variant="ghost"
-                            onClick={() => setShowConfirmClear(true)}
+                            onClick={() => {
+                                setConfirmFavoritesLoss(false);
+                                setShowConfirmClear(true);
+                            }}
                             className="w-full !h-14 border border-danger/20 hover:bg-danger/5 !text-danger/80 !rounded-2xl !text-[11px] font-black uppercase tracking-widest flex items-center justify-between px-6"
                         >
                             <span>Limpar meus dados do aparelho</span>
                             <Trash2 size={18} />
                         </Button>
                     ) : (
-                        <Card className="border-danger/30 bg-danger/5 p-6 space-y-6 animate-scale-in">
+                        <Card
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Confirmação para limpar dados locais"
+                            className="border-danger/30 bg-danger/5 p-6 space-y-6 animate-scale-in"
+                        >
                             <div className="flex items-center gap-3 text-danger">
                                 <AlertTriangle size={24} />
                                 <p className="text-sm font-bold uppercase italic tracking-tight">Tem certeza?</p>
                             </div>
-                            <p className="text-[10px] font-bold text-danger/70 uppercase leading-relaxed">
-                                Isso removerá sua identidade única, preferências e registros pendentes de envio. Esta ação não pode ser desfeita.
+                            <p className="text-[10px] font-bold text-danger/80 uppercase leading-relaxed">
+                                Tudo abaixo será apagado deste aparelho:
                             </p>
+                            <ul className="space-y-2 text-[10px] text-danger/80 font-bold uppercase">
+                                <li>- Device ID anônimo (`device_id`)</li>
+                                <li>- Preferências (Auto GPS/Manual, Texto Maior, notificações)</li>
+                                <li>- Filas offline (eventos e provas/fotos)</li>
+                                <li>- Favoritos (bairros e linhas)</li>
+                                <li>- Cache e histórico local (inclui seleção de linha por ponto)</li>
+                                <li>- Preferências locais de push/telegram (se houver)</li>
+                            </ul>
+                            <label className="flex items-start gap-2 rounded-xl border border-danger/30 bg-danger/10 p-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={confirmFavoritesLoss}
+                                    onChange={(e) => setConfirmFavoritesLoss(e.target.checked)}
+                                    className="mt-0.5 h-4 w-4 accent-red-500"
+                                />
+                                <span className="text-[10px] font-black uppercase tracking-wide text-danger">
+                                    Entendi que perderei meus Favoritos.
+                                </span>
+                            </label>
                             <div className="grid grid-cols-2 gap-3 pt-2">
                                 <Button
                                     onClick={() => setShowConfirmClear(false)}
@@ -240,6 +273,7 @@ export default function ConfigPage() {
                                 <Button
                                     onClick={handleClearData}
                                     loading={isClearing}
+                                    disabled={!confirmFavoritesLoss}
                                     className="!bg-danger !text-white !h-12 !text-[10px]"
                                 >
                                     Confirmar
@@ -260,8 +294,8 @@ export default function ConfigPage() {
 }
 
 // Minimal Card component since SectionCard might be slightly different in implementation than what I need
-const Card = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
-    <div className={`p-6 rounded-3xl border border-white/5 bg-white/[0.02] ${className}`}>
+const Card = ({ children, className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+    <div className={`p-6 rounded-3xl border border-white/5 bg-white/[0.02] ${className}`} {...props}>
         {children}
     </div>
 );

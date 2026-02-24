@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useDeviceId } from '@/hooks/useDeviceId';
-import { HelpModal } from '@/components/HelpModal';
 import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2, HelpCircle, Camera, LocateFixed, Search, X, Share } from 'lucide-react';
 import { StopSuggestionModal } from '@/components/StopSuggestionModal';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
@@ -28,6 +27,7 @@ export default function NoPonto() {
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [gpsStatus, setGpsStatus] = useState<string>('Solicitando GPS...');
     const [nearestStops, setNearestStops] = useState<{ id: string, name: string, neighborhood?: string, distance_m: number }[]>([]);
+    const [gpsFallbackReady, setGpsFallbackReady] = useState(false);
 
     const [selectedStop, setSelectedStop] = useState('');
     const [autoNearestStop, setAutoNearestStop] = useState(true);
@@ -61,6 +61,7 @@ export default function NoPonto() {
     const refreshGpsPosition = useCallback(() => {
         if (!('geolocation' in navigator)) {
             queueMicrotask(() => setGpsStatus('Geolocalização não suportada neste navegador.'));
+            setGpsFallbackReady(true);
             return;
         }
 
@@ -76,6 +77,7 @@ export default function NoPonto() {
             },
             (error) => {
                 setGpsStatus('Erro ao capturar GPS: ' + error.message);
+                setGpsFallbackReady(true);
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
@@ -86,6 +88,15 @@ export default function NoPonto() {
         setAutoNearestStop(stopMode === 'auto');
         refreshGpsPosition();
     }, [refreshGpsPosition, stopMode]);
+
+    // Exibe fallback manual cedo para evitar travar o funil em GPS lento
+    useEffect(() => {
+        if (location) return;
+        const fallbackTimer = setTimeout(() => {
+            setGpsFallbackReady(true);
+        }, 2000);
+        return () => clearTimeout(fallbackTimer);
+    }, [location]);
 
     useEffect(() => {
         setStopMode(autoNearestStop ? 'auto' : 'manual');
@@ -271,12 +282,21 @@ export default function NoPonto() {
                                     <p className="text-sm font-black text-white uppercase tracking-tight">
                                         {location ? "Posição Capturada" : gpsStatus}
                                     </p>
+                                    {!location && gpsFallbackReady && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowSearch(true)}
+                                            className="mt-2 min-h-11 inline-flex items-center rounded-xl border border-white/15 bg-white/[0.03] px-3 text-[10px] font-black uppercase tracking-widest text-white/80 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60"
+                                        >
+                                            Buscar ponto pelo nome
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </Card>
 
                         {/* ETAPA 2: Escolher Ponto */}
-                        <div className={`transition-all duration-700 delay-100 ${location ? "opacity-100 translate-y-0" : "opacity-30 pointer-events-none translate-y-4"}`}>
+                        <div className={`transition-all duration-700 delay-100 ${(location || gpsFallbackReady) ? "opacity-100 translate-y-0" : "opacity-30 pointer-events-none translate-y-4"}`}>
                             <div className="flex items-center justify-between gap-3 mb-4 ml-1">
                                 <div className="flex items-center gap-2">
                                     <Badge variant="brand" className="h-5 w-5 !p-0 flex items-center justify-center rounded-full text-[10px]" aria-hidden="true">2</Badge>
@@ -298,6 +318,8 @@ export default function NoPonto() {
                                 label=""
                                 hint={isLoadingStops
                                     ? "Buscando pontos próximos..."
+                                    : !location && gpsFallbackReady
+                                        ? "GPS está lento ou indisponível. Você pode buscar o ponto pelo nome agora."
                                     : autoNearestStop
                                         ? "Modo Uber: conectado automaticamente ao ponto mais próximo."
                                         : "Modo manual: selecione o ponto da lista."}
