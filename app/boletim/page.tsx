@@ -8,15 +8,15 @@ import {
     MapPin,
     AlertCircle,
     BarChart3,
-    ArrowRight,
     MessageCircle,
     Bus,
 } from 'lucide-react';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateBulletinCaption } from '@/lib/editorial/templates';
+import { FirstDataMissionCard } from '@/components/FirstDataMissionCard';
 import {
-    AppShell, PageHeader, Button, Card, Divider,
-    EmptyState, SkeletonCard, SkeletonBlock, SkeletonList, InlineAlert, ListItem, MetricRow, MetricCard, SectionCard, SecondaryCTA,
+    AppShell, PageHeader, Button, Divider,
+    EmptyState, SkeletonCard, SkeletonBlock, SkeletonList, InlineAlert, ListItem, MetricCard, SectionCard, SecondaryCTA,
     PublicTopBar, NextStepBlock
 } from '@/components/ui';
 import { t } from '@/lib/copy';
@@ -154,6 +154,7 @@ export default function BoletimPage() {
     const hasStops = (data?.worstStops?.length ?? 0) > 0;
     const hasNotes = (data?.notes?.length ?? 0) > 0;
     const isEmpty = !hasAlerts && !hasStops && (data?.summary?.samplesTotal ?? 0) === 0;
+    const insufficientSample = (data?.summary?.samplesTotal ?? 0) < 3;
 
     return (
         <AppShell hideHeader>
@@ -187,6 +188,8 @@ export default function BoletimPage() {
                             {note}
                         </InlineAlert>
                     ))}
+
+                    {insufficientSample && <FirstDataMissionCard />}
 
                     {/* Empty state */}
                     {isEmpty ? (

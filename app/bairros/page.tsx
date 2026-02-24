@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertTriangle, BarChart3, Map as MapIcon, ChevronRight, Bus } from 'lucide-react';
+import { AlertTriangle, Map as MapIcon, Bus } from 'lucide-react';
 import {
-    AppShell, PageHeader, Button, Card, Divider, EmptyState,
+    AppShell, PageHeader, Button, EmptyState,
     SkeletonCard, SkeletonList, ListItem, MetricCard, SecondaryCTA, SectionCard,
     PublicTopBar, NextStepBlock
 } from '@/components/ui';
 import { t } from '@/lib/copy';
+import { FirstDataMissionCard } from '@/components/FirstDataMissionCard';
 
 import Link from 'next/link';
 
@@ -60,6 +61,9 @@ export default function BairrosPage() {
         );
     }
 
+    const totalSamples = neighborhoods.reduce((a, b) => a + b.samples_total, 0);
+    const insufficientSample = neighborhoods.length === 0 || totalSamples < 3;
+
     return (
         <AppShell hideHeader>
             <PublicTopBar title="Ranking" />
@@ -76,6 +80,8 @@ export default function BairrosPage() {
                 />
 
                 <div className="space-y-8">
+                    {insufficientSample && <FirstDataMissionCard />}
+
                     {/* Summary KPIs */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <MetricCard
