@@ -5,9 +5,8 @@ import { useDeviceId } from '@/hooks/useDeviceId';
 import { RatingModal } from '@/components/RatingModal';
 import { QRScanner } from '@/components/QRScanner';
 import { QrCode, Navigation, ChevronRight, Share2, Loader2, ChevronDown, Camera } from 'lucide-react';
-import { HelpModal } from '@/components/HelpModal';
 import {
-    AppShell, PageHeader, Button, Card, Divider, InlineAlert, SecondaryCTA, PublicTopBar, NextStepBlock
+    AppShell, PageHeader, Button, Card, Divider, InlineAlert, SecondaryCTA, NextStepBlock
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { suggestLine } from '@/lib/suggestLine';
@@ -110,9 +109,7 @@ export default function Registrar() {
     const dailyTip = DAILY_TIPS[DAILY_TIP_INDEX];
 
     return (
-        <AppShell hideHeader>
-            <PublicTopBar title="Registrar" />
-
+        <AppShell title="Registrar">
             <div className="max-w-md mx-auto py-4 space-y-6">
                 <PageHeader
                     title={registrationComplete ? "Relato Concluído!" : "Relatar Presença"}
@@ -256,16 +253,21 @@ export default function Registrar() {
                         </>
                     ) : (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500" role="alert">
-                            {message && (
-                                <div className={`p-8 rounded-[2.5rem] text-center font-industrial text-2xl tracking-widest border-2 shadow-xl ${message.includes('ERRO')
-                                    ? 'bg-danger/10 border-danger/20 text-danger'
-                                    : 'bg-brand/10 border-brand/20 text-brand'
-                                    }`}>
-                                    {message}
-                                </div>
-                            )}
+                            <div className="p-6 rounded-3xl border border-emerald-500/25 bg-emerald-500/10 text-center">
+                                <p className="text-xl font-industrial italic uppercase text-emerald-300 tracking-wide">
+                                    Registrado.
+                                </p>
+                                <p className="text-sm font-bold text-white mt-2">
+                                    Isso fortalece o ponto {currentStop?.name || 'selecionado'}.
+                                </p>
+                                {message && (
+                                    <p className="text-[11px] font-black text-emerald-200/80 uppercase tracking-widest mt-3">
+                                        {message}
+                                    </p>
+                                )}
+                            </div>
 
-                            <NextStepBlock>
+                            <NextStepBlock title="Próximo passo">
                                 <Link href={`/ponto/${selectedStopId}`} className="block">
                                     <Button
                                         variant="secondary"
@@ -274,13 +276,13 @@ export default function Registrar() {
                                         iconPosition="right"
                                     >
                                         <div className="text-left">
-                                            <p className="text-[8px] uppercase tracking-widest opacity-60">Status Real</p>
-                                            <p>Ver este ponto</p>
+                                            <p className="text-[8px] uppercase tracking-widest opacity-60">Diagnóstico</p>
+                                            <p>Ver meu ponto agora</p>
                                         </div>
                                     </Button>
                                 </Link>
 
-                                <Link href="/boletim" className="block">
+                                <Link href="/boletim#share-pack" className="block">
                                     <Button
                                         variant="primary"
                                         className="w-full justify-between group h-14"
@@ -289,21 +291,42 @@ export default function Registrar() {
                                     >
                                         <div className="text-left">
                                             <p className="text-[8px] uppercase tracking-widest opacity-60 font-black">Impacto</p>
-                                            <p>Ver Boletim</p>
+                                            <p>Compartilhar boletim</p>
                                         </div>
                                     </Button>
                                 </Link>
                             </NextStepBlock>
 
-                            <div className="text-center">
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => setRegistrationComplete(false)}
-                                    className="text-[10px] opacity-40 hover:opacity-100"
-                                >
-                                    Registrar outro ônibus
-                                </Button>
-                            </div>
+                            <Card variant="surface2" className="border-white/10 bg-white/[0.03]">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-brand">Quer fortalecer mais?</p>
+                                <div className="mt-3 space-y-3">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <p className="text-xs text-white/85">
+                                            Registrar &quot;passou&quot; e depois &quot;entrei&quot; melhora a prova.
+                                        </p>
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => setRegistrationComplete(false)}
+                                            className="!h-9 !px-3 !text-[9px] font-black uppercase tracking-widest bg-white/5 border border-white/10"
+                                        >
+                                            Registrar aqui
+                                        </Button>
+                                    </div>
+                                    <div className="flex items-start justify-between gap-3">
+                                        <p className="text-xs text-white/85">
+                                            Registrar em mais 1 ponto hoje fecha amostra.
+                                        </p>
+                                        <Link href="/no-ponto">
+                                            <Button
+                                                variant="ghost"
+                                                className="!h-9 !px-3 !text-[9px] font-black uppercase tracking-widest bg-white/5 border border-white/10"
+                                            >
+                                                Ir para outro ponto
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </Card>
                         </div>
                     )}
                 </div>
@@ -329,15 +352,6 @@ export default function Registrar() {
                 onClose={() => setIsModalOpen(false)}
                 lineId={selectedLineId || ''}
                 deviceId={deviceId}
-            />
-
-            <HelpModal
-                storageKey="help_registrar_v1"
-                tips={[
-                    "A auditoria em 1 toque usa GPS e seus horários habituais.",
-                    "Marque 'Entrei' para ganhar Prova de Trajeto.",
-                    "Seus dados alimentam o Boletim da Transparência.",
-                ]}
             />
         </AppShell>
     );

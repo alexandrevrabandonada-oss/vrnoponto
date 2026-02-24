@@ -173,8 +173,7 @@ export default function BoletimPage() {
     const bulletinText = data ? `${data.summary?.critCount || 0} alertas críticos em VR esta semana. Pior ponto: ${data.worstStops?.[0]?.stop_name || '--'}.` : 'Confira o boletim da mobilidade em Volta Redonda.';
 
     return (
-        <AppShell hideHeader>
-            <PublicTopBar title="Boletim" />
+        <AppShell title="Boletim">
             <div className="max-w-md mx-auto py-4 space-y-8">
                 <PageHeader
                     title="Boletim VR"
@@ -246,47 +245,49 @@ export default function BoletimPage() {
                                 </div>
                             )}
 
-                            <Divider label="KIT PARA COMPARTILHAR" />
+                            <div id="share-pack" className="space-y-4 scroll-mt-24">
+                                <Divider label="KIT PARA COMPARTILHAR" />
 
-                            {/* Editorial Kit */}
-                            {data && (
-                                <EditorialCard
-                                    data={{
-                                        summary: {
-                                            total: data.summary?.samplesTotal ?? 0,
-                                            crit_count: data.summary?.critCount ?? 0,
-                                            warn_count: data.summary?.warnCount ?? 0,
-                                        },
-                                        worstStops: data.worstStops,
-                                        worstLines: data.worstLines,
-                                    }}
-                                    generator={generateBulletinCaption}
-                                    title="Legenda para Redes Sociais"
-                                />
-                            )}
+                                {/* Editorial Kit */}
+                                {data && (
+                                    <EditorialCard
+                                        data={{
+                                            summary: {
+                                                total: data.summary?.samplesTotal ?? 0,
+                                                crit_count: data.summary?.critCount ?? 0,
+                                                warn_count: data.summary?.warnCount ?? 0,
+                                            },
+                                            worstStops: data.worstStops,
+                                            worstLines: data.worstLines,
+                                        }}
+                                        generator={generateBulletinCaption}
+                                        title="Legenda para Redes Sociais"
+                                    />
+                                )}
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <SecondaryCTA
-                                    onClick={() => handleDownload('square')}
-                                    className="!h-14 shadow-none"
-                                    icon={<Download size={18} />}
-                                >
-                                    Card Feed (1:1)
-                                </SecondaryCTA>
-                                <SecondaryCTA
-                                    onClick={() => handleDownload('story')}
-                                    className="!h-14 shadow-none"
-                                    icon={<Download size={18} />}
-                                >
-                                    Card Story (9:16)
-                                </SecondaryCTA>
-                                <Button
-                                    onClick={handleWhatsAppShare}
-                                    className="w-full h-14 !text-[10px] font-black uppercase tracking-widest !bg-[#25D366] !text-white border-none shadow-lg shadow-[#25D366]/20"
-                                    icon={<MessageCircle size={18} />}
-                                >
-                                    WhatsApp
-                                </Button>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <SecondaryCTA
+                                        onClick={() => handleDownload('square')}
+                                        className="!h-14 shadow-none"
+                                        icon={<Download size={18} />}
+                                    >
+                                        Card Feed (1:1)
+                                    </SecondaryCTA>
+                                    <SecondaryCTA
+                                        onClick={() => handleDownload('story')}
+                                        className="!h-14 shadow-none"
+                                        icon={<Download size={18} />}
+                                    >
+                                        Card Story (9:16)
+                                    </SecondaryCTA>
+                                    <Button
+                                        onClick={handleWhatsAppShare}
+                                        className="w-full h-14 !text-[10px] font-black uppercase tracking-widest !bg-[#25D366] !text-white border-none shadow-lg shadow-[#25D366]/20"
+                                        icon={<MessageCircle size={18} />}
+                                    >
+                                        WhatsApp
+                                    </Button>
+                                </div>
                             </div>
 
                             <SectionCard title="Piores Pontos" subtitle="Ranking de espera crítica">
