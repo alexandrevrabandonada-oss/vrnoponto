@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import {
-    AlertTriangle, ShieldCheck, Database, MapPin, Search,
+    AlertTriangle, ShieldCheck, Database, Search,
     RefreshCcw, Crosshair, Loader2, Rocket, CheckCircle, AlertCircle,
-    Map
+    Map, CheckCircle2, Circle, PlayCircle
 } from 'lucide-react';
 import { Card, Button, Divider, PageHeader } from '@/components/ui';
 
@@ -27,7 +27,19 @@ export default function AdminDataQualityPage() {
     const [actionMessage, setActionMessage] = useState('');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [readiness, setReadiness] = useState<any>(null);
+    const [wizardRunning, setWizardRunning] = useState(false);
+    const [wizardStepStatus, setWizardStepStatus] = useState<{
+        seed: 'idle' | 'running' | 'ok' | 'error';
+        backfill: 'idle' | 'running' | 'ok' | 'error';
+        checklist: 'idle' | 'running' | 'ok' | 'error';
+    }>({
+        seed: 'idle',
+        backfill: 'idle',
+        checklist: 'idle'
+    });
+    const [wizardMessage, setWizardMessage] = useState('');
 
+    const OSM_MIN_BBOX = "-22.56,-44.15,-22.47,-44.05";
 
 
     const fetchMetrics = async () => {
@@ -46,7 +58,7 @@ export default function AdminDataQualityPage() {
         try {
             const res = await fetch('/api/admin/launch-readiness');
             if (res.ok) setReadiness(await res.json());
-        } catch (err) { }
+        } catch { }
     };
 
     useEffect(() => {
@@ -76,6 +88,78 @@ export default function AdminDataQualityPage() {
         }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const runAdminAction = async (endpoint: string, body?: any) => {
+        const res = await fetch(`/api/admin/${endpoint}`, {
+            method: 'POST',
+            headers: body ? { 'Content-Type': 'application/json' } : {},
+            body: body ? JSON.stringify(body) : undefined
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data?.error || data?.message || `Falha em ${endpoint}`);
+        }
+        return data;
+    };
+
+    const runWizardSeedStep = async (): Promise<boolean> => {
+        if (!confirm('Passo 1/3: rodar Seed OSM mínimo (50 pontos) em dry-run?')) return false;
+        setWizardStepStatus(prev => ({ ...prev, seed: 'running' }));
+        const data = await runAdminAction('stops/import-osm', {
+            bbox: OSM_MIN_BBOX,
+            dryRun: true,
+            limit: 50
+        });
+        setWizardStepStatus(prev => ({ ...prev, seed: 'ok' }));
+        setWizardMessage(`Seed OSM dry-run concluído: ${data?.total || 0} pontos avaliados.`);
+        return true;
+    };
+
+    const runWizardBackfillStep = async (): Promise<boolean> => {
+        if (!confirm('Passo 2/3: rodar backfill de bairros via ST_Contains?')) return false;
+        setWizardStepStatus(prev => ({ ...prev, backfill: 'running' }));
+        const data = await runAdminAction('backfill-neighborhoods');
+        setWizardStepStatus(prev => ({ ...prev, backfill: 'ok' }));
+        setWizardMessage(data?.message || 'Backfill concluído.');
+        return true;
+    };
+
+    const runWizardChecklistStep = async () => {
+        setWizardStepStatus(prev => ({ ...prev, checklist: 'running' }));
+        await Promise.all([fetchMetrics(), fetchReadiness()]);
+        setWizardStepStatus(prev => ({ ...prev, checklist: 'ok' }));
+        setWizardMessage('Checklist atualizado no painel.');
+    };
+
+    const runWizardAll = async () => {
+        if (!confirm('Rodar Wizard completo (3 passos) agora?')) return;
+        setWizardRunning(true);
+        setWizardMessage('');
+        setWizardStepStatus({ seed: 'idle', backfill: 'idle', checklist: 'idle' });
+
+        try {
+            const seedOk = await runWizardSeedStep();
+            if (!seedOk) throw new Error('Wizard cancelado no passo 1.');
+            const backfillOk = await runWizardBackfillStep();
+            if (!backfillOk) throw new Error('Wizard cancelado no passo 2.');
+            await runWizardChecklistStep();
+            setWizardMessage('Wizard concluído com sucesso.');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Falha inesperada no wizard.';
+            setWizardMessage(`Erro no wizard: ${msg}`);
+            setActionMessage(`Erro no wizard: ${msg}`);
+        } finally {
+            setWizardRunning(false);
+        }
+    };
+
+    const renderStepIcon = (status: 'idle' | 'running' | 'ok' | 'error') => {
+        if (status === 'ok') return <CheckCircle2 size={16} className="text-emerald-500" />;
+        if (status === 'running') return <Loader2 size={16} className="text-brand animate-spin" />;
+        if (status === 'error') return <AlertCircle size={16} className="text-red-500" />;
+        return <Circle size={14} className="text-gray-400" />;
+    };
+
     if (loading && !metrics) {
         return (
             <div className="space-y-6">
@@ -101,6 +185,106 @@ export default function AdminDataQualityPage() {
                     {actionMessage}
                 </div>
             )}
+
+            <Card className="!p-6 border-brand/20 bg-brand/5">
+                <div className="flex items-center justify-between gap-4 mb-5">
+                    <div className="flex items-center gap-3">
+                        <Rocket size={22} className="text-brand" />
+                        <div>
+                            <h2 className="text-lg font-bold text-gray-800">Wizard Seed VR (Day-1)</h2>
+                            <p className="text-xs text-gray-600">Fluxo guiado em 3 passos para subir a base inicial.</p>
+                        </div>
+                    </div>
+                    <Button
+                        variant="primary"
+                        onClick={runWizardAll}
+                        disabled={wizardRunning}
+                    >
+                        {wizardRunning ? <Loader2 size={16} className="animate-spin mr-2" /> : <PlayCircle size={16} className="mr-2" />}
+                        Rodar tudo
+                    </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-500">1. Seed OSM mínimo</p>
+                            {renderStepIcon(wizardStepStatus.seed)}
+                        </div>
+                        <p className="text-xs text-gray-600">50 pontos, dry-run por padrão.</p>
+                        <Button
+                            variant="secondary"
+                            onClick={async () => {
+                                try {
+                                    await runWizardSeedStep();
+                                } catch (err: unknown) {
+                                    setWizardStepStatus(prev => ({ ...prev, seed: 'error' }));
+                                    setWizardMessage(err instanceof Error ? err.message : 'Falha no passo 1.');
+                                }
+                            }}
+                            disabled={wizardRunning || wizardStepStatus.seed === 'running'}
+                            className="w-full"
+                        >
+                            Executar passo
+                        </Button>
+                    </div>
+
+                    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-500">2. Backfill bairros</p>
+                            {renderStepIcon(wizardStepStatus.backfill)}
+                        </div>
+                        <p className="text-xs text-gray-600">Aplica ST_Contains nos pontos sem bairro.</p>
+                        <Button
+                            variant="secondary"
+                            onClick={async () => {
+                                try {
+                                    await runWizardBackfillStep();
+                                } catch (err: unknown) {
+                                    setWizardStepStatus(prev => ({ ...prev, backfill: 'error' }));
+                                    setWizardMessage(err instanceof Error ? err.message : 'Falha no passo 2.');
+                                }
+                            }}
+                            disabled={wizardRunning || wizardStepStatus.backfill === 'running'}
+                            className="w-full"
+                        >
+                            Executar passo
+                        </Button>
+                    </div>
+
+                    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-500">3. Verificar checklist</p>
+                            {renderStepIcon(wizardStepStatus.checklist)}
+                        </div>
+                        <p className="text-xs text-gray-600">Atualiza métricas e checklist desta tela.</p>
+                        <Button
+                            variant="secondary"
+                            onClick={async () => {
+                                try {
+                                    await runWizardChecklistStep();
+                                } catch (err: unknown) {
+                                    setWizardStepStatus(prev => ({ ...prev, checklist: 'error' }));
+                                    setWizardMessage(err instanceof Error ? err.message : 'Falha no passo 3.');
+                                }
+                            }}
+                            disabled={wizardRunning || wizardStepStatus.checklist === 'running'}
+                            className="w-full"
+                        >
+                            Executar passo
+                        </Button>
+                    </div>
+                </div>
+
+                {wizardMessage && (
+                    <div className={`mt-4 p-3 rounded-lg text-sm font-bold ${wizardMessage.toLowerCase().includes('erro')
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-emerald-100 text-emerald-700'
+                        }`}>
+                        {wizardMessage}
+                    </div>
+                )}
+            </Card>
 
             {/* Pronto Pra Lançar? Checklist */}
             {readiness && (
