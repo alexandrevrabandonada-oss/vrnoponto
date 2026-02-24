@@ -46,8 +46,8 @@ function ListView({ neighborhoods, critOnly }: { neighborhoods: NeighborhoodMapI
     if (critOnly) filtered = filtered.filter(n => n.risk_band === 'CRIT' || n.risk_band === 'BAD');
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 md:p-6 shadow-sm border border-gray-100 dark:border-gray-800">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Bairros por Atraso (30 dias)</h2>
+        <div className="rounded-2xl p-4 md:p-6 bg-[#0c0f14] border border-white/10 shadow-2xl">
+            <h2 className="text-xl font-industrial tracking-wide italic uppercase text-white mb-6">Bairros por atraso (30 dias)</h2>
             <div className="space-y-3">
                 {filtered.map((n, i) => {
                     const riskClasses = getRiskColor(n.risk_band);
@@ -55,13 +55,13 @@ function ListView({ neighborhoods, critOnly }: { neighborhoods: NeighborhoodMapI
                         <Link
                             key={n.neighborhood}
                             href={`/bairro/${encodeURIComponent(n.neighborhood)}`}
-                            className={`block p-4 rounded-lg border flex flex-col sm:flex-row justify-between sm:items-center gap-3 transition hover:shadow-md ${riskClasses}`}
+                            className={`block p-4 rounded-xl border flex flex-col sm:flex-row justify-between sm:items-center gap-3 transition hover:scale-[1.01] ${riskClasses}`}
                         >
                             <div className="flex items-center gap-3">
-                                <span className="text-sm font-black text-gray-400 w-6">{i + 1}</span>
+                                <span className="text-sm font-black text-white/40 w-6">{i + 1}</span>
                                 <div>
-                                    <h3 className="font-bold text-gray-900 dark:text-white">{n.neighborhood}</h3>
-                                    <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
+                                    <h3 className="font-bold text-zinc-900">{n.neighborhood}</h3>
+                                    <div className="text-xs text-zinc-600 mt-0.5 flex items-center gap-2">
                                         <span>{n.stops_count} pontos</span>
                                         <span>·</span>
                                         <span>{n.samples_total} relatos</span>
@@ -87,7 +87,7 @@ function ListView({ neighborhoods, critOnly }: { neighborhoods: NeighborhoodMapI
                         onAction={() => window.location.href = '/no-ponto'}
                         secondaryActionLabel="Ver Ranking"
                         onSecondaryAction={() => window.location.href = '/bairros'}
-                        className="bg-transparent border-none"
+                        className="bg-transparent border-none text-white"
                     />
                 )}
             </div>
@@ -129,46 +129,47 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
     };
 
     return (
-        <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
-            <div className="max-w-7xl mx-auto space-y-6">
+        <main className="min-h-screen bg-[#070707] text-white p-4 md:p-8">
+            <div className="fixed inset-0 industrial-texture opacity-15 pointer-events-none" />
+            <div className="max-w-7xl mx-auto space-y-6 relative z-10">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-gray-200 dark:border-gray-800 pb-6">
+                <div className="rounded-2xl border border-white/10 bg-[#0c0f14] p-5 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <Link href="/bairros" className="text-gray-400 hover:text-brand transition-colors">
+                            <Link href="/bairros" className="text-white/50 hover:text-brand transition-colors">
                                 <ArrowLeft size={20} />
                             </Link>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
-                                Mapa de Bairros <MapPin className="text-orange-500" />
+                            <h1 className="text-3xl font-industrial italic uppercase tracking-wide text-white flex items-center gap-3">
+                                Mapa de bairros <MapPin className="text-brand" />
                             </h1>
                         </div>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-white/70 mt-1">
                             {hasPolygons ? 'Mapa detalhado dos bairros' : 'Visualização aproximada por centroide'} — cores indicam o nível de atraso (30d).
                         </p>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
                         {/* View Mode Toggle */}
-                        <div className="flex bg-gray-200 dark:bg-gray-800 p-1 rounded-lg">
+                        <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
                             <a href={toggleParam('m', '__clear__').replace('m=__clear__&', '').replace('?m=__clear__', '').replace('&m=__clear__', '')}
-                                className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${!listMode ? 'bg-white dark:bg-black shadow text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
+                                className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${!listMode ? 'bg-brand/20 text-brand border border-brand/30' : 'text-white/70 hover:text-white'}`}>
                                 <MapIcon size={14} /> Mapa
                             </a>
                             <a href={toggleParam('m', 'lista')}
-                                className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${listMode ? 'bg-white dark:bg-black shadow text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
+                                className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${listMode ? 'bg-brand/20 text-brand border border-brand/30' : 'text-white/70 hover:text-white'}`}>
                                 <MenuSquare size={14} /> Lista
                             </a>
                         </div>
 
                         {/* Layer Toggle */}
                         {!listMode && (
-                            <div className="flex bg-gray-200 dark:bg-gray-800 p-1 rounded-lg">
+                            <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
                                 <a href={`/mapa/bairros${searchParams.f ? `?f=${searchParams.f}` : ''}`}
-                                    className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${!polyMode ? 'bg-white dark:bg-black shadow text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
+                                    className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${!polyMode ? 'bg-brand/20 text-brand border border-brand/30' : 'text-white/70 hover:text-white'}`}>
                                     <CircleDot size={14} /> Círculos
                                 </a>
                                 <a href={`/mapa/bairros?v=polygons${searchParams.f ? `&f=${searchParams.f}` : ''}`}
-                                    className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${polyMode ? 'bg-white dark:bg-black shadow text-brand' : 'text-gray-500 hover:text-gray-700'}`}>
+                                    className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${polyMode ? 'bg-brand/20 text-brand border border-brand/30' : 'text-white/70 hover:text-white'}`}>
                                     <Hexagon size={14} /> Polígonos
                                 </a>
                             </div>
@@ -176,7 +177,7 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
 
                         {/* Critical Filter */}
                         <a href={critOnly ? '/mapa/bairros' : `/mapa/bairros?f=criticos${polyMode ? '&v=polygons' : ''}`}
-                            className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition ${critOnly ? 'bg-red-100 text-red-600 shadow' : 'bg-gray-200 dark:bg-gray-800 text-gray-500 hover:text-gray-700'}`}>
+                            className={`px-3 py-2 rounded-md font-medium text-sm flex items-center gap-1.5 transition border ${critOnly ? 'bg-red-500/15 text-red-400 border-red-500/40' : 'bg-white/5 text-white/70 border-white/10 hover:text-white'}`}>
                             <Zap size={14} /> Críticos
                         </a>
                     </div>
@@ -184,7 +185,7 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
 
                 {/* Polygon fallback notice */}
                 {polyMode && !hasPolygons && (
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-xl text-sm text-amber-700 dark:text-amber-400 flex items-center gap-2">
+                    <div className="bg-amber-500/10 border border-amber-400/30 p-4 rounded-xl text-sm text-amber-200 flex items-center gap-2">
                         <Info size={16} />
                         Polígonos não disponíveis. Exibindo modo círculos. Importe um GeoJSON pelo painel admin.
                     </div>
@@ -192,14 +193,14 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
 
                 {/* Legend */}
                 {!listMode && (
-                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-wrap gap-4 items-center justify-between text-sm">
-                        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 font-semibold">
+                    <div className="bg-[#0c0f14] p-4 rounded-xl border border-white/10 flex flex-wrap gap-4 items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-white/90 font-semibold">
                             <Info size={16} className="text-brand" /> Legenda de Risco:
                         </div>
-                        <div className="flex flex-wrap gap-3 font-medium">
-                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-emerald-500"></span> OK (≤3m)</span>
-                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Atenção (3–8m)</span>
-                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-orange-500"></span> Ruim (8–15m)</span>
+                        <div className="flex flex-wrap gap-3 font-medium text-white/80">
+                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-emerald-500"></span> OK (&lt;=3m)</span>
+                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Atenção (3-8m)</span>
+                            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-orange-500"></span> Ruim (8-15m)</span>
                             <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-red-500"></span> Crítico (+15m)</span>
                         </div>
                     </div>
@@ -210,9 +211,9 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
                     {listMode ? (
                         <ListView neighborhoods={neighborhoods} critOnly={critOnly} />
                     ) : (
-                        <div className="w-full h-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative z-0">
+                        <div className="w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative z-0 bg-[#0c0f14]">
                             <Suspense fallback={
-                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-500">
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0c0f14] text-white/70">
                                     <Loader2 className="animate-spin mb-3" size={32} />
                                     <span className="font-medium text-sm">Carregando mapa...</span>
                                 </div>

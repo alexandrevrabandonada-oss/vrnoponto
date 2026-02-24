@@ -56,122 +56,127 @@ export default function AdminHome() {
         fetchTelemetry();
     }, []);
 
+    const tileBase = "group p-5 rounded-2xl border border-white/10 bg-[#10141b] shadow-xl shadow-black/30 hover:border-brand/30 hover:bg-[#131923] transition-all";
+    const metricLabel = "text-[10px] text-white/50 uppercase font-black tracking-wider";
+
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard Administrativo</h1>
-            <p className="text-gray-600">Bem-vindo ao painel de controle do VR no Ponto.</p>
+            <div>
+                <h1 className="text-3xl font-industrial italic uppercase tracking-wide text-white">Dashboard Administrativo</h1>
+                <p className="text-white/70 mt-2">Bem-vindo ao painel de controle do VR no Ponto.</p>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-                <a href="/admin/linhas" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-zinc-200 hover:border-zinc-300 transition-all">
-                    <div className="bg-zinc-100 text-brand w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
+                <a href="/admin/linhas" className={tileBase}>
+                    <div className="bg-brand/15 text-brand w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
                         <Bus size={20} />
                     </div>
                     <div className="flex justify-between items-end">
-                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Linhas de Ônibus</h2>
-                        <span className="text-2xl font-black text-brand/20">{stats?.lines ?? '..'}</span>
+                        <h2 className="text-lg font-black text-white leading-tight">Linhas de Ônibus</h2>
+                        <span className="text-2xl font-black text-brand">{stats?.lines ?? '..'}</span>
                     </div>
                 </a>
 
-                <a href="/admin/pontos" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-amber-100 hover:border-amber-200 transition-all">
-                    <div className="bg-amber-50 text-amber-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
+                <a href="/admin/pontos" className={tileBase}>
+                    <div className="bg-amber-500/15 text-amber-400 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
                         <MapPin size={20} />
                     </div>
                     <div className="flex justify-between items-end">
-                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Pontos de Parada</h2>
-                        <span className="text-2xl font-black text-amber-600/20">{stats?.stops ?? '..'}</span>
+                        <h2 className="text-lg font-black text-white leading-tight">Pontos de Parada</h2>
+                        <span className="text-2xl font-black text-amber-400">{stats?.stops ?? '..'}</span>
                     </div>
                 </a>
 
-                <a href="/admin/parceiros" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-emerald-100 hover:border-emerald-200 transition-all">
-                    <div className="bg-emerald-50 text-emerald-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
+                <a href="/admin/parceiros" className={tileBase}>
+                    <div className="bg-emerald-500/15 text-emerald-400 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
                         <Handshake size={20} />
                     </div>
                     <div className="flex justify-between items-end">
-                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Pontos Parceiros</h2>
-                        <span className="text-2xl font-black text-emerald-600/20">{stats?.partners ?? '..'}</span>
+                        <h2 className="text-lg font-black text-white leading-tight">Pontos Parceiros</h2>
+                        <span className="text-2xl font-black text-emerald-400">{stats?.partners ?? '..'}</span>
                     </div>
                 </a>
 
-                <div className="p-5 bg-white rounded-2xl border border-zinc-200 shadow-sm">
-                    <div className="bg-zinc-100 text-brand w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-xl">
+                <div className={tileBase}>
+                    <div className="bg-brand/15 text-brand w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-xl">
                         <Zap size={20} />
                     </div>
                     <div className="flex justify-between items-end">
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900 leading-tight">Onboarding</h2>
-                            <p className="text-xs text-gray-400 mt-0.5">Cliques &quot;Começar agora&quot;</p>
+                            <h2 className="text-lg font-black text-white leading-tight">Onboarding</h2>
+                            <p className="text-xs text-white/60 mt-0.5">Cliques &quot;Começar agora&quot;</p>
                         </div>
                     </div>
                     <div className="flex gap-4 mt-3">
                         <div>
                             <div className="text-2xl font-black text-brand">{telemetry?.today ?? '–'}</div>
-                            <div className="text-[10px] text-gray-400 uppercase font-bold">Hoje</div>
+                            <div className={metricLabel}>Hoje</div>
                         </div>
                         <div>
-                            <div className="text-2xl font-black text-brand/50">{telemetry?.week ?? '–'}</div>
-                            <div className="text-[10px] text-gray-400 uppercase font-bold">7 dias</div>
+                            <div className="text-2xl font-black text-brand/70">{telemetry?.week ?? '–'}</div>
+                            <div className={metricLabel}>7 dias</div>
                         </div>
                     </div>
                 </div>
 
-                <a href="/admin/mutirao" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-brand/10 hover:border-brand/20 transition-all">
+                <a href="/admin/mutirao" className={tileBase}>
                     <div className="bg-brand/5 text-brand w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
                         <Target size={20} />
                     </div>
                     <div className="flex justify-between items-end">
-                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Mutirões</h2>
+                        <h2 className="text-lg font-black text-white leading-tight">Mutirões</h2>
                     </div>
                 </a>
 
-                <a href="/admin/oficial" className="group p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-gray-100 hover:border-gray-200 transition-all">
-                    <div className="bg-gray-50 text-gray-600 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
+                <a href="/admin/oficial" className={tileBase}>
+                    <div className="bg-white/10 text-white/80 w-10 h-10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-xl">
                         <Activity size={20} />
                     </div>
                     <div className="flex justify-between items-end">
-                        <h2 className="text-lg font-bold text-gray-900 leading-tight">Horários Oficiais</h2>
+                        <h2 className="text-lg font-black text-white leading-tight">Horários Oficiais</h2>
                     </div>
                 </a>
             </div>
 
-            <div className="mt-12 bg-gray-50 rounded-xl p-6 border border-gray-200">
-                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <span className="text-2xl">🩺</span> Saúde do Deploy (Vercel)
+            <div className="mt-12 rounded-2xl p-6 border border-white/10 bg-[#0c0f14] shadow-2xl shadow-black/30">
+                <h2 className="text-xl font-industrial italic uppercase tracking-wide text-white mb-4 flex items-center gap-2">
+                    <span className="text-brand">🩺</span> Saúde do Deploy (Vercel)
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* General Health */}
                     <div>
-                        <h3 className="font-semibold text-gray-700 mb-2">App Runtime</h3>
+                        <h3 className="font-semibold text-white mb-2">App Runtime</h3>
                         <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600">Health Check API:</span>
+                            <span className="text-sm text-white/70">Health Check API:</span>
                             {health === 'OK' ? (
-                                <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded font-bold">OK (200)</span>
+                                <span className="px-2 py-1 bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs rounded font-bold">OK (200)</span>
                             ) : health ? (
-                                <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded font-bold">{health}</span>
+                                <span className="px-2 py-1 bg-red-500/15 text-red-300 border border-red-500/30 text-xs rounded font-bold">{health}</span>
                             ) : (
-                                <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded animate-pulse">Verificando...</span>
+                                <span className="px-2 py-1 bg-white/10 text-white/70 text-xs rounded animate-pulse">Verificando...</span>
                             )}
                         </div>
                     </div>
 
                     {/* Env Variables Audit */}
                     <div>
-                        <h3 className="font-semibold text-gray-700 mb-2">Variáveis de Ambiente Mínimas</h3>
+                        <h3 className="font-semibold text-white mb-2">Variáveis de Ambiente Mínimas</h3>
                         {envAudit ? (
                             <ul className="space-y-2">
                                 {Object.entries(envAudit).map(([key, status]) => (
-                                    <li key={key} className="flex justify-between items-center bg-white p-2 rounded border text-sm">
-                                        <code className="text-gray-600">{key}</code>
-                                        <span className={"px-2 py-1 text-xs rounded font-bold " + (status === 'OK' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')}>
+                                    <li key={key} className="flex justify-between items-center bg-white/5 p-2 rounded border border-white/10 text-sm">
+                                        <code className="text-white/80">{key}</code>
+                                        <span className={"px-2 py-1 text-xs rounded font-bold border " + (status === 'OK' ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-red-500/15 text-red-300 border-red-500/30')}>
                                             {status}
                                         </span>
                                     </li>
                                 ))}
                             </ul>
                         ) : (
-                            <div className="text-sm text-gray-500 animate-pulse">Auditando cofre local...</div>
+                            <div className="text-sm text-white/60 animate-pulse">Auditando cofre local...</div>
                         )}
-                        <p className="text-xs text-gray-400 mt-2">Esta auditoria enxerga apenas chaves registradas no host. Valores estão confidenciais.</p>
+                        <p className="text-xs text-white/50 mt-2">Esta auditoria enxerga apenas chaves registradas no host. Valores estão confidenciais.</p>
                     </div>
                 </div>
             </div>

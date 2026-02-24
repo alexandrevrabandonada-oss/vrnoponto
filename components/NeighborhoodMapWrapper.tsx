@@ -7,7 +7,7 @@ const DynamicMap = dynamic(
     () => import('@/components/NeighborhoodMap'),
     {
         ssr: false,
-        loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-100 rounded-xl animate-pulse text-gray-500 font-medium">Carregando Mapa de Bairros...</div>
+        loading: () => <div className="h-full w-full flex items-center justify-center bg-[#0c0f14] rounded-xl animate-pulse text-white/70 font-medium">Carregando Mapa de Bairros...</div>
     }
 );
 
