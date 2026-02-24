@@ -12,11 +12,15 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { deviceId, stopId, lineId, eventType, clientEventId } = body;
 
-        if (!deviceId || !stopId || !lineId || !eventType) {
+        // lineId is now optional for "unknown line" cases
+        if (!deviceId || !stopId || !eventType) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
         const supabase = await createClient();
+
+        // Handle 'unknown' lineId string from client
+        const sanitizedLineId = lineId === 'unknown' ? null : lineId;
 
         // 1. Rate Limiting Check
         const tenMinsAgo = new Date(Date.now() - RATE_LIMIT_MINS * 60 * 1000).toISOString();
@@ -25,7 +29,7 @@ export async function POST(req: NextRequest) {
             .from('stop_events')
             .select('id')
             .eq('device_id', deviceId)
-            .eq('line_id', lineId)
+            .eq('line_id', sanitizedLineId)
             .eq('event_type', eventType)
             .gte('occurred_at', tenMinsAgo)
             .limit(1);
@@ -91,7 +95,7 @@ export async function POST(req: NextRequest) {
                     client_event_id: clientEventId,
                     device_id: deviceId,
                     stop_id: stopId,
-                    line_id: lineId,
+                    line_id: sanitizedLineId,
                     event_type: eventType,
                     trust_level: initialTrust,
                     trust_method: initialMethod,
@@ -107,7 +111,7 @@ export async function POST(req: NextRequest) {
                 .insert({
                     device_id: deviceId,
                     stop_id: stopId,
-                    line_id: lineId,
+                    line_id: sanitizedLineId,
                     event_type: eventType,
                     trust_level: initialTrust,
                     trust_method: initialMethod,
@@ -139,7 +143,7 @@ export async function POST(req: NextRequest) {
                 .from('stop_events')
                 .select('id, device_id, trust_level')
                 .eq('stop_id', stopId)
-                .eq('line_id', lineId)
+                .eq('line_id', sanitizedLineId)
                 .eq('event_type', eventType)
                 .neq('device_id', deviceId)
                 .gte('occurred_at', eightMinsAgo);

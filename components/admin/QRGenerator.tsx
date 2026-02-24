@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Download, Printer, QrCode, Loader2, X } from 'lucide-react';
+import { Button } from '@/components/ui';
 
 export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, partnerId?: string, stopName: string }) {
     const [qrUrl, setQrUrl] = useState<string | null>(null);
@@ -86,29 +87,33 @@ export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, 
             <button
                 onClick={generateQR}
                 disabled={loading}
-                className="flex items-center gap-2 bg-brand/20 text-brand px-3 py-1.5 rounded-lg font-bold hover:bg-brand/30 transition disabled:opacity-50"
+                className="inline-flex items-center gap-2 bg-brand/10 text-brand px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand/20 transition disabled:opacity-50 border border-brand/20"
             >
-                {loading ? <Loader2 className="animate-spin" size={16} /> : <QrCode size={16} />}
+                {loading ? <Loader2 className="animate-spin" size={14} /> : <QrCode size={14} />}
                 Gerar QR
             </button>
 
             {showModal && qrUrl && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="bg-[#0c0f14] rounded-3xl border border-white/10 shadow-2xl max-w-md w-full p-8 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand/5 blur-3xl -mr-16 -mt-16" />
+
                         <button
                             onClick={() => setShowModal(false)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+                            className="absolute top-5 right-5 text-white/20 hover:text-white transition-colors"
                         >
                             <X size={24} />
                         </button>
 
-                        <div className="text-center space-y-4">
-                            <h3 className="text-xl font-black text-gray-900 leading-tight">
-                                QR Code de Auditoria
-                            </h3>
-                            <p className="text-gray-500 text-sm">Escaneie para validar presença em {stopName}</p>
+                        <div className="text-center space-y-6 relative">
+                            <div>
+                                <h3 className="text-xl font-industrial italic uppercase tracking-wide text-white leading-tight">
+                                    QR Code de Auditoria
+                                </h3>
+                                <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mt-2">{stopName}</p>
+                            </div>
 
-                            <div ref={qrRef} className="flex justify-center py-6 bg-gray-50 rounded-xl">
+                            <div ref={qrRef} className="flex justify-center p-6 bg-white rounded-2xl">
                                 <QRCodeCanvas
                                     value={qrUrl}
                                     size={256}
@@ -117,21 +122,26 @@ export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, 
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                                <button
+                            <p className="text-[11px] text-white/30 leading-relaxed px-4">
+                                Posicione este QR Code em local visível no ponto para que os usuários possam validar sua presença.
+                            </p>
+
+                            <div className="grid grid-cols-2 gap-4 pt-2">
+                                <Button
+                                    variant="secondary"
                                     onClick={downloadPNG}
-                                    className="flex items-center justify-center gap-2 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition"
+                                    className="!h-12 !text-[10px] font-black uppercase tracking-widest"
+                                    icon={<Download size={16} />}
                                 >
-                                    <Download size={18} />
                                     PNG
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     onClick={printQR}
-                                    className="flex items-center justify-center gap-2 bg-brand text-black py-3 rounded-xl font-bold hover:brightness-110 transition shadow-none"
+                                    className="!h-12 !text-[10px] font-black uppercase tracking-widest shadow-lg shadow-brand/20"
+                                    icon={<Printer size={16} />}
                                 >
-                                    <Printer size={18} />
                                     Imprimir A4
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>

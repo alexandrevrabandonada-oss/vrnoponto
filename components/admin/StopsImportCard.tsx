@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle, Eye } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Eye, Info } from 'lucide-react';
+import { Button } from '@/components/ui';
 
 interface ImportResult {
     dryRun: boolean;
@@ -87,8 +88,7 @@ export function StopsImportCard() {
                 }
 
                 setPreviewRows(rows);
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (err) {
+            } catch {
                 // Ignore parse errors on preview
             }
         };
@@ -124,87 +124,88 @@ export function StopsImportCard() {
         }
     };
 
-    return (
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-            <div className="flex items-center gap-2">
-                <Upload size={20} className="text-brand" />
-                <h2 className="text-xl font-bold">Importar Arquivo (CSV/GeoJSON)</h2>
-            </div>
-            <p className="text-sm text-gray-500">
-                Upload manual de CSV (<code>name,lat,lng,neighborhood</code>) ou GeoJSON (Point features).
-            </p>
+    const labelBase = "block text-[10px] font-black uppercase tracking-widest text-white/40 mb-2 ml-1";
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {dryRun && (
-                    <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm font-semibold">
-                        Dry run: nada foi salvo.
+    return (
+        <div className="space-y-6">
+            <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
+                <div className="flex items-center gap-3 mb-4">
+                    <Upload size={18} className="text-brand" />
+                    <h3 className="text-xs font-black uppercase tracking-widest text-white">Upload de Arquivo</h3>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                        <div className="flex-1">
+                            <label className={labelBase}>Selecione CSV ou GeoJSON</label>
+                            <input
+                                type="file"
+                                accept=".csv,.geojson,.json"
+                                onChange={(e) => {
+                                    setFile(e.target.files?.[0] || null);
+                                    setResult(null);
+                                }}
+                                className="w-full text-xs text-white/40 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-white/5 file:text-white hover:file:bg-white/10 file:transition-colors cursor-pointer"
+                            />
+                        </div>
+
+                        <label className="flex items-center gap-3 text-xs font-bold text-white/60 cursor-pointer group">
+                            <div className={`w-5 h-5 rounded border ${dryRun ? 'bg-brand border-brand' : 'border-white/20 group-hover:border-white/40'} flex items-center justify-center transition-all`}>
+                                <input
+                                    type="checkbox"
+                                    checked={dryRun}
+                                    onChange={(e) => setDryRun(e.target.checked)}
+                                    className="sr-only"
+                                />
+                                {dryRun && <CheckCircle size={14} className="text-black" />}
+                            </div>
+                            Simular Importação (Dry Run)
+                        </label>
                     </div>
-                )}
-                <div className="flex flex-wrap gap-4 items-end">
-                    <div className="flex-1 min-w-[200px]">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Arquivo</label>
-                        <input
-                            type="file"
-                            accept=".csv,.geojson,.json"
-                            onChange={(e) => {
-                                setFile(e.target.files?.[0] || null);
-                                setResult(null);
-                            }}
-                            className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20"
-                        />
-                    </div>
-                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={dryRun}
-                            onChange={(e) => setDryRun(e.target.checked)}
-                            className="rounded border-gray-300"
-                        />
-                        Dry Run (simular)
-                    </label>
-                    <button
+
+                    <Button
                         type="submit"
                         disabled={!file || loading}
-                        className="bg-brand text-black px-6 py-2 rounded-md font-bold hover:brightness-110 transition h-[42px] disabled:opacity-50"
+                        className="w-full !h-14 uppercase font-black italic tracking-widest shadow-xl shadow-brand/10"
                     >
-                        {loading ? 'Processando...' : 'Importar'}
-                    </button>
-                </div>
-            </form>
+                        {loading ? 'Processando...' : 'Iniciar Importação'}
+                    </Button>
+                </form>
+            </div>
 
             {/* Client-side Preview */}
             {previewRows.length > 0 && !result && !loading && (
-                <div className="mt-4 border rounded-lg bg-gray-50 overflow-hidden text-sm">
-                    <div className="p-2 border-b bg-gray-100 flex items-center justify-between">
-                        <div className="font-semibold flex items-center gap-2 text-gray-700">
-                            <Eye size={14} /> Preview da Importação
+                <div className="border border-white/5 rounded-2xl bg-white/[0.02] overflow-hidden text-sm">
+                    <div className="p-4 border-b border-white/5 bg-white/[0.03] flex items-center justify-between">
+                        <div className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2 text-white/60">
+                            <Eye size={14} /> Preview dos Dados
                         </div>
-                        <div className="text-xs text-brand bg-brand/10 px-2 py-0.5 rounded font-bold">
-                            {previewRows.length} pontos válidos detectados
+                        <div className="text-[9px] text-brand bg-brand/10 border border-brand/20 px-3 py-1 rounded-full font-black uppercase tracking-widest">
+                            {previewRows.length} pontos detectados
                         </div>
                     </div>
-                    <div className="max-h-48 overflow-y-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-white border-b text-[10px] uppercase text-gray-500 sticky top-0">
+                    <div className="max-h-64 overflow-y-auto">
+                        <table className="w-full text-left text-xs border-collapse">
+                            <thead className="text-[9px] uppercase tracking-tighter text-white/30 sticky top-0 bg-[#0c0f14]">
                                 <tr>
-                                    <th className="p-2">Name</th>
-                                    <th className="p-2">Neighborhood</th>
-                                    <th className="p-2">Coords</th>
+                                    <th className="px-4 py-2 border-b border-white/5">Name</th>
+                                    <th className="px-4 py-2 border-b border-white/5">Bairro</th>
+                                    <th className="px-4 py-2 border-b border-white/5">Coords</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y text-xs text-gray-600">
-                                {previewRows.slice(0, 20).map((r, i) => (
+                            <tbody className="divide-y divide-white/[0.02]">
+                                {previewRows.slice(0, 50).map((r, i) => (
                                     <tr key={i}>
-                                        <td className="p-2 font-medium text-gray-800">{r.name}</td>
-                                        <td className="p-2">{r.neighborhood || '-'}</td>
-                                        <td className="p-2 font-mono text-[10px]">{r.lat.toFixed(5)}, {r.lng.toFixed(5)}</td>
+                                        <td className="px-4 py-2 font-bold text-white/80">{r.name}</td>
+                                        <td className="px-4 py-2 text-white/40 italic">{r.neighborhood || '—'}</td>
+                                        <td className="px-4 py-2 font-mono text-[10px] text-white/20">{r.lat.toFixed(5)}, {r.lng.toFixed(5)}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                        {previewRows.length > 20 && (
-                            <div className="p-2 text-center text-[10px] text-gray-400 font-medium bg-white">
-                                + {previewRows.length - 20} pontos ocultos no preview
+                        {previewRows.length > 50 && (
+                            <div className="p-3 text-center text-[10px] text-white/20 font-black uppercase tracking-widest bg-white/[0.01]">
+                                + {previewRows.length - 50} pontos ocultos
                             </div>
                         )}
                     </div>
@@ -212,51 +213,50 @@ export function StopsImportCard() {
             )}
 
             {error && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-100 text-red-700 text-sm">
-                    <AlertCircle size={16} />
+                <div className="flex items-center gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold animate-shake">
+                    <AlertCircle size={18} />
                     {error}
                 </div>
             )}
 
             {result && (
-                <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 space-y-2">
-                    {result.dryRun && (
-                        <div className="p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
-                            Dry run: nada foi salvo.
+                <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 space-y-6 animate-in zoom-in-95 duration-500">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            {result.dryRun ? (
+                                <Info size={20} className="text-amber-400" />
+                            ) : (
+                                <CheckCircle size={20} className="text-emerald-400" />
+                            )}
+                            <h4 className="text-sm font-black uppercase tracking-widest text-white">
+                                {result.dryRun ? 'Simulação Finalizada' : 'Importação Concluída'}
+                            </h4>
                         </div>
-                    )}
-                    <div className="flex items-center gap-2">
-                        {result.dryRun ? (
-                            <FileText size={16} className="text-yellow-400" />
-                        ) : (
-                            <CheckCircle size={16} className="text-green-500" />
+                        {result.dryRun && (
+                            <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg">
+                                Dry Run
+                            </span>
                         )}
-                        <span className="font-bold text-sm">
-                            {result.dryRun ? 'Simulação (Dry Run)' : 'Importação Efetivada'}
-                        </span>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-sm">
-                        <div className="p-2 rounded bg-white border">
-                            <div className="text-lg font-bold text-gray-900">{result.total}</div>
-                            <div className="text-[10px] text-gray-500 font-bold uppercase">Lidos</div>
-                        </div>
-                        <div className="p-2 rounded bg-white border">
-                            <div className="text-lg font-bold text-green-600">{result.inserted}</div>
-                            <div className="text-[10px] text-gray-500 font-bold uppercase">Inseridos (Novos)</div>
-                        </div>
-                        <div className="p-2 rounded bg-white border">
-                            <div className="text-lg font-bold text-yellow-500">{result.updated}</div>
-                            <div className="text-[10px] text-gray-500 font-bold uppercase">Atualizados</div>
-                        </div>
-                        <div className="p-2 rounded bg-white border">
-                            <div className="text-lg font-bold text-gray-400">{result.skipped}</div>
-                            <div className="text-[10px] text-gray-500 font-bold uppercase">Pulados</div>
-                        </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                            { label: 'Lidos', val: result.total, color: 'text-white' },
+                            { label: 'Novos', val: result.inserted, color: 'text-emerald-400' },
+                            { label: 'Atualizados', val: result.updated, color: 'text-amber-400' },
+                            { label: 'Pulados', val: result.skipped, color: 'text-white/20' }
+                        ].map((stat, i) => (
+                            <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
+                                <div className={`text-2xl font-industrial italic ${stat.color}`}>{stat.val}</div>
+                                <div className="text-[9px] font-black uppercase tracking-widest opacity-40 mt-1">{stat.label}</div>
+                            </div>
+                        ))}
                     </div>
+
                     {result.errors && result.errors.length > 0 && (
-                        <div className="mt-2 p-3 rounded bg-red-50 border border-red-100 text-xs text-red-700 space-y-1 max-h-40 overflow-y-auto">
+                        <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10 text-[10px] font-mono text-red-400 space-y-1 max-h-40 overflow-y-auto">
                             {result.errors.map((err, i) => (
-                                <div key={i}>{err}</div>
+                                <div key={i}>ERR: {err}</div>
                             ))}
                         </div>
                     )}

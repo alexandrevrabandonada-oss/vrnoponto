@@ -170,7 +170,7 @@ export default function ConfigPage() {
                     <SectionCard className="space-y-4">
                         <div className="flex items-center justify-between gap-4">
                             <div className="flex items-start gap-4">
-                                <div className={`p-2 rounded-xl ${uiMode === 'legivel' ? 'bg-brand/10 text-brand' : 'bg-white/5 text-white/30'}`}>
+                                <div className={`p-2 rounded-xl transition-colors ${uiMode === 'legivel' ? 'bg-brand/10 text-brand' : 'bg-white/5 text-white/30'}`}>
                                     <Type size={20} />
                                 </div>
                                 <div className="flex-1">
@@ -189,6 +189,20 @@ export default function ConfigPage() {
                             >
                                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${uiMode === 'legivel' ? 'translate-x-6' : 'translate-x-1'}`} />
                             </button>
+                        </div>
+
+                        {/* Preview Area */}
+                        <div className="pt-4 border-t border-white/5 space-y-4">
+                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20">Preview imediato</p>
+                            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+                                <h4 className="text-base font-industrial tracking-widest text-white italic">Confirmar Presença</h4>
+                                <p className="text-xs text-white/60 leading-relaxed font-medium">
+                                    Este é um exemplo de como o texto será exibido em todo o aplicativo.
+                                </p>
+                                <Button variant="primary" className="w-full !h-12 !text-[10px]">
+                                    Botão de Exemplo
+                                </Button>
+                            </div>
                         </div>
                     </SectionCard>
                 </div>

@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { Card, Button } from '@/components/ui';
-import { Bus, Zap, ChevronRight, Loader2, Check, Wifi, WifiOff, ChevronDown, Share2, ArrowRight } from 'lucide-react';
+import { Bus, Zap, ChevronRight, Loader2, Check, Wifi, WifiOff, ChevronDown, Share2, ArrowRight, Search } from 'lucide-react';
 import { useOneTap, OneTapResult } from '@/hooks/useOneTap';
+import { LineSearchModal } from './LineSearchModal';
 
 interface OneTapCardProps {
     stopId: string;
@@ -31,6 +32,7 @@ export const OneTapCard = ({
     } = useOneTap({ stopId, defaultLineId, onRecorded });
 
     const [showLinePicker, setShowLinePicker] = useState(false);
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const activeLine = selectedLine || suggestion;
 
     if (isLoadingSuggestion) {
@@ -215,7 +217,22 @@ export const OneTapCard = ({
                             Nenhuma linha alternativa encontrada
                         </p>
                     )}
+
+                    <button
+                        onClick={() => setIsSearchModalOpen(true)}
+                        className="w-full flex items-center justify-center gap-2 p-4 mt-2 rounded-xl bg-brand/10 border border-brand/20 text-brand hover:bg-brand/20 transition-all group"
+                    >
+                        <Search size={14} className="group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Buscar outra linha...</span>
+                    </button>
                 </div>
+            )}
+
+            {isSearchModalOpen && (
+                <LineSearchModal
+                    onClose={() => setIsSearchModalOpen(false)}
+                    onSelect={(line) => selectLine(line)}
+                />
             )}
         </Card>
     );

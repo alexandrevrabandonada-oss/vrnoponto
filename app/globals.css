@@ -11,7 +11,8 @@
   --color-brand: #F6C600;
   --color-surface: #111111;
   --color-surface-2: #161616;
-  --color-muted: #D1D1D1; /* Improved from #B7B7B7 for better contrast on dark */
+  --color-muted: #D1D1D1;
+  /* Improved from #B7B7B7 for better contrast on dark */
   --color-danger: #D62828;
   --color-rust: #B45309;
 
@@ -124,14 +125,15 @@ html[data-density="compact"] {
   --card-pad: 14px;
 }
 
-/* UI Preferences: Legible Mode */
-html[data-ui="legivel"] {
-  --font-scale: 1.10;
-  --space-scale: 1.08;
+/* UI Preferences: Global Text Scale (A11y) */
+html[data-ui-scale="lg"] {
+  --font-scale: 1.15;
+  --space-scale: 1.10;
   --glass-blur: 0px;
-  --btn-py: 14px;
-  --field-py: 14px;
-  --card-pad: 18px;
+  --btn-py: 16px;
+  /* Ensures 44px+ height including line-height */
+  --field-py: 16px;
+  --card-pad: 20px;
 }
 
 html {

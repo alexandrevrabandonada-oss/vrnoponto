@@ -59,7 +59,7 @@ export default async function RootLayout({
   const density = cookieStore.get("vrnp_density")?.value || "comfort";
 
   return (
-    <html lang="pt-BR" data-ui={uiMode} data-density={density}>
+    <html lang="pt-BR" data-ui={uiMode} data-density={density} data-ui-scale={uiMode === 'legivel' ? 'lg' : 'default'}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${staatliches.variable} ${inter.variable} antialiased`}
       >

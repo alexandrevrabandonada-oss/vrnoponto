@@ -50,6 +50,11 @@ export function useUiPrefs() {
         if (key === 'vrnp_ui' || key === 'vrnp_density') {
             const attrKey = key === 'vrnp_ui' ? 'data-ui' : 'data-density';
             document.documentElement.setAttribute(attrKey, value);
+
+            // Sync data-ui-scale for global typographic scaling
+            if (key === 'vrnp_ui') {
+                document.documentElement.setAttribute('data-ui-scale', value === 'legivel' ? 'lg' : 'default');
+            }
         }
 
         // 4. Update React state

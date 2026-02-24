@@ -4,7 +4,10 @@ import { QRGenerator } from '@/components/admin/QRGenerator';
 import { StopsImportCard } from '@/components/admin/StopsImportCard';
 import { OsmImportCard } from '@/components/admin/OsmImportCard';
 import Link from 'next/link';
-import { MapPin, UploadCloud } from 'lucide-react';
+import { MapPin, UploadCloud, Plus, AlertTriangle } from 'lucide-react';
+import {
+    PageHeader, SectionCard, Button
+} from '@/components/ui';
 
 export default async function AdminPontos({
     searchParams
@@ -41,106 +44,120 @@ export default async function AdminPontos({
         revalidatePath('/admin/pontos');
     }
 
+    const inputBase = "w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-brand/50 transition-colors text-sm font-medium";
+    const labelBase = "block text-[10px] font-black uppercase tracking-widest text-white/40 mb-2 ml-1";
+
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Pontos de Ônibus</h1>
-                    <p className="text-gray-600">Gerencie as paradas físicas do sistema.</p>
+                    <PageHeader
+                        title="Pontos de Ônibus"
+                        subtitle="Gerencie as paradas físicas do sistema."
+                        className="!pb-0"
+                    />
                 </div>
-                <div className="rounded-lg bg-gray-100 p-1 flex">
+                <div className="bg-white/5 p-1 rounded-xl border border-white/10 flex">
                     <Link
                         href="/admin/pontos?tab=pontos"
-                        className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-colors ${currentTab === 'pontos' ? 'bg-white text-brand shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${currentTab === 'pontos' ? 'bg-brand text-black shadow-lg shadow-brand/20' : 'text-white/40 hover:text-white'}`}
                     >
-                        <MapPin size={16} /> Meus Pontos
+                        <MapPin size={14} /> Meus Pontos
                     </Link>
                     <Link
                         href="/admin/pontos?tab=seed"
-                        className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-colors ${currentTab === 'seed' ? 'bg-white text-brand shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${currentTab === 'seed' ? 'bg-brand text-black shadow-lg shadow-brand/20' : 'text-white/40 hover:text-white'}`}
                     >
-                        <UploadCloud size={16} /> Seed VR (Importação)
+                        <UploadCloud size={14} /> Seed VR (Importação)
                     </Link>
                 </div>
             </div>
 
             {currentTab === 'pontos' ? (
-                <>
-                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <h2 className="text-xl font-bold mb-4">Cadastrar Novo Ponto</h2>
-                        <form action={createStop} className="flex flex-wrap gap-4 items-end">
-                            <div className="w-24">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Cód. (Opc)</label>
-                                <input type="text" name="code" className="w-full p-2 border rounded-md" placeholder="PT-001" />
+                <div className="space-y-8">
+                    <SectionCard title="Cadastrar Novo Ponto" subtitle="Adicione uma parada manual ao mapa">
+                        <form action={createStop} className="flex flex-col lg:flex-row gap-6 items-end">
+                            <div className="w-full lg:w-32">
+                                <label className={labelBase}>Cód. (Opc)</label>
+                                <input type="text" name="code" className={inputBase} placeholder="PT-001" />
                             </div>
-                            <div className="flex-1 min-w-[200px]">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Nome/Localização</label>
-                                <input type="text" name="name" required className="w-full p-2 border rounded-md" placeholder="Rua 33, Vila Rica" />
+                            <div className="flex-1 w-full min-w-[200px]">
+                                <label className={labelBase}>Nome/Localização</label>
+                                <input type="text" name="name" required className={inputBase} placeholder="Rua 33, Vila Rica" />
                             </div>
-                            <div className="w-32">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
-                                <input type="number" step="any" name="lat" required className="w-full p-2 border rounded-md" placeholder="-22.123" />
+                            <div className="grid grid-cols-2 gap-4 w-full lg:w-72">
+                                <div>
+                                    <label className={labelBase}>Latitude</label>
+                                    <input type="number" step="any" name="lat" required className={inputBase} placeholder="-22.123" />
+                                </div>
+                                <div>
+                                    <label className={labelBase}>Longitude</label>
+                                    <input type="number" step="any" name="lng" required className={inputBase} placeholder="-44.123" />
+                                </div>
                             </div>
-                            <div className="w-32">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
-                                <input type="number" step="any" name="lng" required className="w-full p-2 border rounded-md" placeholder="-44.123" />
-                            </div>
-                            <button type="submit" className="bg-brand text-black px-6 py-2 rounded-md font-bold hover:brightness-110 transition h-[42px]">
+                            <Button type="submit" className="w-full lg:w-auto !h-[50px] !px-8 uppercase font-black italic tracking-widest" icon={<Plus size={20} />}>
                                 Salvar
-                            </button>
+                            </Button>
                         </form>
-                    </div>
+                    </SectionCard>
 
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                        <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    <th className="p-4 font-semibold text-gray-600">Código</th>
-                                    <th className="p-4 font-semibold text-gray-600">Nome</th>
-                                    <th className="p-4 font-semibold text-gray-600">Status</th>
-                                    <th className="p-4 font-semibold text-gray-600">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {stops?.map(stop => (
-                                    <tr key={stop.id}>
-                                        <td className="p-4 text-gray-500">{stop.code || '-'}</td>
-                                        <td className="p-4 font-medium">{stop.name}</td>
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-xs ${stop.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                                {stop.is_active ? 'Ativo' : 'Inativo'}
-                                            </span>
-                                        </td>
-                                        <td className="p-4">
-                                            <QRGenerator stopId={stop.id} stopName={stop.name} />
-                                        </td>
+                    <SectionCard title="Lista de Pontos" subtitle={`${stops?.length || 0} locais registrados`}>
+                        <div className="overflow-x-auto -mx-6">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-white/5">
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40">Código</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40">Nome</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40">Status</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40 text-right">Ações</th>
                                     </tr>
-                                ))}
-                                {(!stops || stops.length === 0) && (
-                                    <tr><td colSpan={4} className="p-8 text-center text-gray-500">Nenhum ponto cadastrado.</td></tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </>
+                                </thead>
+                                <tbody className="divide-y divide-white/[0.02]">
+                                    {stops?.map(stop => (
+                                        <tr key={stop.id} className="group hover:bg-white/[0.02] transition-colors">
+                                            <td className="px-6 py-4 text-sm font-mono text-white/40">{stop.code || '—'}</td>
+                                            <td className="px-6 py-4 font-bold text-white group-hover:text-brand transition-colors">{stop.name}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${stop.is_active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                                                    {stop.is_active ? 'Ativo' : 'Inativo'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <QRGenerator stopId={stop.id} stopName={stop.name} />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {(!stops || stops.length === 0) && (
+                                        <tr>
+                                            <td colSpan={4} className="px-6 py-12 text-center text-white/20 font-black uppercase tracking-widest italic">
+                                                Nenhum ponto cadastrado no sistema.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </SectionCard>
+                </div>
             ) : (
-                <div className="space-y-6">
-                    <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-800">
-                        <h3 className="font-bold mb-1 flex items-center gap-2">⚠️ Atenção: Seed Inicial de Paradas</h3>
-                        <p className="text-sm">
-                            Esta seção permite importar milhares de paradas do OpenStreetMap ou de um arquivo CSV local para iniciar a base de dados do VR no Ponto. O sistema possui deduplicação automática baseada numa distância de raio de 15 metros, o que significa que re-importar paradas sobrepostas irá apenas atualizar nomes ou pular, em vez de duplicar.
-                        </p>
+                <div className="space-y-8">
+                    <div className="bg-brand/5 border border-brand/20 p-6 rounded-3xl flex items-start gap-4">
+                        <AlertTriangle className="text-brand shrink-0 animate-pulse" size={24} />
+                        <div>
+                            <h3 className="text-sm font-black uppercase tracking-widest text-white mb-2">Atenção: Seed Inicial de Paradas</h3>
+                            <p className="text-xs text-white/60 leading-relaxed max-w-2xl">
+                                Esta seção permite importar milhares de paradas do OpenStreetMap ou de um arquivo CSV local. O sistema possui deduplicação automática baseada numa distância de raio de 15 metros. Re-importar paradas sobrepostas irá apenas atualizar nomes ou pular, em vez de duplicar.
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        <div className="space-y-6">
-                            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">📦 Via OpenStreetMap</h3>
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        <SectionCard title="📦 Via OpenStreetMap" subtitle="Importação direta por Overpass API">
                             <OsmImportCard />
-                        </div>
-                        <div className="space-y-6">
-                            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">📂 Via Arquivo Local</h3>
+                        </SectionCard>
+                        <SectionCard title="📂 Via Arquivo Local" subtitle="Processamento de CSV ou JSON">
                             <StopsImportCard />
-                        </div>
+                        </SectionCard>
                     </div>
                 </div>
             )}
