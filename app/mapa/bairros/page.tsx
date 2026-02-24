@@ -4,8 +4,7 @@ import { Loader2, CircleDot } from 'lucide-react';
 import NeighborhoodMapWrapper from '@/components/NeighborhoodMapWrapper';
 import { type NeighborhoodMapItem } from '@/components/NeighborhoodMap';
 import {
-    AppShell, PublicTopBar, PageHeader, SectionCard,
-    SecondaryCTA
+    AppShell, PageHeader, SectionCard, SecondaryCTA, EmptyState
 } from '@/components/ui';
 import { NeighborhoodListView } from './NeighborhoodListView';
 
@@ -135,6 +134,17 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
 
                 {listMode ? (
                     <NeighborhoodListView neighborhoods={neighborhoods} critOnly={critOnly} />
+                ) : neighborhoods.length === 0 ? (
+                    <EmptyState
+                        icon={CircleDot}
+                        title="Sem dados do mapa"
+                        description="Ainda não há amostra suficiente para desenhar o mapa. Faça os primeiros registros para ativar esta visualização."
+                        actionLabel="Estou no ponto"
+                        onAction={() => { window.location.href = '/no-ponto'; }}
+                        secondaryActionLabel="Ver ranking"
+                        onSecondaryAction={() => { window.location.href = '/bairros'; }}
+                        term="amostra_minima"
+                    />
                 ) : (
                     <div className="space-y-6">
                         {/* Legend */}

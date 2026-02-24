@@ -18,7 +18,6 @@ import {
     PageHeader,
     SectionCard,
     Button,
-    PublicTopBar,
     Divider,
     InlineAlert
 } from '@/components/ui';
@@ -69,8 +68,7 @@ export default function ConfigPage() {
     };
 
     return (
-        <AppShell hideHeader>
-            <PublicTopBar title="Configurações" />
+        <AppShell title="Configurações">
 
             <div className="max-w-md mx-auto py-6 px-4 space-y-8">
                 <PageHeader

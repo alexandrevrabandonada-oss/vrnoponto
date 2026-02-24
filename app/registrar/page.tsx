@@ -4,16 +4,19 @@ import { useSearchParams } from 'next/navigation';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { RatingModal } from '@/components/RatingModal';
 import { QRScanner } from '@/components/QRScanner';
-import { QrCode, Navigation, ChevronRight, Share2, Loader2, ChevronDown, Camera } from 'lucide-react';
+import { QrCode, Navigation, ChevronRight, Share2, Loader2, ChevronDown, Camera, Bus, Search } from 'lucide-react';
 import {
-    AppShell, PageHeader, Button, Card, Divider, InlineAlert, SecondaryCTA, NextStepBlock
+    AppShell, PageHeader, Button, Card, Divider, InlineAlert, SecondaryCTA, NextStepBlock, RecordReceipt
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { suggestLine } from '@/lib/suggestLine';
 import { OneTapCard } from '@/components/OneTapCard';
 import { BusPhotoModal } from '@/components/BusPhotoModal';
+import { LineSearchModal } from '@/components/LineSearchModal';
 import { BusPhotoDraft, getRecentBusPhotoDraft } from '@/lib/busPhotoDraft';
 import Link from 'next/link';
+import { saveLastLine } from '@/lib/suggestLine';
+import { trackFunnel, FUNNEL_EVENTS } from '@/lib/telemetry';
 
 const TRUST_COPY: Record<string, string> = {
     L1: 'vale como relato.',
@@ -42,9 +45,11 @@ export default function Registrar() {
     const [selectedLineId, setSelectedLineId] = useState<string | null>(queryLineId);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [isLineSearchOpen, setIsLineSearchOpen] = useState(false);
     const [isBusPhotoModalOpen, setIsBusPhotoModalOpen] = useState(false);
     const [message, setMessage] = useState('');
     const [registrationComplete, setRegistrationComplete] = useState(false);
+    const [registrationData, setRegistrationData] = useState<{ trust_level?: string; queued?: boolean } | null>(null);
     const [recentPhotoDraft, setRecentPhotoDraft] = useState<BusPhotoDraft | null>(() =>
         typeof window === 'undefined' ? null : getRecentBusPhotoDraft()
     );
@@ -53,6 +58,7 @@ export default function Registrar() {
 
     // 1. Get GPS Location
     useEffect(() => {
+        trackFunnel(FUNNEL_EVENTS.REGISTRAR_OPEN);
         if ('geolocation' in navigator) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -165,6 +171,33 @@ export default function Registrar() {
                                         {dailyTip}
                                     </p>
                                 </Card>
+
+                                <div className="mb-4">
+                                    <button
+                                        onClick={() => setIsLineSearchOpen(true)}
+                                        className="w-full h-20 flex items-center justify-between p-5 rounded-3xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] transition-all group shadow-xl"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="bg-brand/10 p-3 rounded-2xl text-brand group-hover:scale-110 transition-transform">
+                                                <Bus size={24} />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Linha selecionada</p>
+                                                <p className="text-lg font-black text-white uppercase italic font-industrial tracking-tight">
+                                                    {selectedLineId === 'unknown' ? 'Linha desconhecida' : (selectedLineId || 'Detectando...')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-brand/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-brand group-hover:bg-brand group-hover:text-black transition-all">
+                                            Trocar
+                                            <Search size={14} />
+                                        </div>
+                                    </button>
+                                    <p className="text-[10px] text-white/30 mt-3 px-1 leading-relaxed">
+                                        Se o ônibus não tiver número ou se você estiver na dúvida, escolha <strong>&quot;Linha desconhecida&quot;</strong>.
+                                    </p>
+                                </div>
+
                                 {selectedStopId ? (
                                     <OneTapCard
                                         stopId={selectedStopId}
@@ -177,15 +210,13 @@ export default function Registrar() {
                                                 localStorage.setItem('pwa_action_count', (currentCount + 1).toString());
 
                                                 setRecentPhotoDraft(getRecentBusPhotoDraft());
-                                                if (result.queued) {
-                                                    setMessage("SALVO NO CELULAR");
-                                                } else {
-                                                    const trust = result.trust_level || 'L1';
-                                                    const trustCopy = TRUST_COPY[trust] || TRUST_COPY.L1;
-                                                    setMessage(`Seu registro contou como: ${trust} - ${trustCopy}`);
-                                                }
+                                                setRegistrationData({
+                                                    trust_level: result.trust_level,
+                                                    queued: result.queued
+                                                });
                                                 setRegistrationComplete(true);
                                                 setIsModalOpen(true);
+                                                trackFunnel(FUNNEL_EVENTS.EVENT_RECORDED);
                                             }
                                         }}
                                     />
@@ -252,50 +283,13 @@ export default function Registrar() {
                             </div>
                         </>
                     ) : (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500" role="alert">
-                            <div className="p-6 rounded-3xl border border-emerald-500/25 bg-emerald-500/10 text-center">
-                                <p className="text-xl font-industrial italic uppercase text-emerald-300 tracking-wide">
-                                    Registrado.
-                                </p>
-                                <p className="text-sm font-bold text-white mt-2">
-                                    Isso fortalece o ponto {currentStop?.name || 'selecionado'}.
-                                </p>
-                                {message && (
-                                    <p className="text-[11px] font-black text-emerald-200/80 uppercase tracking-widest mt-3">
-                                        {message}
-                                    </p>
-                                )}
-                            </div>
-
-                            <NextStepBlock title="Próximo passo">
-                                <Link href={`/ponto/${selectedStopId}`} className="block">
-                                    <Button
-                                        variant="secondary"
-                                        className="w-full justify-between group h-14"
-                                        icon={<ChevronRight className="opacity-0 group-hover:opacity-100 transition-all" />}
-                                        iconPosition="right"
-                                    >
-                                        <div className="text-left">
-                                            <p className="text-[8px] uppercase tracking-widest opacity-60">Diagnóstico</p>
-                                            <p>Ver meu ponto agora</p>
-                                        </div>
-                                    </Button>
-                                </Link>
-
-                                <Link href="/boletim#share-pack" className="block">
-                                    <Button
-                                        variant="primary"
-                                        className="w-full justify-between group h-14"
-                                        icon={<Share2 className="opacity-50 group-hover:opacity-100 transition-all" />}
-                                        iconPosition="right"
-                                    >
-                                        <div className="text-left">
-                                            <p className="text-[8px] uppercase tracking-widest opacity-60 font-black">Impacto</p>
-                                            <p>Compartilhar boletim</p>
-                                        </div>
-                                    </Button>
-                                </Link>
-                            </NextStepBlock>
+                        <div className="space-y-8">
+                            <RecordReceipt
+                                stopId={selectedStopId || ''}
+                                stopName={currentStop?.name || 'selecionado'}
+                                trustLevel={registrationData?.trust_level}
+                                isPending={registrationData?.queued}
+                            />
 
                             <Card variant="surface2" className="border-white/10 bg-white/[0.03]">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-brand">Quer fortalecer mais?</p>
@@ -334,6 +328,20 @@ export default function Registrar() {
 
             {isScannerOpen && (
                 <QRScanner onClose={() => setIsScannerOpen(false)} />
+            )}
+
+            {isLineSearchOpen && (
+                <LineSearchModal
+                    onClose={() => setIsLineSearchOpen(false)}
+                    onSelect={(line) => {
+                        setSelectedLineId(line.line_id);
+                        trackFunnel(FUNNEL_EVENTS.STOP_SELECTED);
+                        if (selectedStopId) {
+                            saveLastLine(selectedStopId, line);
+                        }
+                        setIsLineSearchOpen(false);
+                    }}
+                />
             )}
 
             <BusPhotoModal

@@ -1,12 +1,11 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { AppShell, PublicTopBar, SectionCard } from '@/components/ui';
+import { AppShell, SectionCard } from '@/components/ui';
 
 export default function Loading() {
     return (
-        <AppShell hideHeader>
-            <PublicTopBar title="Mapa de Bairros" />
+        <AppShell title="Mapa de Bairros">
 
             <div className="max-w-7xl mx-auto py-4 space-y-8">
                 {/* Header Skeleton */}

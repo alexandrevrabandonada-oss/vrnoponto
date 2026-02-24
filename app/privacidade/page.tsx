@@ -2,12 +2,11 @@
 
 import Link from 'next/link';
 import { ShieldCheck, Lock, Bell, Trash2 } from 'lucide-react';
-import { AppShell, PublicTopBar, PageHeader, Card, Button } from '@/components/ui';
+import { AppShell, PageHeader, Card, Button } from '@/components/ui';
 
 export default function PrivacidadePage() {
     return (
-        <AppShell hideHeader>
-            <PublicTopBar title="Privacidade" />
+        <AppShell title="Privacidade">
 
             <div className="max-w-md mx-auto py-6 space-y-6">
                 <PageHeader

@@ -17,7 +17,7 @@ import { FirstDataMissionCard } from '@/components/FirstDataMissionCard';
 import {
     AppShell, PageHeader, Button, Divider,
     EmptyState, SkeletonCard, SkeletonBlock, SkeletonList, InlineAlert, ListItem, MetricCard, SectionCard, SecondaryCTA,
-    PublicTopBar, NextStepBlock
+    NextStepBlock
 } from '@/components/ui';
 import { ShareButton } from '@/components/ShareButton';
 import { t } from '@/lib/copy';
@@ -114,8 +114,7 @@ export default function BoletimPage() {
     // Loading skeleton
     if (loading && !data) {
         return (
-            <AppShell hideHeader>
-                <PublicTopBar title="Boletim" />
+            <AppShell title="Boletim">
                 <div className="max-w-md mx-auto py-8 space-y-8">
                     <SkeletonBlock className="!h-16 w-full !rounded-2xl" />
                     <div className="grid grid-cols-2 gap-4 min-h-[120px]">
@@ -135,8 +134,7 @@ export default function BoletimPage() {
     // Error state
     if (error || (!data && !loading)) {
         return (
-            <AppShell hideHeader>
-                <PublicTopBar title="Boletim" />
+            <AppShell title="Boletim">
                 <div className="max-w-md mx-auto py-8">
                     <EmptyState
                         icon={AlertCircle}

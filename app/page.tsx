@@ -3,13 +3,14 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { MapPin, Clock, ChevronRight, Info, ShieldCheck } from 'lucide-react';
-import { Card, Badge, BrandSymbol, PrimaryCTA } from '@/components/ui';
+import { AppShell, Card, Badge, BrandSymbol, PrimaryCTA } from '@/components/ui';
 import { PrivacyModal } from '@/components/PrivacyModal';
 import { createClient } from '@/lib/supabase/client';
 import { FavoritesSection } from '@/components/FavoritesSection';
 import { QuickActions } from '@/components/QuickActions';
 import { MutiraoBanner } from '@/components/MutiraoBanner';
 import { AppTour } from '@/components/AppTour';
+import { trackFunnel, FUNNEL_EVENTS } from '@/lib/telemetry';
 
 export default function Home() {
   const [isPrivacyOpen, setIsPrivacyOpen] = React.useState(false);
@@ -17,6 +18,7 @@ export default function Home() {
   const [isHeroSuccess, setIsHeroSuccess] = React.useState(false);
 
   React.useEffect(() => {
+    trackFunnel(FUNNEL_EVENTS.HOME_START);
     const checkConnection = async () => {
       try {
         const supabase = createClient();
@@ -39,7 +41,8 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-between p-6 relative overflow-hidden bg-[#070707]">
+    <AppShell title="Início">
+      <div className="min-h-[calc(100vh-12rem)] flex flex-col items-center justify-between p-2 sm:p-6 relative overflow-hidden bg-[#070707] rounded-[2rem] border border-white/5">
       {/* Background Texture & Glow */}
       <div className="absolute inset-0 industrial-texture opacity-30 pointer-events-none" />
       <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[150%] aspect-square bg-brand/5 rounded-full blur-[120px] pointer-events-none" />
@@ -138,6 +141,7 @@ export default function Home() {
           Privacidade e Dados
         </button>
       </footer>
-    </main>
+      </div>
+    </AppShell>
   );
 }

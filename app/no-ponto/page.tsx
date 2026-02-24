@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import {
     AppShell, Card, Divider, Button,
     Field, Select, Badge, PrimaryCTA, SectionCard,
-    PublicTopBar, NextStepBlock, PageHeader
+    NextStepBlock, PageHeader
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { useUiPrefs } from '@/lib/useUiPrefs';
@@ -19,6 +19,7 @@ import { OneTapCard } from '@/components/OneTapCard';
 import { BusPhotoModal } from '@/components/BusPhotoModal';
 import { BusPhotoDraft, getRecentBusPhotoDraft } from '@/lib/busPhotoDraft';
 import Link from 'next/link';
+import { trackFunnel, FUNNEL_EVENTS } from '@/lib/telemetry';
 
 export default function NoPonto() {
     const deviceId = useDeviceId();
@@ -57,15 +58,6 @@ export default function NoPonto() {
     const HUMAN_RATE_LIMIT_MESSAGE =
         'Calma, já recebemos um check-in seu agora há pouco. Tentar de novo em alguns minutos.';
 
-    // Telemetry helper
-    const trackTelemetry = useCallback((event: string) => {
-        fetch('/api/telemetry', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ event })
-        }).catch(() => { /* silent */ });
-    }, []);
-
     const refreshGpsPosition = useCallback(() => {
         if (!('geolocation' in navigator)) {
             queueMicrotask(() => setGpsStatus('Geolocalização não suportada neste navegador.'));
@@ -80,6 +72,7 @@ export default function NoPonto() {
                     lng: position.coords.longitude,
                 });
                 setGpsStatus('GPS Capturado 🎉');
+                trackFunnel(FUNNEL_EVENTS.GPS_OK);
             },
             (error) => {
                 setGpsStatus('Erro ao capturar GPS: ' + error.message);
@@ -212,7 +205,6 @@ export default function NoPonto() {
                 });
                 await refreshPending();
 
-                trackTelemetry('offline_queue_enqueued');
                 setMessage("SALVO OFFLINE (SERÁ ENVIADO QUANDO HOUVER REDE)");
                 setHasArrived(true);
                 setIsSubmitting(false);
@@ -325,6 +317,7 @@ export default function NoPonto() {
                                                 const nextStopId = e.target.value;
                                                 setSelectedStop(nextStopId);
                                                 setAutoNearestStop(false);
+                                                trackFunnel(FUNNEL_EVENTS.STOP_SELECTED);
                                             }}
                                             icon={<MapPin size={18} className="text-brand" />}
                                             className="h-16 !text-base font-bold !bg-white/[0.03] !border-white/10"
@@ -372,10 +365,10 @@ export default function NoPonto() {
                                             <Button
                                                 variant="secondary"
                                                 onClick={() => setShowSearch(true)}
-                                                className="!h-14 !text-[11px] font-black uppercase tracking-widest bg-white/5 border-white/10"
-                                                icon={<Search size={18} />}
+                                                className="!h-20 !text-lg font-black uppercase tracking-widest bg-brand text-black border-brand hover:bg-brand/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)]"
+                                                icon={<Search size={22} />}
                                             >
-                                                Buscar ponto pelo nome
+                                                BUSCAR PONTO PELO NOME
                                             </Button>
 
                                             {location && nearestStops.length === 0 && !isLoadingStops && (
@@ -384,7 +377,6 @@ export default function NoPonto() {
                                                     <button
                                                         type="button"
                                                         onClick={() => {
-                                                            trackTelemetry('stop_suggestion_open');
                                                             setShowSuggestionModal(true);
                                                         }}
                                                         className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 text-white/60 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 active:scale-[0.98] transition-all border border-white/5"
@@ -421,14 +413,30 @@ export default function NoPonto() {
                                     <input
                                         autoFocus
                                         type="text"
-                                        placeholder="Nome da rua, ponto ou bairro..."
+                                        placeholder="Digite o nome da rua ou bairro..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-lg font-bold placeholder:text-white/20 outline-none focus:border-brand/50 transition-all"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && searchResults.length > 0) {
+                                                const first = searchResults[0];
+                                                setSelectedStop(first.id);
+                                                setNearestStops(prev => {
+                                                    const exists = prev.find(s => s.id === first.id);
+                                                    if (exists) return prev;
+                                                    return [{ ...first, distance_m: 0 }, ...prev];
+                                                });
+                                                setAutoNearestStop(false);
+                                                setShowSearch(false);
+                                                setSearchQuery('');
+                                                setSearchResults([]);
+                                                trackFunnel(FUNNEL_EVENTS.STOP_SELECTED);
+                                            }
+                                        }}
+                                        className="w-full h-20 bg-white/5 border-2 border-white/10 rounded-2xl px-8 py-4 text-white text-2xl font-black placeholder:text-white/10 outline-none focus:border-brand transition-all shadow-2xl"
                                     />
                                     {isSearching && (
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                            <div className="w-5 h-5 border-2 border-brand/30 border-t-brand rounded-full animate-spin" />
+                                        <div className="absolute right-6 top-1/2 -translate-y-1/2">
+                                            <div className="w-6 h-6 border-3 border-brand/30 border-t-brand rounded-full animate-spin" />
                                         </div>
                                     )}
                                 </div>
@@ -546,6 +554,7 @@ export default function NoPonto() {
                                 <Button
                                     variant="ghost"
                                     onClick={async () => {
+                                        trackFunnel(FUNNEL_EVENTS.SHARE_CLICKED);
                                         const shareData = {
                                             title: 'VR no Ponto',
                                             text: `Acabei de chegar no ponto ${rewardStopInfo.name} e registrei minha presença!`,
@@ -652,7 +661,6 @@ export default function NoPonto() {
 
                             <Link
                                 href={`/registrar?stopId=${selectedStop}`}
-                                onClick={() => trackTelemetry('no_ponto_to_registrar_clicked')}
                                 className="flex items-center justify-between w-full p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group"
                             >
                                 <div className="flex items-center gap-3">
