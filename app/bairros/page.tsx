@@ -44,8 +44,7 @@ export default function BairrosPage() {
 
     if (loading && neighborhoods.length === 0) {
         return (
-            <AppShell hideHeader>
-                <PublicTopBar title="Ranking" />
+            <AppShell title="Ranking">
                 <div className="max-w-md mx-auto py-8 space-y-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 min-h-[160px]">
                         <SkeletonCard />
@@ -65,8 +64,7 @@ export default function BairrosPage() {
     const insufficientSample = neighborhoods.length === 0 || totalSamples < 3;
 
     return (
-        <AppShell hideHeader>
-            <PublicTopBar title="Ranking" />
+        <AppShell title="Ranking">
 
             <div className="max-w-md mx-auto py-4 space-y-8">
                 <PageHeader
@@ -87,22 +85,28 @@ export default function BairrosPage() {
                         <MetricCard
                             label="Bairros"
                             value={neighborhoods.length}
+                            hintTitle="Amostra mínima"
+                            hintContent="Esse total só é útil quando há relatos suficientes no período."
                         />
                         <MetricCard
                             label="Pior Atraso"
                             value={neighborhoods.length > 0 ? `+${neighborhoods[0]?.avg_delta_min}m` : '--'}
                             trendColor="brand"
                             trend="Cenário Crítico"
+                            hintTitle="Cenário crítico"
+                            hintContent="Mostra o pior atraso médio encontrado entre os bairros."
                         />
                         <MetricCard
                             label="Pontos"
                             value={neighborhoods.reduce((a, b) => a + b.stops_count, 0)}
+                            hintTitle="Confiabilidade"
+                            hintContent="Mais pontos monitorados melhoram a leitura da cidade."
                         />
                         <MetricCard
                             label="Relatos"
                             value={neighborhoods.reduce((a, b) => a + b.samples_total, 0)}
                             hintTitle="Amostra mínima"
-                            hintContent="Número de registros necessários pra que o cálculo faça sentido e seja real."
+                            hintContent="Com poucos relatos, o ranking pode oscilar."
                         />
                     </div>
 

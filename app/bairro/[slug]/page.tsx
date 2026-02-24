@@ -134,20 +134,28 @@ export default function BairroDetailPage() {
                             label="Atraso Médio"
                             value={summary.avg_delta_min !== null ? `+${summary.avg_delta_min}m` : '--'}
                             trend="Real vs Oficial"
+                            hintTitle="Tempo típico"
+                            hintContent="Mostra o atraso comum que as pessoas enfrentam no bairro."
                         />
                         <MetricCard
                             label="Pontos"
                             value={summary.stops_count}
+                            hintTitle="Amostra mínima"
+                            hintContent="Mais pontos com relatos deixam o retrato do bairro mais estável."
                         />
                         <MetricCard
                             label="Auditado"
                             value={summary.samples_total}
+                            hintTitle="Amostra mínima"
+                            hintContent="Com mais relatos, o resultado fica mais confiável."
                         />
                         <MetricCard
                             label="Confiança"
                             value={`${summary.pct_verified_avg}%`}
                             trendColor="success"
                             trend="Dados Coesos"
+                            hintTitle="Confiabilidade"
+                            hintContent="Indica quanto dos relatos foi confirmado por cruzamento."
                         />
                     </div>
 

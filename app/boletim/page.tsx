@@ -235,12 +235,16 @@ export default function BoletimPage() {
                                         value={data.summary.critCount}
                                         trendColor="danger"
                                         trend={t('status.bad')}
+                                        hintTitle="Cenário crítico"
+                                        hintContent="Quantidade de alertas com piora forte no período."
                                     />
                                     <MetricCard
                                         label={t('alerts.warning')}
                                         value={data.summary.warnCount}
                                         trendColor="brand"
                                         trend={t('status.delay')}
+                                        hintTitle="Confiabilidade"
+                                        hintContent="Com mais relatos, os alertas refletem melhor a realidade."
                                     />
                                 </div>
                             )}

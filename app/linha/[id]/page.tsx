@@ -183,21 +183,29 @@ export default function LinhaDetails() {
                             label="Intervalo P50"
                             value={lastWeekly?.p50_headway_min ? `${lastWeekly.p50_headway_min}m` : '--'}
                             trend="Frequência Típica"
+                            hintTitle="Tempo típico"
+                            hintContent="É o intervalo mais comum entre ônibus nesta linha."
                         />
                         <MetricCard
                             label="Amostras"
                             value={lastWeekly?.samples || 0}
+                            hintTitle="Amostra mínima"
+                            hintContent="Com poucos registros, este número pode variar mais."
                         />
                         <MetricCard
                             label="Variação 7D"
                             value={delta !== null ? (delta > 0 ? `+${delta}%` : `${delta}%`) : 'Estável'}
                             trendColor={isWorsening ? 'danger' : 'success'}
                             trend={isWorsening ? 'Aumentando' : 'Melhorando'}
+                            hintTitle="Cenário crítico"
+                            hintContent="Quando essa variação sobe muito, a espera tende a piorar."
                         />
                         <MetricCard
                             label="Status"
                             value={line.is_active ? 'ATIVO' : 'STANDBY'}
                             trendColor={line.is_active ? 'brand' : 'muted'}
+                            hintTitle="Confiabilidade"
+                            hintContent="Linha ativa costuma ter leitura mais consistente no sistema."
                         />
                     </div>
 
