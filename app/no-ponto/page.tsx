@@ -8,7 +8,7 @@ import { StopSuggestionModal } from '@/components/StopSuggestionModal';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
 import {
     AppShell, PageHeader, Card, Divider, Button,
-    Field, Select, InlineAlert, Badge
+    Field, Select, InlineAlert, Badge, PrimaryCTA, SectionCard
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { enqueueEvent } from '@/lib/offlineQueue';
@@ -265,20 +265,18 @@ export default function NoPonto() {
                             <h2 className="text-[11px] font-black uppercase tracking-widest text-white/70">Confirmar Presença</h2>
                         </div>
 
-                        <Button
+                        <PrimaryCTA
                             onClick={handleArrived}
                             loading={isSubmitting}
                             disabled={!deviceId || !selectedStop}
-                            className="w-full h-24 !text-2xl !bg-brand !text-black hover:!scale-[1.05] active:!scale-[0.95] focus-visible:ring-4 focus-visible:ring-brand/50 transition-all !rounded-[2rem] shadow-xl shadow-brand/10 border-0"
-                            icon={<ArrowRight size={28} aria-hidden="true" />}
-                            iconPosition="right"
+                            className="!h-24 shadow-xl border-0 !rounded-[2rem]"
                             aria-label="Confirmar que estou neste ponto para iniciar relato"
                         >
                             <div className="flex flex-col items-start text-left">
-                                <span className="text-[10px] uppercase font-black tracking-[0.2em] opacity-60 mb-1">Passo Final</span>
-                                <span className="font-industrial leading-none">ESTOU NO PONTO</span>
+                                <span className="text-[10px] uppercase font-black tracking-[0.2em] opacity-60 mb-1 leading-none">Passo Final</span>
+                                <span className="font-industrial text-2xl leading-none">ESTOU NO PONTO</span>
                             </div>
-                        </Button>
+                        </PrimaryCTA>
                     </div>
                 </div>
 
@@ -295,51 +293,50 @@ export default function NoPonto() {
                 {/* Painel de Histórico / Top Linhas */}
                 {selectedStop && (
                     <div className="space-y-4 animate-in fade-in duration-500">
-                        <Divider label="LINHAS MAIS VISTAS AQUI (30D)" />
-
-                        {isLoadingTopLines ? (
-                            <div className="p-8 border border-white/5 rounded-2xl bg-white/[0.01] text-center text-white/40 text-xs font-bold uppercase tracking-widest animate-pulse">
-                                Buscando Histórico...
-                            </div>
-                        ) : topLines.length > 0 ? (
-                            <div className="space-y-3">
-                                {topLines.map((line) => (
-                                    <div key={line.line_id} className="flex flex-col gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition-colors relative overflow-hidden group">
-                                        <div className="flex justify-between items-start gap-4 z-10">
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="font-industrial text-lg text-brand tracking-widest leading-none bg-brand/10 px-2 py-0.5 rounded-md">
-                                                        {line.code}
-                                                    </span>
-                                                    <span className="text-sm font-bold text-white truncate max-w-[150px] sm:max-w-[200px]">
-                                                        {line.name}
-                                                    </span>
+                        <SectionCard title="Cenário Técnico" subtitle="Linhas mais vistan nesta parada (30D)">
+                            {isLoadingTopLines ? (
+                                <div className="p-8 border border-white/5 rounded-2xl bg-white/[0.01] text-center text-white/40 text-[10px] font-black uppercase tracking-widest animate-pulse">
+                                    Buscando Histórico...
+                                </div>
+                            ) : topLines.length > 0 ? (
+                                <div className="space-y-3">
+                                    {topLines.map((line) => (
+                                        <div key={line.line_id} className="flex flex-col gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition-colors relative overflow-hidden group">
+                                            <div className="flex justify-between items-start gap-4 z-10">
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="font-industrial text-lg text-brand tracking-widest leading-none bg-brand/10 px-2 py-0.5 rounded-md">
+                                                            {line.code}
+                                                        </span>
+                                                        <span className="text-sm font-bold text-white truncate max-w-[150px] sm:max-w-[200px]">
+                                                            {line.name}
+                                                        </span>
+                                                    </div>
+                                                    <TrustMixBadge total={line.count} pctVerified={line.pctVerified} />
                                                 </div>
-                                                <TrustMixBadge total={line.count} pctVerified={line.pctVerified} />
                                             </div>
 
+                                            {/* Botão de Registro Rápido */}
+                                            <div className="pt-2 border-t border-white/5">
+                                                <Link
+                                                    href={`/registrar?stopId=${selectedStop}&lineId=${line.line_id}`}
+                                                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white/5 hover:bg-brand/20 hover:text-brand text-white text-[10px] font-black uppercase tracking-widest transition-colors border border-white/5 hover:border-brand/30"
+                                                >
+                                                    <Bus size={14} />
+                                                    Registrar agora
+                                                </Link>
+                                            </div>
                                         </div>
-
-                                        {/* Botão de Registro Rápido */}
-                                        <div className="pt-2 border-t border-white/5">
-                                            <Link
-                                                href={`/registrar?stopId=${selectedStop}&lineId=${line.line_id}`}
-                                                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white/5 hover:bg-brand/20 hover:text-brand text-white text-xs font-black uppercase tracking-widest transition-colors border border-white/5 hover:border-brand/30"
-                                            >
-                                                <Bus size={14} />
-                                                Registrar 1-toque
-                                            </Link>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01] text-center space-y-2">
-                                <AlertCircle size={24} className="mx-auto text-white/20 mb-2" />
-                                <p className="text-xs text-white/60 font-medium">Sem dados ainda neste ponto.</p>
-                                <p className="text-[10px] text-brand/80 font-black uppercase tracking-widest">Seja o primeiro a registrar abaixo! 👑</p>
-                            </div>
-                        )}
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01] text-center space-y-2">
+                                    <AlertCircle size={24} className="mx-auto text-white/20 mb-2" />
+                                    <p className="text-[10px] font-black text-white/40 uppercase tracking-tight">Sem dados ainda neste ponto.</p>
+                                    <p className="text-[10px] text-brand font-black uppercase tracking-widest">Seja o primeiro a registrar! 👑</p>
+                                </div>
+                            )}
+                        </SectionCard>
                     </div>
                 )}
 

@@ -23,15 +23,22 @@ export function MutiraoBanner() {
     const goal = m.goal || 50;
 
     return (
-        <div className="bg-brand border border-black/10 p-3 px-5 rounded-3xl flex items-center justify-between gap-4 animate-fade-in mb-6">
+        <div className="w-full bg-zinc-900/50 border border-brand/20 p-2.5 px-4 rounded-2xl flex items-center justify-between gap-4 animate-fade-in group hover:border-brand/40 transition-all">
             <div className="flex items-center gap-3 overflow-hidden">
-                <Target size={18} className="text-black/40 shrink-0" />
-                <p className="text-xs font-black uppercase tracking-tight text-black truncate italic">
-                    {m.title}: {progress}/{goal} registros agora
-                </p>
+                <div className="w-8 h-8 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0">
+                    <Target size={16} className="text-brand animate-pulse" />
+                </div>
+                <div className="flex flex-col overflow-hidden">
+                    <p className="text-[10px] font-black uppercase tracking-tight text-white/50 leading-none mb-1">
+                        Mutirão Ativo
+                    </p>
+                    <p className="text-xs font-industrial text-white truncate italic uppercase tracking-wider">
+                        {m.title} <span className="text-brand not-italic ml-1">({progress}/{goal})</span>
+                    </p>
+                </div>
             </div>
             <Link href="/mutirao" className="shrink-0">
-                <Button className="!bg-black !text-white !rounded-full !px-4 !py-1 !h-8 !text-[10px] font-black uppercase tracking-widest">
+                <Button className="!bg-brand !text-black !rounded-xl !px-4 !h-9 !text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform">
                     Participar <ArrowRight size={14} className="ml-1" />
                 </Button>
             </Link>

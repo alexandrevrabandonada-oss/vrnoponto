@@ -10,9 +10,9 @@ Guia para novos usuários do VR no Ponto, explicando o fluxo de participação e
 
 ## Os 3 Passos
 
-1. **Cheguei no ponto** — Abre `/no-ponto`, GPS captura automaticamente o ponto mais próximo (~5s).
-2. **Registro de 1 Toque** — Após marcar "Cheguei", o `OneTapCard` aparece automaticamente com a linha sugerida. 1 toque: "Ônibus Passou" ou "Entrei". *(Funciona offline)*. Alternativamente, `/registrar` tem o mesmo card autônomo.
-3. **Desci + avalia (opcional)** — Marca "Desci" ao chegar no destino → gera Prova de Trajeto (L3).
+1. **Cheguei no ponto** — Abre `/no-ponto`, GPS captura automaticamente o ponto mais próximo (~5s). Clique em "ESTOU NO PONTO".
+2. **Relato de 1 Toque** — Após marcar "Cheguei", o `OneTapCard` aparece com a linha sugerida. 1 toque: "Ônibus Passou" ou "Entrei".
+3. **Pilar Comunitário** — Se não encontrar seu ponto, sugira a inclusão direto no `/no-ponto`.
 
 ## Fluxo Unificado: Cheguei → 1 Toque
 

@@ -43,9 +43,9 @@ export default function ComoUsar() {
                         <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
                             <Zap className="text-brand" size={20} />
                         </div>
-                        <h3 className="font-industrial text-lg italic uppercase tracking-widest text-white">2. Relato Simples</h3>
+                        <h3 className="font-industrial text-lg italic uppercase tracking-widest text-white">2. Relato de 1 Toque</h3>
                         <p className="text-[11px] text-muted font-black uppercase tracking-tight leading-relaxed">
-                            Basta um toque: &quot;Passou agora&quot; ou &quot;Entrei&quot;. Rápido e direto na parada.
+                            Basta um toque no ônibus que passou. Registro inteligente em 10 segundos.
                         </p>
                     </Card>
 
@@ -106,8 +106,8 @@ export default function ComoUsar() {
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Card variant="surface2" className="flex items-center gap-2 !p-3 !bg-white/5 border-white/10">
-                            <Shield size={16} className="text-brand" />
-                            <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Privacidade 100%</span>
+                            <MapPin size={16} className="text-brand" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Sugerir Pontos</span>
                         </Card>
                         <Card variant="surface2" className="flex items-center gap-2 !p-3 !bg-white/5 border-white/10">
                             <Share2 size={16} className="text-brand" />

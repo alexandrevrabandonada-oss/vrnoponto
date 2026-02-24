@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, BarChart3, Map as MapIcon } from 'lucide-react';
 import {
-    AppShell, PageHeader, Button, Card, Divider,
-    SkeletonCard, SkeletonList, ListItem
+    AppShell, PageHeader, Button, Card, Divider, EmptyState,
+    SkeletonCard, SkeletonList, ListItem, MetricCard, SecondaryCTA, SectionCard
 } from '@/components/ui';
-import { EmptyStateAudit } from '@/components/EmptyStateAudit';
 import { t } from '@/lib/copy';
 
 type NeighborhoodRow = {
@@ -61,66 +60,67 @@ export default function BairrosPage() {
                 title="Bairros com Mais Atraso"
                 subtitle="Diferença entre o horário oficial e a realidade (30d)"
                 actions={
-                    <Button variant="secondary" href="/mapa/bairros" className="!h-10 !px-4">
-                        <MapIcon size={16} className="mr-2" /> MAPA
-                    </Button>
+                    <SecondaryCTA href="/mapa/bairros" className="!h-10 !px-4 !text-[10px]">
+                        <MapIcon size={14} className="mr-2" /> MAPA
+                    </SecondaryCTA>
                 }
             />
 
             <div className="space-y-8">
                 {/* Summary KPIs */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card className="text-center transition-all border-white/5">
-                        <div className="text-2xl font-industrial text-white">{neighborhoods.length}</div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Bairros</div>
-                    </Card>
-                    <Card className="text-center group hover:border-brand/30 transition-all border-white/5">
-                        <div className="text-2xl font-industrial italic text-brand">
-                            {neighborhoods.length > 0 ? `+${neighborhoods[0]?.avg_delta_min}m` : '--'}
-                        </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Pior Atraso</div>
-                    </Card>
-                    <Card className="text-center transition-all border-white/5">
-                        <div className="text-2xl font-industrial text-white">
-                            {neighborhoods.reduce((a, b) => a + b.stops_count, 0)}
-                        </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Pontos</div>
-                    </Card>
-                    <Card className="text-center transition-all border-white/5">
-                        <div className="text-2xl font-industrial text-white">
-                            {neighborhoods.reduce((a, b) => a + b.samples_total, 0)}
-                        </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Relatos</div>
-                    </Card>
+                    <MetricCard
+                        label="Bairros"
+                        value={neighborhoods.length}
+                    />
+                    <MetricCard
+                        label="Pior Atraso"
+                        value={neighborhoods.length > 0 ? `+${neighborhoods[0]?.avg_delta_min}m` : '--'}
+                        trendColor="brand"
+                        trend="Cenário Crítico"
+                    />
+                    <MetricCard
+                        label="Pontos"
+                        value={neighborhoods.reduce((a, b) => a + b.stops_count, 0)}
+                    />
+                    <MetricCard
+                        label="Relatos"
+                        value={neighborhoods.reduce((a, b) => a + b.samples_total, 0)}
+                    />
                 </div>
 
                 {/* Ranking Section */}
-                <Divider label="CLASSIFICAÇÃO TÉCNICA" />
-
-                <div className="space-y-3">
-                    {neighborhoods.length === 0 ? (
-                        <EmptyStateAudit
-                            title="Sem Dados"
-                            description="Não há dados de auditoria consolidados para gerar o ranking no momento."
-                        />
-                    ) : (
-                        neighborhoods.map((n, i) => (
-                            <ListItem
-                                key={n.neighborhood}
-                                icon={<span className="font-industrial text-[10px] opacity-40">#{i + 1}</span>}
-                                title={n.neighborhood}
-                                subtitle={`${n.stops_count} pontos monitorados • ${n.samples_total} ${t('samples.total')}`}
-                                extra={
-                                    <div className="text-right">
-                                        <div className="text-lg font-industrial text-brand italic leading-none">+{n.avg_delta_min}m</div>
-                                        <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">Média</div>
-                                    </div>
-                                }
-                                onClick={() => window.location.href = `/bairro/${encodeURIComponent(n.neighborhood)}`}
+                <SectionCard title="Classificação Técnica" subtitle="Ranking baseado em relatos auditados">
+                    <div className="space-y-3">
+                        {neighborhoods.length === 0 ? (
+                            <EmptyState
+                                icon={AlertTriangle}
+                                title="Sem Dados de Ranking"
+                                description="Não há auditores suficientes hoje. Que tal registrar em pelo menos 3 pontos agora para reverter este cenário?"
+                                actionLabel="Auditar Ponto"
+                                onAction={() => window.location.href = '/no-ponto'}
+                                secondaryActionLabel="Como Funciona"
+                                onSecondaryAction={() => window.location.href = '/como-usar'}
                             />
-                        ))
-                    )}
-                </div>
+                        ) : (
+                            neighborhoods.map((n, i) => (
+                                <ListItem
+                                    key={n.neighborhood}
+                                    icon={<span className="font-industrial text-[10px] opacity-40">#{i + 1}</span>}
+                                    title={n.neighborhood}
+                                    subtitle={`${n.stops_count} pontos monitorados • ${n.samples_total} ${t('samples.total')}`}
+                                    extra={
+                                        <div className="text-right">
+                                            <div className="text-lg font-industrial text-brand italic leading-none">+{n.avg_delta_min}m</div>
+                                            <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">Média</div>
+                                        </div>
+                                    }
+                                    onClick={() => window.location.href = `/bairro/${encodeURIComponent(n.neighborhood)}`}
+                                />
+                            ))
+                        )}
+                    </div>
+                </SectionCard>
 
                 {/* Auditoria Pop Message */}
                 <Card className="!p-6 bg-brand/5 border-brand/10">

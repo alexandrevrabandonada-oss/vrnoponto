@@ -15,7 +15,7 @@ import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateBulletinCaption } from '@/lib/editorial/templates';
 import {
     AppShell, PageHeader, Button, Card, Divider,
-    EmptyState, SkeletonCard, SkeletonBlock, SkeletonList, InlineAlert, ListItem, MetricRow
+    EmptyState, SkeletonCard, SkeletonBlock, SkeletonList, InlineAlert, ListItem, MetricRow, MetricCard, SectionCard, SecondaryCTA
 } from '@/components/ui';
 import { t } from '@/lib/copy';
 
@@ -180,45 +180,33 @@ export default function BoletimPage() {
 
                 {/* Empty state */}
                 {isEmpty ? (
-                    <Card className="!p-10 text-center border-dashed border-white/10 bg-white/[0.01]">
-                        <BarChart3 size={32} className="mx-auto mb-4 text-white/20" />
-                        <h2 className="font-industrial text-lg uppercase tracking-widest text-white/70 mb-2">
-                            Ainda sem amostra suficiente
-                        </h2>
-                        <p className="text-[11px] text-white/40 font-bold uppercase tracking-tight mb-8 max-w-xs mx-auto">
-                            Não há dados de auditoria suficientes para gerar o boletim neste período. Ajude registrando horários!
-                        </p>
-                        <div className="flex items-center justify-center gap-3 flex-wrap">
-                            <Link href="/no-ponto">
-                                <Button className="!text-[11px]" icon={<ArrowRight size={14} />} iconPosition="right">
-                                    Estou no Ponto
-                                </Button>
-                            </Link>
-                            <Link href="/como-usar">
-                                <Button variant="secondary" className="!text-[11px]">
-                                    Como Usar
-                                </Button>
-                            </Link>
-                        </div>
-                    </Card>
+                    <EmptyState
+                        icon={BarChart3}
+                        title="Ainda sem amostra suficiente"
+                        description="Não há dados de auditoria suficientes para gerar o boletim neste período. Colabore com pelo menos 3 registros hoje!"
+                        actionLabel="Auditar Ponto"
+                        onAction={() => window.location.href = '/no-ponto'}
+                        secondaryActionLabel="Como Funciona"
+                        onSecondaryAction={() => window.location.href = '/como-usar'}
+                    />
                 ) : (
                     <>
                         {/* Summary Card */}
                         {data?.summary && (
-                            <Card className="!p-4 border-white/5 space-y-1">
-                                <MetricRow
+                            <div className="grid grid-cols-2 gap-4">
+                                <MetricCard
                                     label={t('alerts.critical')}
                                     value={data.summary.critCount}
-                                    tone="danger"
-                                    sublabel={t('status.bad')}
+                                    trendColor="danger"
+                                    trend={t('status.bad')}
                                 />
-                                <MetricRow
+                                <MetricCard
                                     label={t('alerts.warning')}
                                     value={data.summary.warnCount}
-                                    tone="brand"
-                                    sublabel={t('status.delay')}
+                                    trendColor="brand"
+                                    trend={t('status.delay')}
                                 />
-                            </Card>
+                            </div>
                         )}
 
                         <Divider label="KIT PARA COMPARTILHAR" />
@@ -240,57 +228,58 @@ export default function BoletimPage() {
                             />
                         )}
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <Button
-                                variant="secondary"
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <SecondaryCTA
                                 onClick={() => handleDownload('square')}
-                                className="h-16 !text-[11px]"
+                                className="!h-14 shadow-none"
+                                icon={<Download size={18} />}
                             >
-                                <Download size={18} className="mr-2" /> Feed (1:1)
-                            </Button>
-                            <Button
-                                variant="secondary"
+                                Card Feed (1:1)
+                            </SecondaryCTA>
+                            <SecondaryCTA
                                 onClick={() => handleDownload('story')}
-                                className="h-16 !text-[11px]"
+                                className="!h-14 shadow-none"
+                                icon={<Download size={18} />}
                             >
-                                <Download size={18} className="mr-2" /> Story (9:16)
-                            </Button>
+                                Card Story (9:16)
+                            </SecondaryCTA>
                             <Button
                                 onClick={handleWhatsAppShare}
-                                className="h-16 !text-[11px] !bg-[#25D366] !text-white border-none shadow-lg shadow-[#25D366]/20"
+                                className="w-full h-14 !text-[10px] font-black uppercase tracking-widest !bg-[#25D366] !text-white border-none shadow-lg shadow-[#25D366]/20"
+                                icon={<MessageCircle size={18} />}
                             >
-                                <MessageCircle size={18} className="mr-2" /> WhatsApp
+                                WhatsApp
                             </Button>
                         </div>
 
-                        <Divider label="PIORES PONTOS (RANKING)" />
-
-                        <div className="space-y-3">
-                            {(data?.worstStops?.length ?? 0) === 0 ? (
-                                <EmptyState
-                                    icon={BarChart3}
-                                    title="Sem ocorrências"
-                                    description="Nenhum ponto de ônibus atingiu o limite de alerta no período selecionado."
-                                />
-                            ) : (
-                                data?.worstStops.map(stop => (
-                                    <ListItem
-                                        key={stop.stop_id}
-                                        leftIcon={<MapPin size={18} />}
-                                        title={stop.stop_name}
-                                        description={t('samples.audit')}
-                                        tone="danger"
-                                        rightElement={
-                                            <div className="text-right">
-                                                <div className="text-lg font-industrial italic leading-none">{stop.p50_wait_min}m</div>
-                                                <div className="text-[8px] font-black uppercase tracking-tight opacity-50">{t('wait.median')}</div>
-                                            </div>
-                                        }
-                                        href={`/ponto/${stop.stop_id}`}
+                        <SectionCard title="Piores Pontos" subtitle="Ranking de espera crítica">
+                            <div className="space-y-3">
+                                {(data?.worstStops?.length ?? 0) === 0 ? (
+                                    <EmptyState
+                                        icon={BarChart3}
+                                        title="Sem ocorrências"
+                                        description="Nenhum ponto de ônibus atingiu o limite de alerta no período selecionado."
                                     />
-                                ))
-                            )}
-                        </div>
+                                ) : (
+                                    data?.worstStops.map(stop => (
+                                        <ListItem
+                                            key={stop.stop_id}
+                                            leftIcon={<MapPin size={18} />}
+                                            title={stop.stop_name}
+                                            description={t('samples.audit')}
+                                            tone="danger"
+                                            rightElement={
+                                                <div className="text-right">
+                                                    <div className="text-lg font-industrial italic leading-none text-danger">{stop.p50_wait_min}m</div>
+                                                    <div className="text-[8px] font-black uppercase tracking-tight opacity-50">{t('wait.median')}</div>
+                                                </div>
+                                            }
+                                            href={`/ponto/${stop.stop_id}`}
+                                        />
+                                    ))
+                                )}
+                            </div>
+                        </SectionCard>
 
                         {/* Critical Alerts */}
                         {hasAlerts && (

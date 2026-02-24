@@ -1,15 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { MapPin, Bus, BarChart3, Map, BookOpen } from 'lucide-react';
+import { MapPin, Bus, BarChart3, Map, LayoutList } from 'lucide-react';
 import { Card, IconButton } from '@/components/ui';
 
 const ACTIONS = [
-    { href: '/no-ponto', label: 'No Ponto', sub: 'Registrar GPS', icon: MapPin },
-    { href: '/registrar', label: 'Mover', sub: 'Fluxo Técnico', icon: Bus },
-    { href: '/boletim', label: 'Dados', sub: 'Métricas / GAP', icon: BarChart3 },
-    { href: '/bairros', label: 'Bairros', sub: 'Ranking', icon: BookOpen },
-    { href: '/mapa/bairros', label: 'Mapa', sub: 'Bairros', icon: Map },
+    { href: '/no-ponto', label: 'No Ponto', sub: 'CHECK-IN GPS', icon: MapPin },
+    { href: '/registrar', label: 'Registrar', sub: 'LINHA & ÔNIBUS', icon: Bus },
+    { href: '/boletim', label: 'Dados', sub: 'TRANSPARÊNCIA', icon: BarChart3 },
+    { href: '/bairros', label: 'Ranking', sub: 'POR BAIRRO', icon: LayoutList },
+    { href: '/mapa/bairros', label: 'Mapa', sub: 'VISUALIZAR', icon: Map },
 ] as const;
 
 export function QuickActions() {

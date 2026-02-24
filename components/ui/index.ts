@@ -1,7 +1,6 @@
 export * from './Button';
 export * from './Card';
 export * from './Pills';
-export * from './IconButton';
 export * from './BrandSymbol';
 export * from './AppShell';
 export * from './PageHeader';
@@ -17,3 +16,8 @@ export * from './Skeleton';
 export * from './InlineAlert';
 export * from './ListItem';
 export * from './MetricRow';
+export * from './PrimaryCTA';
+export * from './SecondaryCTA';
+export * from './MetricCard';
+export * from './SectionCard';
+export * from './IconButton';

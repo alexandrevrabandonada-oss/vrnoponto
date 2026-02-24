@@ -10,7 +10,7 @@ import { generateLineCaption } from '@/lib/editorial/templates';
 import { PromisedVsRealCard } from '@/components/PromisedVsRealCard';
 import {
     AppShell, PageHeader, Card, Divider, Button,
-    SkeletonCard, SkeletonList, EmptyState, InlineAlert, ListItem, MetricRow, Skeleton
+    SkeletonCard, SkeletonList, EmptyState, InlineAlert, ListItem, MetricRow, Skeleton, MetricCard, SectionCard, SecondaryCTA
 } from '@/components/ui';
 import { FollowButton, FollowBadge } from '@/components/push/FollowButton';
 import { FavoriteToggle } from '@/components/FavoriteToggle';
@@ -161,59 +161,43 @@ export default function LinhaDetails() {
 
                 {/* Performance Metrics */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card className="text-center group hover:border-brand/20 transition-all border-white/5">
-                        <Clock size={16} className="mx-auto mb-2 text-muted" />
-                        <div className="text-2xl font-industrial italic text-brand">
-                            {lastWeekly?.p50_headway_min ? `${lastWeekly.p50_headway_min}M` : '--'}
-                        </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Intervalo P50</div>
-                    </Card>
-                    <Card className="text-center transition-all border-white/5">
-                        <Users size={16} className="mx-auto mb-2 text-muted" />
-                        <div className="text-2xl font-industrial text-white">{lastWeekly?.samples || 0}</div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Amostras</div>
-                    </Card>
-                    <Card className={`text-center transition-all border-white/5 ${isWorsening ? 'border-danger/20 bg-danger/5' : ''}`}>
-                        <TrendingUp size={16} className={`mx-auto mb-2 ${isWorsening ? 'text-danger' : 'text-emerald-500'}`} />
-                        <div className={`text-xl font-industrial italic ${isWorsening ? 'text-danger' : 'text-emerald-500'}`}>
-                            {delta !== null ? (delta > 0 ? `+${delta}%` : `${delta}%`) : 'Estável'}
-                        </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Variação 7D</div>
-                    </Card>
-                    <Card className="text-center transition-all border-brand/10 bg-brand/5">
-                        <Zap size={16} className="mx-auto mb-2 text-brand" />
-                        <div className="text-2xl font-industrial text-brand">{line.is_active ? 'ATIVO' : 'STANDBY'}</div>
-                        <div className="text-[9px] font-black text-brand/40 uppercase tracking-widest mt-1">Status</div>
-                    </Card>
+                    <MetricCard
+                        label="Intervalo P50"
+                        value={lastWeekly?.p50_headway_min ? `${lastWeekly.p50_headway_min}m` : '--'}
+                        trend="Frequência Típica"
+                    />
+                    <MetricCard
+                        label="Amostras"
+                        value={lastWeekly?.samples || 0}
+                    />
+                    <MetricCard
+                        label="Variação 7D"
+                        value={delta !== null ? (delta > 0 ? `+${delta}%` : `${delta}%`) : 'Estável'}
+                        trendColor={isWorsening ? 'danger' : 'success'}
+                        trend={isWorsening ? 'Aumentando' : 'Melhorando'}
+                    />
+                    <MetricCard
+                        label="Status"
+                        value={line.is_active ? 'ATIVO' : 'STANDBY'}
+                        trendColor={line.is_active ? 'brand' : 'muted'}
+                    />
                 </div>
 
                 <Divider label="COMPARAÇÃO OFICIAL (DOMED)" />
                 <PromisedVsRealCard lineId={lineId} />
 
-                <Divider label="FLUXO DE INTERVALOS" />
-                <Card className="!p-0 border-white/5 overflow-hidden">
-                    <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
-                        <div className="space-y-1">
-                            <h3 className="font-industrial text-xs tracking-widest uppercase text-white/80">Monitoramento Temporal</h3>
-                            <p className="text-[9px] font-black text-muted uppercase">Baseado nas últimas 8 semanas de auditoria</p>
-                        </div>
-                        {weekly.length >= 2 && (
-                            <div className="bg-white/5 p-2 rounded-xl">
-                                <Sparkline
-                                    data={weekly.map(w => ({ week_start: w.week_start, value: w.p50_headway_min, p90: w.p90_headway_min }))}
-                                    width={120}
-                                    height={24}
-                                    color={isWorsening ? '#ef4444' : '#FFCC00'}
-                                />
-                            </div>
-                        )}
-                    </div>
-                    <div className="divide-y divide-white/5">
+                <SectionCard title="Intervalos Temporais" subtitle="Frequência média nas últimas 8 semanas">
+                    <div className="divide-y divide-white/5 -mx-4 -mb-4">
                         {weekly.length === 0 ? (
                             <EmptyState
                                 icon={BarChart3}
                                 title="Histórico Vazio"
-                                description="Não há amostras suficientes para gerar o gráfico de tendência desta linha."
+                                description="Não há amostras suficientes para gerar o gráfico de tendência desta linha. Audite hoje!"
+                                actionLabel="Auditar Ponto"
+                                onAction={() => window.location.href = '/no-ponto'}
+                                secondaryActionLabel="Como Funciona"
+                                onSecondaryAction={() => window.location.href = '/como-usar'}
+                                className="!py-12"
                             />
                         ) : (
                             weekly.slice().reverse().map((w) => (
@@ -230,40 +214,44 @@ export default function LinhaDetails() {
                             ))
                         )}
                     </div>
-                </Card>
+                </SectionCard>
 
-                <Divider label="DOCUMENTAÇÃO OFICIAL" />
-                <div className="space-y-3">
-                    {schedules.length === 0 ? (
-                        <EmptyState
-                            icon={FileText}
-                            title="Sem Documentos"
-                            description="Nenhum quadro de horários oficial foi anexado para esta linha."
-                        />
-                    ) : (
-                        schedules.map((sched) => {
-                            const isHorario = !sched.doc_type || sched.doc_type === 'HORARIO';
-                            return (
-                                <ListItem
-                                    key={sched.id}
-                                    icon={<FileText size={18} className={isHorario ? 'text-brand' : 'text-muted'} />}
-                                    title={sched.title || 'Quadro de Horários'}
-                                    subtitle={sched.valid_from ? `Vigência: ${new Date(sched.valid_from).toLocaleDateString('pt-BR')}` : 'Vigência não informada'}
-                                    extra={
-                                        <Button
-                                            variant="secondary"
-                                            className="!h-10 !px-4 !text-[10px]"
-                                            href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/official/${sched.pdf_path}`}
-                                            target="_blank"
-                                        >
-                                            PDF
-                                        </Button>
-                                    }
-                                />
-                            );
-                        })
-                    )}
-                </div>
+                <SectionCard title="Documentos Oficiais" subtitle="Quadros de horários e itinerários">
+                    <div className="space-y-3">
+                        {schedules.length === 0 ? (
+                            <EmptyState
+                                icon={FileText}
+                                title="Sem Documentos"
+                                description="Nenhum quadro de horários oficial foi anexado para esta linha. Solicite ao movimento se necessário."
+                                actionLabel="Registrar Ponto"
+                                onAction={() => window.location.href = '/no-ponto'}
+                                secondaryActionLabel="Ver Bairros"
+                                onSecondaryAction={() => window.location.href = '/bairros'}
+                            />
+                        ) : (
+                            schedules.map((sched) => {
+                                const isHorario = !sched.doc_type || sched.doc_type === 'HORARIO';
+                                return (
+                                    <ListItem
+                                        key={sched.id}
+                                        icon={<FileText size={18} className={isHorario ? 'text-brand' : 'text-muted'} />}
+                                        title={sched.title || 'Quadro de Horários'}
+                                        subtitle={sched.valid_from ? `Vigência: ${new Date(sched.valid_from).toLocaleDateString('pt-BR')}` : 'Vigência não informada'}
+                                        extra={
+                                            <SecondaryCTA
+                                                className="!h-10 !px-4 !text-[10px] !w-auto shadow-none"
+                                                href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/official/${sched.pdf_path}`}
+                                                target="_blank"
+                                            >
+                                                PDF
+                                            </SecondaryCTA>
+                                        }
+                                    />
+                                );
+                            })
+                        )}
+                    </div>
+                </SectionCard>
 
                 <Divider label="AÇÃO POPULAR" />
                 <EditorialCard

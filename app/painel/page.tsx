@@ -5,9 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Clock, Bus, BarChart3 } from 'lucide-react';
 import {
     AppShell, PageHeader, Card, Divider,
-    SkeletonCard, SkeletonList, InlineAlert, MetricRow
+    SkeletonCard, SkeletonList, InlineAlert, MetricRow, EmptyState
 } from '@/components/ui';
-import { EmptyStateAudit } from '@/components/EmptyStateAudit';
 
 interface Line { id: string; code: string; name: string; }
 
@@ -149,7 +148,7 @@ function PainelContent() {
                             <Clock size={24} />
                         </div>
                         <div>
-                            <div className="text-[10px] font-black text-muted uppercase tracking-widest">Espera Mediana</div>
+                            <div className="text-[10px] font-black text-muted uppercase tracking-widest">Tempo Típico</div>
                             <div className="text-3xl font-industrial italic text-white flex items-baseline gap-1">
                                 {stats?.avgWaitTime ? stats.avgWaitTime.toFixed(1) : '--'}
                                 <span className="text-xs font-black text-muted uppercase">min</span>
@@ -161,7 +160,7 @@ function PainelContent() {
                             <Bus size={24} />
                         </div>
                         <div>
-                            <div className="text-[10px] font-black text-muted uppercase tracking-widest">Headway Real</div>
+                            <div className="text-[10px] font-black text-muted uppercase tracking-widest">Frequência Real</div>
                             <div className="text-3xl font-industrial italic text-white flex items-baseline gap-1">
                                 {stats?.avgHeadway ? stats.avgHeadway.toFixed(1) : '--'}
                                 <span className="text-xs font-black text-muted uppercase">min</span>
@@ -174,9 +173,14 @@ function PainelContent() {
                 <Divider label="RANKING DE PIORES PONTOS" />
                 <div className="space-y-1">
                     {!stats?.criticalStops || stats.criticalStops.length === 0 ? (
-                        <EmptyStateAudit
+                        <EmptyState
+                            icon={BarChart3}
                             title="Operação Estável"
-                            description="Nenhum ponto de ônibus apresenta desvios críticos para os filtros selecionados, ou dados insuficientes."
+                            description="Nenhum ponto de ônibus apresenta desvios críticos para os filtros selecionados. Continue auditando para manter o mapa atualizado."
+                            actionLabel="Auditar Ponto"
+                            onAction={() => window.location.href = '/no-ponto'}
+                            secondaryActionLabel="Ver Ranking"
+                            onSecondaryAction={() => window.location.href = '/bairros'}
                         />
                     ) : (
                         <Card className="!p-0 overflow-hidden border-white/5">

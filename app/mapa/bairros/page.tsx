@@ -4,7 +4,8 @@ import { Info, Loader2, Map as MapIcon, MenuSquare, Zap, MapPin, ArrowLeft, Hexa
 import NeighborhoodMapWrapper from '@/components/NeighborhoodMapWrapper';
 import { type NeighborhoodMapItem } from '@/components/NeighborhoodMap';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
-import { EmptyStateAudit } from '@/components/EmptyStateAudit';
+import { EmptyState } from '@/components/ui';
+import { AlertTriangle } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,7 +79,16 @@ function ListView({ neighborhoods, critOnly }: { neighborhoods: NeighborhoodMapI
                     );
                 })}
                 {filtered.length === 0 && (
-                    <EmptyStateAudit />
+                    <EmptyState
+                        icon={AlertTriangle}
+                        title="Mapa Sem Dados"
+                        description="Nenhum bairro atingiu a amostragem mínima para visualização espacial. Colabore registrando 3 pontos hoje."
+                        actionLabel="Auditar Ponto"
+                        onAction={() => window.location.href = '/no-ponto'}
+                        secondaryActionLabel="Ver Ranking"
+                        onSecondaryAction={() => window.location.href = '/bairros'}
+                        className="bg-transparent border-none"
+                    />
                 )}
             </div>
         </div>

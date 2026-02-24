@@ -11,7 +11,7 @@ import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateNeighborhoodDetailCaption } from '@/lib/editorial/templates';
 import {
     AppShell, PageHeader, Button, Card, Divider,
-    EmptyState, SkeletonBlock, SkeletonCard, SkeletonList, ListItem, MetricRow
+    EmptyState, SkeletonBlock, SkeletonCard, SkeletonList, ListItem, MetricRow, MetricCard, SectionCard, SecondaryCTA
 } from '@/components/ui';
 import { FollowButton, FollowBadge } from '@/components/push/FollowButton';
 import { FavoriteToggle } from '@/components/FavoriteToggle';
@@ -120,28 +120,25 @@ export default function BairroDetailPage() {
             <div className="space-y-8">
                 {/* KPI Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Card className="text-center group hover:border-brand/30 transition-all border-white/5">
-                        <Clock size={16} className="mx-auto mb-2 text-muted" />
-                        <div className="text-2xl font-industrial italic text-brand">
-                            {summary.avg_delta_min !== null ? `+${summary.avg_delta_min}m` : '--'}
-                        </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Atraso Médio</div>
-                    </Card>
-                    <Card className="text-center transition-all border-white/5">
-                        <MapPin size={16} className="mx-auto mb-2 text-muted" />
-                        <div className="text-2xl font-industrial text-white">{summary.stops_count}</div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Pontos</div>
-                    </Card>
-                    <Card className="text-center transition-all border-white/5">
-                        <Users size={16} className="mx-auto mb-2 text-muted" />
-                        <div className="text-2xl font-industrial text-white">{summary.samples_total}</div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Auditado</div>
-                    </Card>
-                    <Card className="text-center transition-all border-emerald-500/10 bg-emerald-500/5">
-                        <ShieldCheck size={16} className="mx-auto mb-2 text-emerald-500/50" />
-                        <div className="text-2xl font-industrial text-emerald-400">{summary.pct_verified_avg}%</div>
-                        <div className="text-[9px] font-black text-emerald-500/50 uppercase tracking-widest mt-1">Confiança</div>
-                    </Card>
+                    <MetricCard
+                        label="Atraso Médio"
+                        value={summary.avg_delta_min !== null ? `+${summary.avg_delta_min}m` : '--'}
+                        trend="Real vs Oficial"
+                    />
+                    <MetricCard
+                        label="Pontos"
+                        value={summary.stops_count}
+                    />
+                    <MetricCard
+                        label="Auditado"
+                        value={summary.samples_total}
+                    />
+                    <MetricCard
+                        label="Confiança"
+                        value={`${summary.pct_verified_avg}%`}
+                        trendColor="success"
+                        trend="Dados Coesos"
+                    />
                 </div>
 
                 {/* Monthly Performance */}
@@ -187,60 +184,62 @@ export default function BairroDetailPage() {
                 </Card>
 
                 {/* Top Critical Stops */}
-                <Divider label="PONTOS MAIS CRÍTICOS" />
-                <div className="space-y-3">
-                    {topStops.length === 0 ? (
-                        <EmptyState
-                            icon={BarChart3}
-                            title="Nada Crítico"
-                            description="Não há pontos com atrasos significativos reportados recentemente neste bairro."
-                        />
-                    ) : (
-                        topStops.slice(0, 5).map((s, i) => (
-                            <ListItem
-                                key={s.stop_id}
-                                leftIcon={<span className="font-industrial text-[10px] opacity-40">#{i + 1}</span>}
-                                title={s.stop_name}
-                                description={`${s.samples_total} ${t('samples.total')}`}
-                                tone="danger"
-                                rightElement={
-                                    <div className="text-right">
-                                        <div className="text-lg font-industrial italic leading-none">+{s.worst_delta_min}m</div>
-                                        <div className="text-[8px] font-black uppercase tracking-tight opacity-40">{t('metric.worst')}</div>
-                                    </div>
-                                }
-                                href={`/ponto/${s.stop_id}`}
+                <SectionCard title="Pontos Mais Críticos" subtitle="Onde o atraso é mais frequente">
+                    <div className="space-y-3">
+                        {topStops.length === 0 ? (
+                            <EmptyState
+                                icon={BarChart3}
+                                title="Nada Crítico"
+                                description="Não há pontos com atrasos significativos reportados recentemente neste bairro."
                             />
-                        ))
-                    )}
-                </div>
+                        ) : (
+                            topStops.slice(0, 5).map((s, i) => (
+                                <ListItem
+                                    key={s.stop_id}
+                                    leftIcon={<span className="font-industrial text-[10px] opacity-40">#{i + 1}</span>}
+                                    title={s.stop_name}
+                                    description={`${s.samples_total} ${t('samples.total')}`}
+                                    tone="danger"
+                                    rightElement={
+                                        <div className="text-right">
+                                            <div className="text-lg font-industrial italic leading-none text-danger">+{s.worst_delta_min}m</div>
+                                            <div className="text-[8px] font-black uppercase tracking-tight opacity-40">{t('metric.worst')}</div>
+                                        </div>
+                                    }
+                                    href={`/ponto/${s.stop_id}`}
+                                />
+                            ))
+                        )}
+                    </div>
+                </SectionCard>
 
                 {/* Top Lines */}
-                <Divider label="LINHAS PROBLEMÁTICAS" />
-                <div className="space-y-3">
-                    {topLines.length === 0 ? (
-                        <EmptyState
-                            icon={Bus}
-                            title="Operação Normal"
-                            description="As linhas que cruzam este bairro apresentam performance dentro da média."
-                        />
-                    ) : (
-                        topLines.map((l) => (
-                            <ListItem
-                                key={l.line_id}
-                                leftIcon={<span className="font-industrial text-[10px] opacity-40">L{l.line_code}</span>}
-                                title={l.line_name}
-                                description={`Média de +${l.avg_delta_min}m de atraso`}
-                                rightElement={
-                                    <div className="text-[10px] font-black text-white bg-white/5 px-2 py-1 rounded-lg border border-white/10 uppercase">
-                                        {l.samples_total} {t('samples.total')}
-                                    </div>
-                                }
-                                href={`/linha/${l.line_id}`}
+                <SectionCard title="Linhas Problemáticas" subtitle="Atraso médio por itinerário">
+                    <div className="space-y-3">
+                        {topLines.length === 0 ? (
+                            <EmptyState
+                                icon={Bus}
+                                title="Operação Normal"
+                                description="As linhas que cruzam este bairro apresentam performance dentro da média."
                             />
-                        ))
-                    )}
-                </div>
+                        ) : (
+                            topLines.map((l) => (
+                                <ListItem
+                                    key={l.line_id}
+                                    leftIcon={<span className="font-industrial text-[10px] opacity-40">L{l.line_code}</span>}
+                                    title={l.line_name}
+                                    description={`Média de +${l.avg_delta_min}m de atraso`}
+                                    rightElement={
+                                        <div className="text-[10px] font-black text-white bg-white/5 px-2 py-1 rounded-lg border border-white/10 uppercase">
+                                            {l.samples_total} {t('samples.total')}
+                                        </div>
+                                    }
+                                    href={`/linha/${l.line_id}`}
+                                />
+                            ))
+                        )}
+                    </div>
+                </SectionCard>
 
                 {/* Editorial Kit */}
                 <EditorialCard
@@ -251,22 +250,22 @@ export default function BairroDetailPage() {
 
                 {/* Download Actions */}
                 <div className="grid grid-cols-2 gap-4">
-                    <Button
-                        variant="secondary"
+                    <SecondaryCTA
                         href={`/api/bulletin/worst-neighborhoods-card?format=square&limit=5`}
                         target="_blank"
-                        className="h-16 !text-[10px]"
+                        className="!h-16 shadow-none"
+                        icon={<Download size={18} />}
                     >
-                        <Download size={18} className="mr-2" /> Card Feed
-                    </Button>
-                    <Button
-                        variant="secondary"
+                        Card Feed
+                    </SecondaryCTA>
+                    <SecondaryCTA
                         href={`/api/bulletin/worst-neighborhoods-card?format=story&limit=5`}
                         target="_blank"
-                        className="h-16 !text-[10px]"
+                        className="!h-16 shadow-none"
+                        icon={<Download size={18} />}
                     >
-                        <Download size={18} className="mr-2" /> Card Story
-                    </Button>
+                        Card Story
+                    </SecondaryCTA>
                 </div>
             </div>
         </AppShell>

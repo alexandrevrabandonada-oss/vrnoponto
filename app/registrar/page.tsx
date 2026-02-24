@@ -6,7 +6,7 @@ import { RatingModal } from '@/components/RatingModal';
 import { QRScanner } from '@/components/QRScanner';
 import { QrCode, Navigation, MapPin, Bus, ChevronRight, Share2, Loader2, ChevronDown } from 'lucide-react';
 import { HelpModal } from '@/components/HelpModal';
-import { AppShell, PageHeader, Button, Card, Divider, Field, Textarea, InlineAlert } from '@/components/ui';
+import { AppShell, PageHeader, Button, Card, Divider, Field, Textarea, InlineAlert, PrimaryCTA, SecondaryCTA, SectionCard } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { suggestLine, SuggestedLine } from '@/lib/suggestLine';
 import { OneTapCard } from '@/components/OneTapCard';
@@ -166,27 +166,23 @@ export default function Registrar() {
                             </Card>
                         )}
 
-                        <div className="pt-4 space-y-3">
-                            <Divider label="OUTRAS OPÇÕES" />
+                        <div className="pt-4 space-y-4">
+                            <Divider label="MEIOS DE PROVA" />
                             <div className="grid grid-cols-2 gap-3">
-                                <Button
-                                    variant="secondary"
+                                <SecondaryCTA
                                     onClick={() => setIsScannerOpen(true)}
-                                    className="h-16 !text-[10px] font-black uppercase tracking-widest border-white/5 focus-visible:ring-2 focus-visible:ring-brand/50"
                                     icon={<QrCode size={18} aria-hidden="true" />}
                                     aria-label="Escanear QR Code no ponto parceiro"
                                 >
                                     QR CODE
-                                </Button>
-                                <Button
-                                    variant="secondary"
+                                </SecondaryCTA>
+                                <SecondaryCTA
                                     onClick={() => { /* toggle observation */ }}
-                                    className="h-16 !text-[10px] font-black uppercase tracking-widest border-white/5 focus-visible:ring-2 focus-visible:ring-brand/50"
                                     icon={<ChevronDown size={18} aria-hidden="true" />}
                                     aria-label="Adicionar uma observação ao relato"
                                 >
                                     OBSERVAR
-                                </Button>
+                                </SecondaryCTA>
                             </div>
                         </div>
                     </>
@@ -206,47 +202,47 @@ export default function Registrar() {
                             </div>
                         )}
 
-                        <Divider label="PRÓXIMO PASSO" />
+                        <SectionCard title="Próximos Passos" subtitle="O que você deseja fazer agora?">
+                            <div className="grid grid-cols-1 gap-4 text-left">
+                                <Link href={`/ponto/${selectedStopId}`}>
+                                    <Card variant="surface2" className="group flex items-center justify-between !p-5 border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all cursor-pointer">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-2.5 bg-white/5 rounded-xl group-hover:bg-brand group-hover:text-black transition-colors">
+                                                <MapPin size={22} />
+                                            </div>
+                                            <div>
+                                                <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-1">Painel Público</p>
+                                                <p className="font-industrial text-base text-white tracking-tight leading-none">VER ESTE PONTO</p>
+                                            </div>
+                                        </div>
+                                        <ChevronRight size={20} className="text-white/20" />
+                                    </Card>
+                                </Link>
 
-                        <div className="grid grid-cols-1 gap-4 text-left">
-                            <Link href={`/ponto/${selectedStopId}`}>
-                                <Card variant="surface2" className="group flex items-center justify-between !p-6 border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all cursor-pointer !rounded-[2rem]">
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-white/5 rounded-2xl group-hover:bg-brand group-hover:text-black transition-colors">
-                                            <MapPin size={24} />
+                                <Link href="/boletim">
+                                    <Card variant="surface2" className="group flex items-center justify-between !p-5 border-brand/10 bg-brand/5 hover:bg-brand/10 transition-all cursor-pointer">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-2.5 bg-brand/10 rounded-xl group-hover:bg-brand group-hover:text-black transition-colors">
+                                                <Share2 size={22} />
+                                            </div>
+                                            <div>
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-brand/60 mb-1 leading-none">Transparência</p>
+                                                <p className="font-industrial text-lg text-brand tracking-tight leading-none">COMPARTILHAR BOLETIM</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Painel Público</p>
-                                            <p className="font-industrial text-lg text-white tracking-tight">VER ESTE PONTO</p>
-                                        </div>
-                                    </div>
-                                    <ChevronRight size={24} className="text-white/20" />
-                                </Card>
-                            </Link>
+                                        <ChevronRight size={20} className="text-brand/40" />
+                                    </Card>
+                                </Link>
 
-                            <Link href="/boletim">
-                                <Card variant="surface2" className="group flex items-center justify-between !p-6 border-brand/20 bg-brand/5 hover:bg-brand/10 transition-all cursor-pointer !rounded-[2rem]">
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-brand/10 rounded-2xl group-hover:bg-brand group-hover:text-black transition-colors">
-                                            <Share2 size={24} />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-brand/60 mb-1">Transparência</p>
-                                            <p className="font-industrial text-lg text-brand tracking-tight">COMPARTILHAR BOLETIM</p>
-                                        </div>
-                                    </div>
-                                    <ChevronRight size={24} className="text-brand/40" />
-                                </Card>
-                            </Link>
-
-                            <Button
-                                variant="ghost"
-                                onClick={() => setRegistrationComplete(false)}
-                                className="w-full h-12 !text-[10px] font-black uppercase tracking-[0.2em] text-white/30 hover:text-white/60"
-                            >
-                                Registrar outro ônibus
-                            </Button>
-                        </div>
+                                <SecondaryCTA
+                                    variant="ghost"
+                                    onClick={() => setRegistrationComplete(false)}
+                                    className="!h-10 !text-[10px] opacity-40 hover:opacity-100"
+                                >
+                                    Registrar outro ônibus
+                                </SecondaryCTA>
+                            </div>
+                        </SectionCard>
                     </div>
                 )}
             </div>

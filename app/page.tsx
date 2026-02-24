@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ArrowRight, MapPin, Clock, ChevronRight, Info, ShieldCheck } from 'lucide-react';
-import { Button, Card, Badge, StatusPill, BrandSymbol } from '@/components/ui';
+import { Button, Card, Badge, StatusPill, BrandSymbol, PrimaryCTA } from '@/components/ui';
 import { PrivacyModal } from '@/components/PrivacyModal';
 import { createClient } from '@/lib/supabase/client';
 import { FavoritesSection } from '@/components/FavoritesSection';
@@ -68,42 +68,37 @@ export default function Home() {
             Veredito em 10 segundos
           </Badge>
 
-          <h1 className="text-5xl font-industrial leading-[0.85] tracking-tighter text-white">
+          <h1 className="text-5xl font-industrial leading-[0.85] tracking-tighter text-white italic mb-12">
             TÁ NO PONTO?<br />
             <span className="text-brand uppercase selection:bg-brand selection:text-black">REGISTRE AGORA</span>
           </h1>
 
-          <Link href="/no-ponto" passHref legacyBehavior>
-            <Button
-              className={`mt-12 w-full h-20 !text-2xl hover:scale-[1.05] active:scale-[0.95] focus-visible:ring-4 focus-visible:ring-brand/50 shadow-brand/20 transition-all font-industrial tracking-tight ${isHeroSuccess ? '!bg-emerald-500 !text-white' : ''}`}
-              icon={isHeroSuccess ? null : <ArrowRight size={28} />}
-              iconPosition="right"
-              loading={isHeroLoading}
-              onClick={handleHeroClick}
-              aria-label="Iniciar registro de presença no ponto"
-            >
+          <PrimaryCTA
+            href="/no-ponto"
+            onClick={handleHeroClick}
+            loading={isHeroLoading}
+            className={isHeroSuccess ? '!bg-emerald-500 !text-white' : ''}
+            aria-label="Iniciar registro de presença no ponto"
+          >
+            {isHeroSuccess ? (
+              <span className="animate-scale-in">RELATO ENVIADO!</span>
+            ) : (
               <div className="flex items-center gap-4">
-                {isHeroSuccess ? (
-                  <span className="animate-scale-in">RELATO ENVIADO!</span>
-                ) : (
-                  <>
-                    <MapPin size={28} aria-hidden="true" />
-                    estou no ponto
-                  </>
-                )}
+                <MapPin size={28} aria-hidden="true" />
+                estou no ponto
               </div>
-            </Button>
-          </Link>
+            )}
+          </PrimaryCTA>
 
           {/* Secondary Shortcuts - Discretos, abaixo do CTA principal */}
           <div className="mt-8 flex items-center justify-center gap-6">
             <Link href="/bairros"
-              className="min-h-[44px] flex items-center gap-1.5 text-white/60 text-[10px] font-black uppercase tracking-widest hover:text-brand focus-visible:text-brand outline-none transition px-2">
+              className="min-h-[44px] flex items-center gap-1.5 text-white/50 text-[10px] font-black uppercase tracking-widest hover:text-brand focus-visible:text-brand outline-none transition px-2">
               <MapPin size={12} aria-hidden="true" /> Ver Bairros
             </Link>
             <div className="w-1.5 h-1.5 rounded-full bg-white/5" aria-hidden="true" />
             <Link href="/mapa/bairros"
-              className="min-h-[44px] flex items-center gap-1.5 text-white/60 text-[10px] font-black uppercase tracking-widest hover:text-brand focus-visible:text-brand outline-none transition px-2">
+              className="min-h-[44px] flex items-center gap-1.5 text-white/50 text-[10px] font-black uppercase tracking-widest hover:text-brand focus-visible:text-brand outline-none transition px-2">
               <ChevronRight size={14} aria-hidden="true" /> Ver Mapa
             </Link>
           </div>
@@ -116,8 +111,6 @@ export default function Home() {
           </div>
         </Card>
 
-        {/* Mutirao Banner (Only shows if active) */}
-        <MutiraoBanner />
 
         {/* Favorites & Quick Actions (Simplified display) */}
         <div className="space-y-12 pb-10">

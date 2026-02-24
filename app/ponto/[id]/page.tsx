@@ -9,7 +9,7 @@ import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateStopCaption } from '@/lib/editorial/templates';
 import {
     AppShell, PageHeader, Card, Divider,
-    SkeletonCard, SkeletonList, EmptyState, InlineAlert, ListItem, MetricRow
+    SkeletonCard, SkeletonList, EmptyState, InlineAlert, ListItem, MetricRow, MetricCard, SectionCard
 } from '@/components/ui';
 
 type PointDetail = {
@@ -144,58 +144,41 @@ export default function PontoDetailPage() {
 
                 {/* Performance Metrics */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card className="text-center group hover:border-brand/20 transition-all border-white/5">
-                        <Clock size={16} className="mx-auto mb-2 text-muted" />
-                        <div className="text-2xl font-industrial italic text-brand">
-                            {metrics.p50_wait_min ? `${metrics.p50_wait_min}M` : '--'}
-                        </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Tempo Típico (P50)</div>
-                    </Card>
-                    <Card className="text-center transition-all border-white/5">
-                        <BadgeAlert size={16} className="mx-auto mb-2 text-danger opacity-50" />
-                        <div className="text-2xl font-industrial text-danger">
-                            {metrics.p90_wait_min ? `${metrics.p90_wait_min}M` : '--'}
-                        </div>
-                        <div className="text-[9px] font-black text-danger/40 uppercase tracking-widest mt-1">Atraso Crítico</div>
-                    </Card>
-                    <Card className="text-center transition-all border-white/5">
-                        <Users size={16} className="mx-auto mb-2 text-muted" />
-                        <div className="text-2xl font-industrial text-white">{metrics.samples}</div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Relatos</div>
-                    </Card>
-                    <Card className={`text-center transition-all border-white/5 ${isWorsening ? 'border-danger/20 bg-danger/5' : ''}`}>
-                        <TrendingUp size={16} className={`mx-auto mb-2 ${isWorsening ? 'text-danger' : 'text-emerald-500'}`} />
-                        <div className={`text-xl font-industrial italic ${isWorsening ? 'text-danger' : 'text-emerald-500'}`}>
-                            {hasTrend ? (metrics.delta_7d_pct! > 0 ? `+${metrics.delta_7d_pct}%` : `${metrics.delta_7d_pct}%`) : 'Estável'}
-                        </div>
-                        <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mt-1">Tendência 7D</div>
-                    </Card>
+                    <MetricCard
+                        label="Tempo Típico (P50)"
+                        value={metrics.p50_wait_min ? `${metrics.p50_wait_min}m` : '--'}
+                        trend="Mediana Real"
+                    />
+                    <MetricCard
+                        label="Atraso Crítico"
+                        value={metrics.p90_wait_min ? `${metrics.p90_wait_min}m` : '--'}
+                        trendColor="danger"
+                        trend="P90 observado"
+                    />
+                    <MetricCard
+                        label="Relatos"
+                        value={metrics.samples}
+                    />
+                    <MetricCard
+                        label="Tendência 7D"
+                        value={hasTrend ? (metrics.delta_7d_pct! > 0 ? `+${metrics.delta_7d_pct}%` : `${metrics.delta_7d_pct}%`) : 'Estável'}
+                        trendColor={isWorsening ? 'danger' : 'success'}
+                        trend={isWorsening ? 'Aumentando' : 'Melhorando'}
+                    />
                 </div>
 
-                <Divider label="FLUXO DE ESPERA" />
-                <Card className="!p-0 border-white/5 overflow-hidden">
-                    <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
-                        <div className="space-y-1">
-                            <h3 className="font-industrial text-xs tracking-widest uppercase text-white/80">Monitoramento Temporal</h3>
-                            <p className="text-[9px] font-black text-muted uppercase">Baseado nas últimas 8 semanas de auditoria</p>
-                        </div>
-                        {weekly.length >= 2 && (
-                            <div className="bg-white/5 p-2 rounded-xl">
-                                <Sparkline
-                                    data={weekly.map(w => ({ week_start: w.week_start, value: w.p50_wait_min, p90: w.p90_wait_min }))}
-                                    width={120}
-                                    height={24}
-                                    color={isWorsening ? '#ef4444' : '#FFCC00'}
-                                />
-                            </div>
-                        )}
-                    </div>
-                    <div className="divide-y divide-white/5">
+                <SectionCard title="Monitoramento Temporal" subtitle="Fluxo de espera baseado nas últimas 8 semanas">
+                    <div className="divide-y divide-white/5 -mx-4 -mb-4">
                         {weekly.length === 0 ? (
                             <EmptyState
                                 icon={BarChart3}
                                 title="Histórico Vazio"
-                                description="Ainda não recebemos relatos suficientes para gerar o gráfico de tendência deste ponto."
+                                description="Ainda não recebemos relatos suficientes para gerar o gráfico de tendência deste ponto. Colabore hoje!"
+                                actionLabel="Auditar Ponto"
+                                onAction={() => window.location.href = '/no-ponto'}
+                                secondaryActionLabel="Como Funciona"
+                                onSecondaryAction={() => window.location.href = '/como-usar'}
+                                className="!py-12"
                             />
                         ) : (
                             weekly.slice().reverse().map((w) => (
@@ -212,7 +195,7 @@ export default function PontoDetailPage() {
                             ))
                         )}
                     </div>
-                </Card>
+                </SectionCard>
 
                 <Divider label="COMPARAÇÃO OFICIAL (DOMED)" />
                 <StopPromisedVsRealCard stopId={stop.id} />
@@ -240,34 +223,39 @@ export default function PontoDetailPage() {
                 </Card>
 
                 {/* Lines List */}
-                <Divider label="LINHAS QUE OPERAM NESTE PONTO" />
-                <div className="space-y-3">
-                    {lines.length === 0 ? (
-                        <EmptyState
-                            icon={Bus}
-                            title="Sem Linhas"
-                            description="Nenhuma linha com amostragem consolidada neste ponto ainda."
-                        />
-                    ) : (
-                        lines.map((l) => (
-                            <ListItem
-                                key={l.line_id}
-                                icon={<Bus size={18} className={l.p50_wait_min > 15 ? 'text-danger' : 'text-muted'} />}
-                                title={l.line_code}
-                                subtitle={l.line_name}
-                                extra={
-                                    <div className="text-right">
-                                        <div className={`text-lg font-industrial italic leading-none ${l.p50_wait_min > 15 ? 'text-danger' : 'text-brand'}`}>
-                                            {l.p50_wait_min}m
-                                        </div>
-                                        <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">Típico</div>
-                                    </div>
-                                }
-                                onClick={() => window.location.href = `/linha/${l.line_id}`}
+                <SectionCard title="Itinerários do Ponto" subtitle="Linhas com amostragem consolidada">
+                    <div className="space-y-3">
+                        {lines.length === 0 ? (
+                            <EmptyState
+                                icon={Bus}
+                                title="Sem Linhas Consolidadas"
+                                description="Nenhuma linha com amostragem consolidada neste ponto ainda. Seja o primeiro a auditar!"
+                                actionLabel="Auditar Agora"
+                                onAction={() => window.location.href = '/no-ponto'}
+                                secondaryActionLabel="Ver Ranking"
+                                onSecondaryAction={() => window.location.href = '/bairros'}
                             />
-                        ))
-                    )}
-                </div>
+                        ) : (
+                            lines.map((l) => (
+                                <ListItem
+                                    key={l.line_id}
+                                    icon={<Bus size={18} className={l.p50_wait_min > 15 ? 'text-danger' : 'text-muted'} />}
+                                    title={l.line_code}
+                                    subtitle={l.line_name}
+                                    extra={
+                                        <div className="text-right">
+                                            <div className={`text-lg font-industrial italic leading-none ${l.p50_wait_min > 15 ? 'text-danger' : 'text-brand'}`}>
+                                                {l.p50_wait_min}m
+                                            </div>
+                                            <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">Típico</div>
+                                        </div>
+                                    }
+                                    onClick={() => window.location.href = `/linha/${l.line_id}`}
+                                />
+                            ))
+                        )}
+                    </div>
+                </SectionCard>
             </div>
         </AppShell>
     );

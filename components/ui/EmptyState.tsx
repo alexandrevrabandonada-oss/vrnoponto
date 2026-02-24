@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, MapPin, Search } from 'lucide-react';
 import { Button } from './Button';
 
 interface EmptyStateProps {
@@ -10,6 +10,9 @@ interface EmptyStateProps {
     description: string;
     actionLabel?: string;
     onAction?: () => void;
+    secondaryActionLabel?: string;
+    onSecondaryAction?: () => void;
+    samplesMissing?: number;
     className?: string;
 }
 
@@ -19,32 +22,57 @@ export const EmptyState = ({
     description,
     actionLabel,
     onAction,
+    secondaryActionLabel,
+    onSecondaryAction,
+    samplesMissing,
     className = ''
 }: EmptyStateProps) => {
     return (
-        <div className={`flex flex-col items-center justify-center p-12 text-center animate-in fade-in zoom-in-95 duration-500 ${className}`}>
+        <div className={`flex flex-col items-center justify-center p-12 text-center animate-in fade-in zoom-in-95 duration-500 bg-white/[0.01] border border-dashed border-white/5 rounded-3xl ${className}`}>
             <div className="relative mb-6">
-                <div className="absolute inset-0 bg-brand/10 blur-3xl rounded-full scale-150" />
-                <div className="relative bg-white/[0.03] border border-white/5 p-6 rounded-3xl shadow-2xl">
-                    <Icon size={48} className="text-brand opacity-60" strokeWidth={1.5} />
+                <div className="absolute inset-0 bg-brand/5 blur-3xl rounded-full scale-150" />
+                <div className="relative bg-zinc-900/50 border border-white/5 p-6 rounded-2xl shadow-2xl group-hover:border-brand/20 transition-all">
+                    <Icon size={40} className="text-brand opacity-40 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
                 </div>
             </div>
 
-            <h3 className="font-industrial text-xl uppercase tracking-tighter text-white mb-2">
-                {title}
-            </h3>
-            <p className="max-w-[280px] text-[11px] font-bold text-muted uppercase tracking-tight leading-relaxed opacity-50 mb-8">
-                {description}
-            </p>
+            <div className="space-y-3 max-w-sm mx-auto mb-8">
+                <h3 className="font-industrial text-xl uppercase tracking-widest text-white italic">
+                    {title}
+                </h3>
+                <p className="text-[10px] font-bold text-muted uppercase tracking-tight leading-relaxed opacity-60">
+                    {description}
+                </p>
+                {samplesMissing !== undefined && samplesMissing > 0 && (
+                    <div className="inline-flex items-center gap-2 mt-4 px-3 py-1 bg-brand/10 border border-brand/20 rounded-full text-[9px] font-black text-brand uppercase tracking-widest animate-pulse">
+                        <span className="w-1 h-1 bg-brand rounded-full" />
+                        Faltam {samplesMissing} Relatos
+                    </div>
+                )}
+            </div>
 
-            {actionLabel && onAction && (
-                <Button
-                    onClick={onAction}
-                    className="!h-12 !px-8 !text-[11px]"
-                >
-                    {actionLabel}
-                </Button>
-            )}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xs mx-auto">
+                {actionLabel && (
+                    <Button
+                        variant="primary"
+                        onClick={onAction}
+                        className="w-full !h-12 !text-[11px] font-black uppercase tracking-widest"
+                        icon={<MapPin size={14} />}
+                    >
+                        {actionLabel}
+                    </Button>
+                )}
+                {secondaryActionLabel && (
+                    <Button
+                        variant="secondary"
+                        onClick={onSecondaryAction}
+                        className="w-full !h-12 !text-[11px] font-black uppercase tracking-widest"
+                        icon={<Search size={14} />}
+                    >
+                        {secondaryActionLabel}
+                    </Button>
+                )}
+            </div>
         </div>
     );
 };
