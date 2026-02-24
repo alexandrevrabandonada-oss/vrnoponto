@@ -204,6 +204,15 @@ export function BusPhotoModal({
     }, [file]);
 
     useEffect(() => {
+        if (!isOpen) return;
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
+
+    useEffect(() => {
         if (!isOpen) {
             setFile(null);
             setPreviewUrl(null);

@@ -10,6 +10,7 @@ interface MetricCardProps {
     className?: string;
     trend?: string;
     trendColor?: 'brand' | 'danger' | 'success' | 'muted';
+    icon?: React.ReactNode;
 }
 
 export const MetricCard = ({
@@ -18,7 +19,8 @@ export const MetricCard = ({
     sublabel,
     className = '',
     trend,
-    trendColor = 'brand'
+    trendColor = 'brand',
+    icon
 }: MetricCardProps) => {
     const trendStyles = {
         brand: 'text-brand',
@@ -28,8 +30,13 @@ export const MetricCard = ({
     };
 
     return (
-        <Card className={`text-center space-y-1 transition-all hover:border-white/10 ${className}`} variant="surface">
-            <div className="flex flex-col items-center justify-center">
+        <Card className={`relative text-center space-y-1 transition-all hover:border-white/10 overflow-hidden ${className}`} variant="surface">
+            {icon && (
+                <div className="absolute top-2 right-2 opacity-20">
+                    {icon}
+                </div>
+            )}
+            <div className="flex flex-col items-center justify-center pt-2">
                 <div className="text-3xl font-industrial text-white tabular-nums leading-none">
                     {value || '--'}
                 </div>

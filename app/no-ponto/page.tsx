@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { HelpModal } from '@/components/HelpModal';
-import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2, HelpCircle, Camera, LocateFixed } from 'lucide-react';
+import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2, HelpCircle, Camera, LocateFixed, Search, X, Share } from 'lucide-react';
 import { StopSuggestionModal } from '@/components/StopSuggestionModal';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
 import { useRouter } from 'next/navigation';
@@ -25,7 +25,7 @@ export default function NoPonto() {
 
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [gpsStatus, setGpsStatus] = useState<string>('Solicitando GPS...');
-    const [nearestStops, setNearestStops] = useState<{ id: string, name: string, distance_m: number }[]>([]);
+    const [nearestStops, setNearestStops] = useState<{ id: string, name: string, neighborhood?: string, distance_m: number }[]>([]);
 
     const [selectedStop, setSelectedStop] = useState('');
     const [autoNearestStop, setAutoNearestStop] = useState(true);
@@ -39,9 +39,16 @@ export default function NoPonto() {
         typeof window === 'undefined' ? null : getRecentBusPhotoDraft()
     );
 
+    // Search Logic
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<{ id: string, name: string, neighborhood?: string }[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showSearch, setShowSearch] = useState(false);
+
     // Top Lines Logic
     const [topLines, setTopLines] = useState<{ line_id: string, code: string, name: string, count: number, pctVerified: number }[]>([]);
     const [isLoadingTopLines, setIsLoadingTopLines] = useState(false);
+    const [rewardStopInfo, setRewardStopInfo] = useState<{ name: string, neighborhood?: string } | null>(null);
 
     const { isOnline, refreshPending } = useOfflineSync();
     const HUMAN_RATE_LIMIT_MESSAGE =
@@ -159,6 +166,29 @@ export default function NoPonto() {
         fetchTopLines();
     }, [selectedStop, router]);
 
+    // Efeito para busca manual via typeahead
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (searchQuery.length < 2) {
+                setSearchResults([]);
+                return;
+            }
+            setIsSearching(true);
+            try {
+                const res = await fetch(`/api/stops/search?q=${encodeURIComponent(searchQuery)}&lim=5`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setSearchResults(data.stops || []);
+                }
+            } catch (err) {
+                console.error("Erro na busca:", err);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 400); // debounce
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
     const handleArrived = async () => {
         if (!deviceId) return;
         setIsSubmitting(true);
@@ -215,6 +245,10 @@ export default function NoPonto() {
                 throw new Error(data.error || 'Erro desconhecido');
             }
             setMessage('PRESENÇA REGISTRADA! NÍVEL: ' + (data.event?.trust_level || 'L1'));
+            setRewardStopInfo({
+                name: currentStop?.name || 'este ponto',
+                neighborhood: currentStop?.neighborhood
+            });
             setHasArrived(true);
         } catch (err: unknown) {
             const errMessage = err instanceof Error ? err.message : 'Erro desconhecido';
@@ -339,8 +373,17 @@ export default function NoPonto() {
                                             </p>
                                         </div>
 
-                                        {location && !isLoadingStops && (
-                                            <div className="flex flex-col gap-3 pt-2">
+                                        <div className="flex flex-col gap-3 pt-2">
+                                            <Button
+                                                variant="secondary"
+                                                onClick={() => setShowSearch(true)}
+                                                className="!h-14 !text-[11px] font-black uppercase tracking-widest bg-white/5 border-white/10"
+                                                icon={<Search size={18} />}
+                                            >
+                                                Buscar ponto pelo nome
+                                            </Button>
+
+                                            {location && !isLoadingStops && (
                                                 <button
                                                     type="button"
                                                     onClick={() => {
@@ -352,15 +395,89 @@ export default function NoPonto() {
                                                     <PlusCircle size={18} />
                                                     Sugerir ponto aqui
                                                 </button>
-                                                <Link href="/bairros" className="text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-white transition-colors py-2">
-                                                    Ou buscar manualmente
-                                                </Link>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </Field>
                         </div>
+
+                        {/* BUSCA MANUAL MODAL / OVERLAY */}
+                        {showSearch && (
+                            <div className="fixed inset-0 z-[100] bg-black/95 animate-in fade-in flex flex-col p-6">
+                                <div className="flex items-center justify-between mb-8">
+                                    <h3 className="font-industrial italic text-2xl text-white uppercase tracking-tight">Buscar Parada</h3>
+                                    <button
+                                        onClick={() => {
+                                            setShowSearch(false);
+                                            setSearchQuery('');
+                                            setSearchResults([]);
+                                        }}
+                                        className="p-3 bg-white/5 rounded-full text-white/40 hover:text-white transition-colors"
+                                    >
+                                        <X size={24} />
+                                    </button>
+                                </div>
+
+                                <div className="relative">
+                                    <input
+                                        autoFocus
+                                        type="text"
+                                        placeholder="Nome da rua, ponto ou bairro..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full h-16 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-lg font-bold placeholder:text-white/20 outline-none focus:border-brand/50 transition-all"
+                                    />
+                                    {isSearching && (
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                            <div className="w-5 h-5 border-2 border-brand/30 border-t-brand rounded-full animate-spin" />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="mt-6 flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+                                    {searchResults.length > 0 ? (
+                                        searchResults.map(stop => (
+                                            <button
+                                                key={stop.id}
+                                                onClick={() => {
+                                                    setSelectedStop(stop.id);
+                                                    setNearestStops(prev => {
+                                                        const exists = prev.find(s => s.id === stop.id);
+                                                        if (exists) return prev;
+                                                        return [{ ...stop, distance_m: 0 }, ...prev];
+                                                    });
+                                                    setAutoNearestStop(false);
+                                                    setShowSearch(false);
+                                                    setSearchQuery('');
+                                                    setSearchResults([]);
+                                                }}
+                                                className="w-full p-5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between group active:scale-[0.98] transition-all"
+                                            >
+                                                <div className="text-left">
+                                                    <p className="text-lg font-bold text-white leading-tight uppercase italic">{stop.name}</p>
+                                                    <p className="text-[10px] font-black text-brand uppercase tracking-widest mt-1 opacity-70">
+                                                        {stop.neighborhood || 'Bairro ñ informado'}
+                                                    </p>
+                                                </div>
+                                                <div className="px-4 py-2 bg-brand text-black text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg group-hover:scale-110 transition-transform">
+                                                    Selecionar
+                                                </div>
+                                            </button>
+                                        ))
+                                    ) : searchQuery.length >= 2 && !isSearching ? (
+                                        <div className="py-12 text-center space-y-3 opacity-30">
+                                            <Search size={40} className="mx-auto" />
+                                            <p className="text-sm font-bold uppercase tracking-widest">Nenhum ponto encontrado</p>
+                                        </div>
+                                    ) : (
+                                        <div className="py-12 text-center space-y-4">
+                                            <p className="text-[11px] font-black text-white/20 uppercase tracking-[0.2em]">Exemplos: &quot;Vila Rica&quot;, &quot;Rua 33&quot;, &quot;Aterrado&quot;</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         {/* ETAPA 3: Ação Final */}
                         <div className={`transition-all duration-700 delay-200 ${selectedStop && !hasArrived ? "opacity-100 translate-y-0" : "opacity-30 pointer-events-none translate-y-4"}`}>
@@ -404,8 +521,51 @@ export default function NoPonto() {
                         </div>
                     </div>
 
-                    {/* Feedback da Chegada */}
-                    {message && (
+                    {/* Feedback da Chegada / Reward */}
+                    {hasArrived && rewardStopInfo ? (
+                        <div className="space-y-4 animate-scale-in">
+                            <div className="p-6 rounded-[2rem] text-center border bg-emerald-500/10 text-emerald-400 border-emerald-500/20 relative overflow-hidden">
+                                <div className="flex flex-col items-center gap-2 relative z-10">
+                                    <div className="bg-emerald-500/20 p-2 rounded-full mb-1">
+                                        <CheckCircle2 size={24} />
+                                    </div>
+                                    <p className="font-industrial text-xl italic uppercase tracking-tight leading-none">Registrado</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 max-w-[240px] mx-auto leading-relaxed">
+                                        Isso fortalece a auditoria no bairro <span className="text-white">{rewardStopInfo.neighborhood || 'Local'}</span>.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <Button
+                                    onClick={() => router.push(`/ponto/${selectedStop}`)}
+                                    className="w-full !h-14 !bg-white !text-black !rounded-2xl !text-[11px] font-black uppercase tracking-widest shadow-xl flex items-center justify-between px-6 group"
+                                >
+                                    Ver meu ponto agora
+                                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                </Button>
+
+                                <Button
+                                    variant="ghost"
+                                    onClick={async () => {
+                                        const shareData = {
+                                            title: 'VR no Ponto',
+                                            text: `Acabei de chegar no ponto ${rewardStopInfo.name} e registrei minha presença!`,
+                                            url: window.location.origin + '/boletim'
+                                        };
+                                        try {
+                                            if (navigator.share) await navigator.share(shareData);
+                                            else window.open(`https://wa.me/?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`);
+                                        } catch { /* ignore */ }
+                                    }}
+                                    className="w-full !h-12 !text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white"
+                                    icon={<Share size={16} />}
+                                >
+                                    Compartilhar boletim
+                                </Button>
+                            </div>
+                        </div>
+                    ) : message && (
                         <div className={`p-6 rounded-2xl text-center font-industrial text-lg tracking-widest animate-scale-in border ${message.includes('ERRO')
                             ? 'bg-danger/10 border-danger/20 text-danger'
                             : 'bg-brand/10 border-brand/20 text-brand'

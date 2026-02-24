@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, MapPin, Send, CheckCircle } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
 
@@ -21,6 +21,13 @@ export function StopSuggestionModal({ lat, lng, deviceId, onClose }: StopSuggest
     const [deduped, setDeduped] = useState(false);
     const [confirmations, setConfirmations] = useState(0);
     const [error, setError] = useState('');
+
+    // Close on ESC
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, [onClose]);
 
     const trackTelemetry = (event: string) => {
         fetch('/api/telemetry', {

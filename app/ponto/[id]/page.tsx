@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams as useNextParams, useRouter } from 'next/navigation';
-import { AlertCircle, BarChart3, Bus } from 'lucide-react';
+import { AlertCircle, BarChart3, Bus, ChevronDown, ChevronUp, ShieldCheck, Timer, AlertTriangle } from 'lucide-react';
 import { StopPromisedVsRealCard } from '@/components/StopPromisedVsRealCard';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateStopCaption } from '@/lib/editorial/templates';
@@ -11,6 +11,7 @@ import {
     SkeletonCard, SkeletonList, EmptyState, InlineAlert, ListItem, MetricRow, MetricCard, SectionCard,
     PublicTopBar, NextStepBlock, Button
 } from '@/components/ui';
+import { ShareButton } from '@/components/ShareButton';
 import Link from 'next/link';
 
 type PointDetail = {
@@ -48,6 +49,7 @@ export default function PontoDetailPage() {
     const [data, setData] = useState<PointDetail | null>(null);
     const [weekly, setWeekly] = useState<WeeklyData[]>([]);
     const [alerts, setAlerts] = useState<Alert[]>([]);
+    const [showDetails, setShowDetails] = useState(false);
 
     useEffect(() => {
         if (!stopId) return;
@@ -105,11 +107,21 @@ export default function PontoDetailPage() {
                 <div className="max-w-md mx-auto py-8">
                     <EmptyState
                         icon={AlertCircle}
-                        title="Ponto não encontrado"
-                        description="Não conseguimos localizar os registros deste ponto no sistema."
-                        actionLabel="Ver Ranking"
-                        onAction={() => window.location.href = '/bairros'}
-                    />
+                        title="Sem dados suficientes"
+                        description="Este ponto ainda não possui relatos validados para gerar estatísticas confiáveis."
+                        actionLabel="Gerar primeiros dados agora"
+                        onAction={() => window.location.href = '/no-ponto'}
+                        secondaryActionLabel="Ver Bairros"
+                        onSecondaryAction={() => window.location.href = '/bairros'}
+                        samplesMissing={undefined}
+                    >
+                        <MetricCard
+                            label="Tempo Típico"
+                            value="18 min"
+                            sublabel="Exemplo baseado no bairro"
+                            className="w-full"
+                        />
+                    </EmptyState>
                 </div>
             </AppShell>
         );
@@ -132,122 +144,154 @@ export default function PontoDetailPage() {
                             <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ${stop.is_active ? 'bg-brand/20 text-brand' : 'bg-red-500/20 text-red-400'}`}>
                                 {stop.is_active ? 'MONITORADO' : 'INATIVO'}
                             </span>
+                            <ShareButton
+                                title={`Monitoramento: ${stop.name}`}
+                                text={`Veja como está a situação da espera no ponto ${stop.name} (${stop.neighborhood}) hoje.`}
+                            />
                         </div>
                     }
                 />
 
                 <div className="space-y-8">
-                    {/* Active Alerts */}
-                    {alerts.length > 0 && (
-                        <div className="space-y-3">
-                            {alerts.map(alert => (
-                                <InlineAlert
-                                    key={alert.id}
-                                    variant={alert.severity === 'CRIT' ? 'error' : 'warning'}
-                                    title="Alerta de Demora"
-                                >
-                                    Aumento de <span className="text-white">+{alert.delta_pct}%</span> no tempo típico de espera em relação à semana anterior.
-                                </InlineAlert>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Performance Metrics */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Main Accessible Metrics */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <MetricCard
-                            label="Tempo Típico (P50)"
+                            label="Tempo Típico"
                             value={metrics.p50_wait_min ? `${metrics.p50_wait_min}m` : '--'}
-                            trend="Mediana Real"
+                            trend="Espera comum"
+                            icon={<Timer className="text-brand/50" size={16} />}
                         />
                         <MetricCard
-                            label="Atraso Crítico"
+                            label="Cenário Crítico"
                             value={metrics.p90_wait_min ? `${metrics.p90_wait_min}m` : '--'}
                             trendColor="danger"
-                            trend="P90 observado"
+                            trend="Pior caso"
+                            icon={<AlertTriangle className="text-danger/50" size={16} />}
                         />
                         <MetricCard
-                            label="Relatos"
-                            value={metrics.samples}
-                        />
-                        <MetricCard
-                            label="Tendência 7D"
-                            value={hasTrend ? (metrics.delta_7d_pct! > 0 ? `+${metrics.delta_7d_pct}%` : `${metrics.delta_7d_pct}%`) : 'Estável'}
-                            trendColor={isWorsening ? 'danger' : 'success'}
-                            trend={isWorsening ? 'Aumentando' : 'Melhorando'}
+                            label="Confiabilidade"
+                            value={data.trust_mix ? `${data.trust_mix.pct_verified}%` : metrics.samples > 20 ? 'Alta' : 'Em análise'}
+                            trend={metrics.samples > 50 ? 'Auditado' : 'Consolidando'}
+                            icon={<ShieldCheck className="text-emerald-500/50" size={16} />}
                         />
                     </div>
 
-                    <SectionCard title="Monitoramento Temporal" subtitle="Fluxo de espera baseado nas últimas 8 semanas">
-                        <div className="divide-y divide-white/5 -mx-4 -mb-4">
-                            {weekly.length === 0 ? (
-                                <EmptyState
-                                    icon={BarChart3}
-                                    title="Histórico Vazio"
-                                    description="Ainda não recebemos relatos suficientes para gerar o gráfico de tendência deste ponto. Colabore hoje!"
-                                    actionLabel="Auditar Ponto"
-                                    onAction={() => window.location.href = '/no-ponto'}
-                                    secondaryActionLabel="Como Funciona"
-                                    onSecondaryAction={() => window.location.href = '/como-usar'}
-                                    className="!py-12"
-                                />
+                    <div className="flex justify-center pt-2">
+                        <button
+                            onClick={() => setShowDetails(!showDetails)}
+                            className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/60"
+                        >
+                            {showDetails ? (
+                                <>
+                                    <ChevronUp size={16} />
+                                    Ocultar detalhes técnicos
+                                </>
                             ) : (
-                                weekly.slice().reverse().map((w) => (
-                                    <MetricRow
-                                        key={w.week_start}
-                                        label={new Date(w.week_start).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                                        value={w.p50_wait_min}
-                                        unit="min"
-                                        trend={{
-                                            value: `${w.samples} relatos`,
-                                            isPositive: w.samples > 30
-                                        }}
-                                    />
-                                ))
+                                <>
+                                    <ChevronDown size={16} />
+                                    Ver detalhes técnicos
+                                </>
                             )}
-                        </div>
-                    </SectionCard>
+                        </button>
+                    </div>
 
-                    <Divider label="COMPARAÇÃO OFICIAL (DOMED)" />
-                    <StopPromisedVsRealCard stopId={stop.id} />
+                    {showDetails && (
+                        <div className="space-y-8 animate-in slide-in-from-top-4 duration-500">
+                            {/* Technical Trend */}
+                            <MetricCard
+                                label="Tendência 7D"
+                                value={hasTrend ? (metrics.delta_7d_pct! > 0 ? `+${metrics.delta_7d_pct}%` : `${metrics.delta_7d_pct}%`) : 'Estável'}
+                                trendColor={isWorsening ? 'danger' : 'success'}
+                                trend={isWorsening ? 'Aumentando' : 'Melhorando'}
+                            />
 
-                    <Divider label="RELATÓRIO DE IMPACTO" />
-                    <EditorialCard
-                        data={{ stop, metrics }}
-                        generator={(d, t) => generateStopCaption(d.stop, d.metrics, t)}
-                        title="Kit de Denúncia: Ponto de Ônibus"
-                    />
-
-                    {/* Lines List */}
-                    <SectionCard title="Itinerários do Ponto" subtitle="Linhas com amostragem consolidada">
-                        <div className="space-y-3">
-                            {lines.length === 0 ? (
-                                <EmptyState
-                                    icon={Bus}
-                                    title="Sem Linhas Consolidadas"
-                                    description="Nenhuma linha com amostragem consolidada neste ponto ainda. Seja o primeiro a auditar!"
-                                    className="!py-8"
-                                />
-                            ) : (
-                                lines.map((l) => (
-                                    <ListItem
-                                        key={l.line_id}
-                                        icon={<Bus size={18} className={l.p50_wait_min > 15 ? 'text-danger' : 'text-muted'} />}
-                                        title={l.line_code}
-                                        subtitle={l.line_name}
-                                        extra={
-                                            <div className="text-right">
-                                                <div className={`text-lg font-industrial italic leading-none ${l.p50_wait_min > 15 ? 'text-danger' : 'text-brand'}`}>
-                                                    {l.p50_wait_min}m
-                                                </div>
-                                                <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">Típico</div>
-                                            </div>
-                                        }
-                                        onClick={() => window.location.href = `/linha/${l.line_id}`}
-                                    />
-                                ))
+                            {/* Active Alerts */}
+                            {alerts.length > 0 && (
+                                <div className="space-y-3">
+                                    {alerts.map(alert => (
+                                        <InlineAlert
+                                            key={alert.id}
+                                            variant={alert.severity === 'CRIT' ? 'error' : 'warning'}
+                                            title={`Alerta TÉCNICO: P50 ${alert.delta_pct}% maior`}
+                                        >
+                                            Tempo mediano subiu de {alert.prev_metric_p50}m para {alert.metric_p50}m.
+                                        </InlineAlert>
+                                    ))}
+                                </div>
                             )}
+
+                            <SectionCard title="Monitoramento Temporal" subtitle="Espera baseada no P50 das últimas 8 semanas">
+                                <div className="divide-y divide-white/5 -mx-4 -mb-4">
+                                    {weekly.length === 0 ? (
+                                        <EmptyState
+                                            icon={BarChart3}
+                                            title="Histórico Vazio"
+                                            description="Ainda não recebemos relatos suficientes para gerar o gráfico de tendência deste ponto. Colabore hoje!"
+                                            actionLabel="Auditar Ponto"
+                                            onAction={() => window.location.href = '/no-ponto'}
+                                            secondaryActionLabel="Como Funciona"
+                                            onSecondaryAction={() => window.location.href = '/como-usar'}
+                                            className="!py-12"
+                                        />
+                                    ) : (
+                                        weekly.slice().reverse().map((w) => (
+                                            <MetricRow
+                                                key={w.week_start}
+                                                label={new Date(w.week_start).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                                                value={w.p50_wait_min}
+                                                unit="min"
+                                                trend={{
+                                                    value: `${w.samples} relatos`,
+                                                    isPositive: w.samples > 30
+                                                }}
+                                            />
+                                        ))
+                                    )}
+                                </div>
+                            </SectionCard>
+
+                            <Divider label="COMPARAÇÃO OFICIAL (DOMED)" />
+                            <StopPromisedVsRealCard stopId={stop.id} />
+
+                            <Divider label="RELATÓRIO DE IMPACTO" />
+                            <EditorialCard
+                                data={{ stop, metrics }}
+                                generator={(d, t) => generateStopCaption(d.stop, d.metrics, t)}
+                                title="Kit de Denúncia: Ponto de Ônibus"
+                            />
+
+                            <SectionCard title="Itinerários do Ponto" subtitle="Linhas com amostragem consolidada">
+                                <div className="space-y-3">
+                                    {lines.length === 0 ? (
+                                        <EmptyState
+                                            icon={Bus}
+                                            title="Sem Linhas Consolidadas"
+                                            description="Nenhuma linha com amostragem consolidada neste ponto ainda. Seja o primeiro a auditar!"
+                                            className="!py-8"
+                                        />
+                                    ) : (
+                                        lines.map((l) => (
+                                            <ListItem
+                                                key={l.line_id}
+                                                icon={<Bus size={18} className={l.p50_wait_min > 15 ? 'text-danger' : 'text-muted'} />}
+                                                title={l.line_code}
+                                                subtitle={l.line_name}
+                                                extra={
+                                                    <div className="text-right">
+                                                        <div className={`text-lg font-industrial italic leading-none ${l.p50_wait_min > 15 ? 'text-danger' : 'text-brand'}`}>
+                                                            {l.p50_wait_min}m
+                                                        </div>
+                                                        <div className="text-[8px] font-black text-muted uppercase tracking-tight opacity-40">Típico</div>
+                                                    </div>
+                                                }
+                                                onClick={() => window.location.href = `/linha/${l.line_id}`}
+                                            />
+                                        ))
+                                    )}
+                                </div>
+                            </SectionCard>
                         </div>
-                    </SectionCard>
+                    )}
 
                     <NextStepBlock title="Ação do Cidadão">
                         <Link href="/registrar" className="block">

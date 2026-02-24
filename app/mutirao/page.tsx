@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Share2, MapPin, ClipboardList, Zap } from 'lucide-react';
+import { Share2, MapPin, Zap } from 'lucide-react';
 import { AppShell, Button } from '@/components/ui';
 import Link from 'next/link';
 
@@ -60,14 +60,14 @@ export default function MutiraoPage() {
     const pct = Math.min(100, (progress / goal) * 100);
 
     return (
-        <AppShell title="FOCO NA AMOSTRAGEM">
+        <AppShell title="MUTIRÃO DE AUDITORIA">
             <div className="space-y-12 py-8 animate-fade-in-up flex flex-col items-center">
                 <div className="text-center space-y-4 max-w-xs">
                     <h1 className="text-4xl font-industrial text-white tracking-tight leading-none italic uppercase">
                         {m.title}
                     </h1>
                     <p className="text-brand text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed">
-                        Mutirão é amostragem técnica. <br />Não é cadastro de novos pontos.
+                        Campanha de auditoria coletiva.<br />Cada registro fortalece o sistema.
                     </p>
                 </div>
 
@@ -79,12 +79,12 @@ export default function MutiraoPage() {
                             {progress}<span className="text-white/20 text-4xl not-italic">/{goal}</span>
                         </div>
                         <div className="text-[10px] font-black uppercase tracking-[0.3em] text-brand mt-4">
-                            Registros Acumulados
+                            Relatos Coletados Hoje
                         </div>
                     </div>
                 </div>
 
-                {/* Progress Bar (Minimalist) */}
+                {/* Progress Bar & Main CTA */}
                 <div className="w-full max-w-sm px-8 space-y-10">
                     <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
                         <div
@@ -103,16 +103,6 @@ export default function MutiraoPage() {
                             </Button>
                         </Link>
 
-                        <Link href="/registrar">
-                            <Button
-                                variant="secondary"
-                                className="w-full h-16 !text-sm uppercase font-black tracking-widest border-white/5 bg-white/[0.02] hover:bg-white/5"
-                                icon={<ClipboardList size={20} />}
-                            >
-                                Registrar agora
-                            </Button>
-                        </Link>
-
                         <div className="pt-4">
                             <Button
                                 variant="ghost"
@@ -120,7 +110,7 @@ export default function MutiraoPage() {
                                 onClick={handleShare}
                                 icon={<Share2 size={16} />}
                             >
-                                {copySuccess ? 'LINK COPIADO!' : 'COMPARTILHAR MUTIRÃO'}
+                                {copySuccess ? 'LINK COPIADO!' : 'CHAMAR GALERA PARA AUDITAR'}
                             </Button>
                         </div>
                     </div>

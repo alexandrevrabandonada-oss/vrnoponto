@@ -1,0 +1,14 @@
+
+> vrnoponto@0.1.0 lint
+> eslint
+
+
+C:\Projetos\vrnoponto\app\no-ponto\page.tsx
+  559:50  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  562:44  error    'Share' is not defined         react/jsx-no-undef
+
+C:\Projetos\vrnoponto\components\OneTapCard.tsx
+  160:46  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 3 problems (1 error, 2 warnings)
+

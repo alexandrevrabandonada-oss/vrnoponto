@@ -15,17 +15,17 @@ export default function PrivacidadePage() {
                     subtitle="Explicação simples de como seus dados são usados no VR no Ponto."
                 />
 
-                <Card variant="surface2" className="border-white/10 bg-white/[0.03] space-y-4">
+                <Card variant="surface2" className="!p-8 border-white/10 bg-white/[0.03] space-y-6 readable-content">
                     <div className="flex items-center gap-2 text-brand">
-                        <ShieldCheck size={16} />
-                        <p className="text-[10px] font-black uppercase tracking-widest">Resumo rápido</p>
+                        <ShieldCheck size={18} />
+                        <p className="text-[11px] font-black uppercase tracking-widest">Resumo de Privacidade</p>
                     </div>
-                    <ul className="space-y-2 text-sm text-white/85 list-disc pl-5">
-                        <li>Não precisa de login.</li>
-                        <li>Não pedimos nome.</li>
-                        <li>Registramos horários (passou/embarque), ponto aproximado (GPS) e avaliações.</li>
-                        <li>Foto do ônibus é opcional, fica privada e tem retenção de 14-30 dias.</li>
-                        <li>Notificações (push/telegram): você escolhe, sem spam (modo resumo).</li>
+                    <ul className="space-y-4 text-base text-white/90 list-disc pl-5 leading-relaxed">
+                        <li><strong>Zero burocracia</strong>: Não precisa de login ou senha.</li>
+                        <li><strong>Anonimato</strong>: Nunca pedimos seu nome ou dados pessoais.</li>
+                        <li><strong>Dados coletados</strong>: Apenas horários de ônibus e localização aproximada (GPS) para auditoria.</li>
+                        <li><strong>Fotos</strong>: Envio de foto é 100% opcional e privado.</li>
+                        <li><strong>Controle</strong>: Notificações são ativadas apenas se você autorizar no navegador.</li>
                     </ul>
                 </Card>
 

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Card, Button } from '@/components/ui';
-import { Bus, Zap, ChevronRight, Loader2, Check, Wifi, WifiOff, ChevronDown } from 'lucide-react';
+import { Bus, Zap, ChevronRight, Loader2, Check, Wifi, WifiOff, ChevronDown, Share2, ArrowRight } from 'lucide-react';
 import { useOneTap, OneTapResult } from '@/hooks/useOneTap';
 
 interface OneTapCardProps {
@@ -31,6 +31,7 @@ export const OneTapCard = ({
     } = useOneTap({ stopId, defaultLineId, onRecorded });
 
     const [showLinePicker, setShowLinePicker] = useState(false);
+    const activeLine = selectedLine || suggestion;
 
     if (isLoadingSuggestion) {
         return (
@@ -41,9 +42,6 @@ export const OneTapCard = ({
         );
     }
 
-    if (!selectedLine && !suggestion) return null;
-
-    const activeLine = selectedLine || suggestion;
     if (!activeLine) return null;
 
     const confidenceLabels = {
@@ -85,6 +83,7 @@ export const OneTapCard = ({
                 <Button
                     onClick={() => record('passed_by')}
                     loading={isSubmitting}
+                    disabled={!!feedback && feedback.type === 'ok'}
                     className="h-20 !text-xl !bg-orange-600 hover:!bg-orange-500 !text-white flex-col !gap-1 !rounded-2xl"
                 >
                     <span className="text-[10px] uppercase font-black tracking-widest opacity-70 leading-none">Visto de Fora</span>
@@ -94,6 +93,7 @@ export const OneTapCard = ({
                 <Button
                     onClick={() => record('boarding')}
                     loading={isSubmitting}
+                    disabled={!!feedback && feedback.type === 'ok'}
                     className="h-20 !text-xl !bg-emerald-600 hover:!bg-emerald-500 !text-white flex-col !gap-1 !rounded-2xl"
                 >
                     <span className="text-[10px] uppercase font-black tracking-widest opacity-70 leading-none">Vou Embarcar</span>
@@ -101,17 +101,71 @@ export const OneTapCard = ({
                 </Button>
             </div>
 
-            {/* Feedback */}
+            {/* Feedback & Cognitive Reward */}
             {feedback && (
-                <div className={`p-3 rounded-xl text-center text-sm font-bold mb-4 animate-scale-in flex items-center justify-center gap-2
-                    ${feedback.type === 'ok' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : ''}
-                    ${feedback.type === 'queued' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : ''}
-                    ${feedback.type === 'error' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : ''}
-                `}>
-                    {feedback.type === 'ok' && <Check size={16} />}
-                    {feedback.type === 'queued' && <WifiOff size={16} />}
-                    {feedback.type === 'error' && <Wifi size={16} />}
-                    {feedback.text}
+                <div className="space-y-4 animate-scale-in">
+                    <div className={`p-5 rounded-[2rem] text-center border overflow-hidden relative
+                        ${feedback.type === 'ok' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : ''}
+                        ${feedback.type === 'queued' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : ''}
+                        ${feedback.type === 'error' ? 'bg-red-500/10 text-red-400 border-red-500/20' : ''}
+                    `}>
+                        <div className="flex flex-col items-center gap-2 relative z-10">
+                            {feedback.type === 'ok' && (
+                                <>
+                                    <div className="bg-emerald-500/20 p-2 rounded-full mb-1">
+                                        <Check size={20} />
+                                    </div>
+                                    <p className="font-industrial text-lg italic uppercase tracking-tight leading-none">Registrado</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 max-w-[200px] mx-auto leading-relaxed">
+                                        Isso fortalece a auditoria em <span className="text-white">{stopName}</span>.
+                                    </p>
+                                </>
+                            )}
+                            {feedback.type === 'queued' && (
+                                <>
+                                    <WifiOff size={20} className="mb-1" />
+                                    <p className="text-sm font-bold uppercase tracking-widest">{feedback.text}</p>
+                                </>
+                            )}
+                            {feedback.type === 'error' && (
+                                <>
+                                    <Wifi size={20} className="mb-1" />
+                                    <p className="text-sm font-bold uppercase tracking-widest">{feedback.text}</p>
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    {feedback.type === 'ok' && (
+                        <div className="flex flex-col gap-2">
+                            <Button
+                                onClick={() => window.location.href = `/ponto/${stopId}`}
+                                className="w-full !h-14 !bg-white !text-black !rounded-2xl !text-[11px] font-black uppercase tracking-widest shadow-xl flex items-center justify-between px-6 group"
+                            >
+                                Ver meu ponto agora
+                                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                onClick={async () => {
+                                    const shareData = {
+                                        title: 'VR no Ponto',
+                                        text: `Acabei de auditar o ponto ${stopName} no VR no Ponto!`,
+                                        url: window.location.origin + '/boletim'
+                                    };
+                                    try {
+                                        if (navigator.share) await navigator.share(shareData);
+                                        else window.open(`https://wa.me/?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`);
+                                    } catch { /* ignore */ }
+                                }}
+                                className="w-full !h-12 !text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white"
+                                icon={<Share2 size={16} />}
+                            >
+                                Compartilhar boletim
+                            </Button>
+                        </div>
+                    )}
                 </div>
             )}
 

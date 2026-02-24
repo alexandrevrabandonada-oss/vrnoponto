@@ -11,27 +11,27 @@ export default function ComoUsar() {
             />
 
             <div className="space-y-6">
-                <Card className="!p-6 border-brand/20 bg-brand/5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand">Em 10s</p>
-                    <h2 className="mt-2 text-2xl font-industrial italic uppercase text-white">Estou no ponto → registro de 1 toque</h2>
-                    <p className="mt-2 text-sm text-white/80">
-                        Abra o check-in, confirme o ponto e registre. Isso já gera prova de campo.
+                <Card className="!p-8 border-brand/20 bg-brand/5 readable-content">
+                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-brand">Em 10s</p>
+                    <h2 className="mt-3 text-2xl font-industrial italic uppercase text-white">Estou no ponto → registro de 1 toque</h2>
+                    <p className="mt-4 text-base text-white/90">
+                        Abra o check-in, confirme o ponto e registre. Isso já gera prova de campo instantânea.
                     </p>
                 </Card>
 
-                <Card className="!p-6 border-white/10 bg-white/[0.02]">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand">Em 30s</p>
-                    <h2 className="mt-2 text-2xl font-industrial italic uppercase text-white">Registre em 2 pontos no dia</h2>
-                    <p className="mt-2 text-sm text-white/80">
-                        Dois registros em pontos diferentes melhoram muito a leitura da cidade e reduzem ruído.
+                <Card className="!p-8 border-white/10 bg-white/[0.02] readable-content">
+                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-brand">Em 30s</p>
+                    <h2 className="mt-3 text-2xl font-industrial italic uppercase text-white">Registre em 2 pontos no dia</h2>
+                    <p className="mt-4 text-base text-white/90">
+                        Dois registros em pontos diferentes melhoram muito a leitura da cidade e reduzem ruído estatístico.
                     </p>
                 </Card>
 
-                <Card className="!p-6 border-white/10 bg-white/[0.02]">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand">Impacto</p>
-                    <h2 className="mt-2 text-2xl font-industrial italic uppercase text-white">Ver ponto e bairro, depois compartilhar boletim</h2>
-                    <p className="mt-2 text-sm text-white/80">
-                        Quando você compartilha o boletim, transforma relato local em pressão pública.
+                <Card className="!p-8 border-white/10 bg-white/[0.02] readable-content">
+                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-brand">Impacto</p>
+                    <h2 className="mt-3 text-2xl font-industrial italic uppercase text-white">Ver ponto e bairro, depois compartilhar</h2>
+                    <p className="mt-4 text-base text-white/90">
+                        Quando você compartilha o boletim, transforma seu relato individual em pressão pública real.
                     </p>
                 </Card>
 

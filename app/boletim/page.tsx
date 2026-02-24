@@ -19,6 +19,7 @@ import {
     EmptyState, SkeletonCard, SkeletonBlock, SkeletonList, InlineAlert, ListItem, MetricCard, SectionCard, SecondaryCTA,
     PublicTopBar, NextStepBlock
 } from '@/components/ui';
+import { ShareButton } from '@/components/ShareButton';
 import { t } from '@/lib/copy';
 
 interface BulletinData {
@@ -139,11 +140,21 @@ export default function BoletimPage() {
                 <div className="max-w-md mx-auto py-8">
                     <EmptyState
                         icon={AlertCircle}
-                        title="Dados Indisponíveis"
-                        description={error || 'Não conseguimos consolidar o boletim para este período. Tente novamente em alguns minutos.'}
-                        actionLabel="Tentar Novamente"
-                        onAction={() => window.location.reload()}
-                    />
+                        title="Boletim Vazio"
+                        description={error || 'Não há relatos suficientes para consolidar o boletim deste período.'}
+                        actionLabel="Gerar primeiros dados agora"
+                        onAction={() => window.location.href = '/no-ponto'}
+                        secondaryActionLabel="Tentar Novamente"
+                        onSecondaryAction={() => window.location.reload()}
+                        samplesMissing={data ? Math.max(0, 3 - (data.summary?.samplesTotal || 0)) : undefined}
+                    >
+                        <MetricCard
+                            label="Cenário VR"
+                            value="Crítico"
+                            sublabel="Exemplo ilustrativo"
+                            className="w-full"
+                        />
+                    </EmptyState>
                 </div>
             </AppShell>
         );
@@ -156,6 +167,9 @@ export default function BoletimPage() {
     const isEmpty = !hasAlerts && !hasStops && (data?.summary?.samplesTotal ?? 0) === 0;
     const insufficientSample = (data?.summary?.samplesTotal ?? 0) < 3;
 
+    const bulletinTitle = `Boletim VR no Ponto (${days} dias)`;
+    const bulletinText = data ? `${data.summary?.critCount || 0} alertas críticos em VR esta semana. Pior ponto: ${data.worstStops?.[0]?.stop_name || '--'}.` : 'Confira o boletim da mobilidade em Volta Redonda.';
+
     return (
         <AppShell hideHeader>
             <PublicTopBar title="Boletim" />
@@ -163,6 +177,12 @@ export default function BoletimPage() {
                 <PageHeader
                     title="Boletim VR"
                     subtitle="Dados consolidados da auditoria popular"
+                    actions={
+                        <ShareButton
+                            title={bulletinTitle}
+                            text={bulletinText}
+                        />
+                    }
                 />
 
                 <div className="space-y-8">

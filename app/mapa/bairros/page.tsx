@@ -4,7 +4,7 @@ import { Info, Loader2, Map as MapIcon, MenuSquare, Zap, MapPin, ArrowLeft, Hexa
 import NeighborhoodMapWrapper from '@/components/NeighborhoodMapWrapper';
 import { type NeighborhoodMapItem } from '@/components/NeighborhoodMap';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, MetricCard } from '@/components/ui';
 import { AlertTriangle } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -82,13 +82,26 @@ function ListView({ neighborhoods, critOnly }: { neighborhoods: NeighborhoodMapI
                     <EmptyState
                         icon={AlertTriangle}
                         title="Mapa Sem Dados"
-                        description="Nenhum bairro atingiu a amostragem mínima para visualização espacial. Colabore registrando 3 pontos hoje."
-                        actionLabel="Auditar Ponto"
+                        description="Nenhum bairro atingiu a amostragem mínima para visualização espacial hoje."
+                        actionLabel="Gerar primeiros dados agora"
                         onAction={() => window.location.href = '/no-ponto'}
                         secondaryActionLabel="Ver Ranking"
                         onSecondaryAction={() => window.location.href = '/bairros'}
                         className="bg-transparent border-none text-white"
-                    />
+                    >
+                        <div className="grid grid-cols-2 gap-4 w-full max-w-sm mt-4">
+                            <MetricCard
+                                label="Bairro Exemplo"
+                                value="+15m"
+                                sublabel="Simulação"
+                            />
+                            <MetricCard
+                                label="Confiabilidade"
+                                value="78%"
+                                sublabel="Exemplo"
+                            />
+                        </div>
+                    </EmptyState>
                 )}
             </div>
         </div>

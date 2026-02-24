@@ -14,6 +14,7 @@ interface EmptyStateProps {
     onSecondaryAction?: () => void;
     samplesMissing?: number;
     className?: string;
+    children?: React.ReactNode;
 }
 
 export const EmptyState = ({
@@ -25,7 +26,8 @@ export const EmptyState = ({
     secondaryActionLabel,
     onSecondaryAction,
     samplesMissing,
-    className = ''
+    className = '',
+    children
 }: EmptyStateProps) => {
     return (
         <div className={`flex flex-col items-center justify-center p-12 text-center animate-in fade-in zoom-in-95 duration-500 bg-white/[0.01] border border-dashed border-white/5 rounded-3xl ${className}`}>
@@ -43,13 +45,23 @@ export const EmptyState = ({
                 <p className="text-[10px] font-bold text-muted uppercase tracking-tight leading-relaxed opacity-60">
                     {description}
                 </p>
-                {samplesMissing !== undefined && samplesMissing > 0 && (
-                    <div className="inline-flex items-center gap-2 mt-4 px-3 py-1 bg-brand/10 border border-brand/20 rounded-full text-[9px] font-black text-brand uppercase tracking-widest animate-pulse">
-                        <span className="w-1 h-1 bg-brand rounded-full" />
-                        Faltam {samplesMissing} Relatos
-                    </div>
-                )}
+                <div className="inline-flex items-center gap-2 mt-4 px-3 py-1 bg-brand/10 border border-brand/20 rounded-full text-[9px] font-black text-brand uppercase tracking-widest animate-pulse">
+                    <span className="w-1 h-1 bg-brand rounded-full" />
+                    {samplesMissing !== undefined && samplesMissing > 0
+                        ? `Faltam ${samplesMissing} ${samplesMissing === 1 ? 'Relato' : 'Relatos'}`
+                        : "Precisamos de mais relatos (mínimo 3)"
+                    }
+                </div>
             </div>
+
+            {children && (
+                <div className="w-full mb-8 opacity-50 relative group">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 bg-brand text-black text-[9px] font-black uppercase px-2 py-0.5 rounded-full tracking-tighter animate-pulse whitespace-nowrap">
+                        Exemplo (Ilustrativo)
+                    </div>
+                    {children}
+                </div>
+            )}
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xs mx-auto">
                 {actionLabel && (

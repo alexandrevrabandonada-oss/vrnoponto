@@ -29,15 +29,17 @@ export function MutiraoBanner() {
                     <Target size={16} className="text-brand animate-pulse" />
                 </div>
                 <div className="flex flex-col overflow-hidden">
-                    <p className="text-[10px] font-black uppercase tracking-tight text-white/50 leading-none mb-1">
-                        Mutirão Ativo
-                    </p>
+                    <Link href="/mutirao" className="hover:underline decoration-brand/30">
+                        <p className="text-[10px] font-black uppercase tracking-tight text-white/50 leading-none mb-1">
+                            Mutirão de Auditoria
+                        </p>
+                    </Link>
                     <p className="text-xs font-industrial text-white truncate italic uppercase tracking-wider">
                         {m.title} <span className="text-brand not-italic ml-1">({progress}/{goal})</span>
                     </p>
                 </div>
             </div>
-            <Link href="/mutirao" className="shrink-0">
+            <Link href="/no-ponto" className="shrink-0">
                 <Button className="!bg-brand !text-black !rounded-xl !px-4 !h-9 !text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform">
                     Participar <ArrowRight size={14} className="ml-1" />
                 </Button>

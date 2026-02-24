@@ -14,6 +14,7 @@ import {
 } from '@/components/ui';
 import { FollowButton, FollowBadge } from '@/components/push/FollowButton';
 import { FavoriteToggle } from '@/components/FavoriteToggle';
+import { ShareButton } from '@/components/ShareButton';
 import Link from 'next/link';
 
 type WeeklyHeadway = {
@@ -110,11 +111,21 @@ export default function LinhaDetails() {
                 <div className="max-w-md mx-auto py-8">
                     <EmptyState
                         icon={AlertCircle}
-                        title="Linha não encontrada"
-                        description="Não conseguimos localizar os registros desta linha no sistema."
-                        actionLabel="Ver Ranking"
-                        onAction={() => window.location.href = '/bairros'}
-                    />
+                        title="Sem Dados de Frequência"
+                        description="Esta linha ainda não possui auditorias suficientes para o cálculo de frequência real."
+                        actionLabel="Gerar primeiros dados agora"
+                        onAction={() => window.location.href = '/no-ponto'}
+                        secondaryActionLabel="Ver Ranking"
+                        onSecondaryAction={() => window.location.href = '/bairros'}
+                        samplesMissing={undefined}
+                    >
+                        <MetricCard
+                            label="Frequência Média"
+                            value="25 min"
+                            sublabel="Exemplo ilustrativo"
+                            className="w-full"
+                        />
+                    </EmptyState>
                 </div>
             </AppShell>
         );
@@ -138,9 +149,10 @@ export default function LinhaDetails() {
                             <FavoriteToggle type="line" id={lineId} label={line?.code || 'Linha'} />
                             <FollowButton type="line" id={lineId} label={line?.code} />
                             {trustMix && <TrustMixBadge total={trustMix.total_events} pctVerified={trustMix.pct_verified} />}
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ${line.is_active ? 'bg-brand/20 text-brand' : 'bg-red-500/20 text-red-400'}`}>
-                                {line.is_active ? 'EM OPERAÇÃO' : 'DESATIVADA'}
-                            </span>
+                            <ShareButton
+                                title={`Linha: ${line.code}`}
+                                text={`Confira os dados reais de espera da linha ${line.code} (${line.name}) em VR.`}
+                            />
                         </div>
                     }
                 />

@@ -13,6 +13,7 @@ import {
 } from '@/components/ui';
 import { FollowButton, FollowBadge } from '@/components/push/FollowButton';
 import { FavoriteToggle } from '@/components/FavoriteToggle';
+import { ShareButton } from '@/components/ShareButton';
 import { t } from '@/lib/copy';
 
 type Summary = { neighborhood: string; avg_delta_min: number | null; stops_count: number; samples_total: number; pct_verified_avg: number };
@@ -113,6 +114,10 @@ export default function BairroDetailPage() {
                                 type="neighborhood"
                                 id={summary.neighborhood.toLowerCase().trim()}
                                 label={summary.neighborhood}
+                            />
+                            <ShareButton
+                                title={`Ranking: ${summary.neighborhood}`}
+                                text={`Veja o ranking de mobilidade do bairro ${summary.neighborhood} em Volta Redonda.`}
                             />
                         </div>
                     }

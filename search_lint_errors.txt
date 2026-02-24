@@ -1,0 +1,18 @@
+
+> vrnoponto@0.1.0 lint
+> eslint
+
+
+C:\Projetos\vrnoponto\app\no-ponto\page.tsx
+  470:134  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  470:144  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  470:147  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  470:154  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  470:157  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  470:166  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Projetos\vrnoponto\components\AppTour.tsx
+  5:10  warning  'X' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 7 problems (6 errors, 1 warning)
+

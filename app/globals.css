@@ -11,7 +11,7 @@
   --color-brand: #F6C600;
   --color-surface: #111111;
   --color-surface-2: #161616;
-  --color-muted: #B7B7B7;
+  --color-muted: #D1D1D1; /* Improved from #B7B7B7 for better contrast on dark */
   --color-danger: #D62828;
   --color-rust: #B45309;
 
@@ -199,9 +199,24 @@ h3,
 
 .focus-ring {
   outline: 2px solid transparent;
-  outline-offset: 2px;
+  outline-offset: 4px;
+  transition: outline-offset 0.2s ease;
 }
 
 .focus-ring:focus-visible {
   outline-color: var(--color-brand);
+  outline-offset: 2px;
+}
+
+.readable-content {
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+.readable-content p {
+  margin-bottom: 1.5rem;
+}
+
+.readable-content ul {
+  margin-bottom: 1.5rem;
 }

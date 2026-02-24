@@ -4,6 +4,7 @@ import * as React from 'react';
 import { X, Shield, ChevronRight, Lock } from 'lucide-react';
 import { IconButton } from './IconButton';
 import { useUiPrefs } from '@/lib/useUiPrefs';
+import Link from 'next/link';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -112,7 +113,16 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                             <p className="text-white font-medium">Acesso Administrativo</p>
                         </div>
 
-                        <AdminLogin />
+                        <div className="space-y-3">
+                            <Link href="/admin/dia1" onClick={onClose} className="w-full flex items-center justify-between p-4 rounded-xl bg-brand/10 border border-brand/20 hover:bg-brand/20 transition-colors group">
+                                <div className="flex items-center gap-3">
+                                    <Shield size={18} className="text-brand" />
+                                    <span className="text-sm text-brand font-bold uppercase tracking-widest">Setup Dia 1 (2 min)</span>
+                                </div>
+                                <ChevronRight size={18} className="text-brand/50" />
+                            </Link>
+                            <AdminLogin />
+                        </div>
                     </div>
                 </div>
             </div>

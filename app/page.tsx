@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { FavoritesSection } from '@/components/FavoritesSection';
 import { QuickActions } from '@/components/QuickActions';
 import { MutiraoBanner } from '@/components/MutiraoBanner';
+import { AppTour } from '@/components/AppTour';
 
 export default function Home() {
   const [isPrivacyOpen, setIsPrivacyOpen] = React.useState(false);
@@ -44,6 +45,7 @@ export default function Home() {
       <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[150%] aspect-square bg-brand/5 rounded-full blur-[120px] pointer-events-none" />
 
       <PrivacyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
+      <AppTour />
 
       {/* Header */}
       <header className="w-full flex justify-center py-6 animate-fade-in opacity-80 z-20">
@@ -66,12 +68,13 @@ export default function Home() {
             Veredito em 10 segundos
           </Badge>
 
-          <h1 className="text-5xl font-industrial leading-[0.85] tracking-tighter text-white italic mb-12">
+          <h1 id="tour-welcome" className="text-5xl font-industrial leading-[0.85] tracking-tighter text-white italic mb-12">
             TÁ NO PONTO?<br />
             <span className="text-brand uppercase selection:bg-brand selection:text-black">REGISTRE AGORA</span>
           </h1>
 
           <PrimaryCTA
+            id="tour-gps-action"
             href="/no-ponto"
             onClick={handleHeroClick}
             loading={isHeroLoading}
@@ -101,7 +104,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="mt-8 pt-8 border-t border-white/5 space-y-1 font-sans">
+          <div id="tour-recording" className="mt-8 pt-8 border-t border-white/5 space-y-1 font-sans">
             <p className="text-white/80 text-[10px] font-black uppercase tracking-widest italic flex items-center justify-center gap-2">
               <ShieldCheck size={12} className="text-brand" aria-hidden="true" />
               Anonimato Garantido — Sem Login
