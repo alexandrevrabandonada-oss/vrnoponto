@@ -46,10 +46,10 @@ export function PushOptInModal({ isOpen, onClose, onSuccess }: PushOptInModalPro
 
                     <div className="space-y-2">
                         <h2 className="text-2xl font-black font-industrial uppercase tracking-tight text-white leading-tight">
-                            Ativar Alertas Críticos
+                            Ativar Alertas Úteis
                         </h2>
                         <p className="text-sm text-muted leading-relaxed">
-                            Receba notificações imediatas no seu celular sobre atrasos graves, greves ou alterações na operação em Volta Redonda.
+                            Comece no modo resumo diário (sem spam, no máximo 1 por dia) e ajuste para tempo real se quiser.
                         </p>
                     </div>
 

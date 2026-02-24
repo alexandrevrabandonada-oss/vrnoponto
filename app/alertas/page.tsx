@@ -20,6 +20,14 @@ export default function AlertasPage() {
                     <strong>📱 Dica:</strong> Para a melhor experiência, abra as opções do seu navegador de celular e escolha <strong>&quot;Adicionar à Tela Inicial&quot;</strong>. O VR no Ponto funcionará como um aplicativo nativo garantindo o recebimento correto das mensagens.
                 </div>
 
+                <div className="bg-white border border-gray-200 p-4 rounded-2xl text-sm text-gray-700 shadow-sm">
+                    <p className="font-bold text-gray-900 mb-2">Exemplos do que chega no celular:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                        <li>Resumo diário com os principais alertas de espera e frequência da sua região.</li>
+                        <li>Aviso crítico quando uma linha/ponto dispara atraso fora do padrão normal.</li>
+                    </ul>
+                </div>
+
                 <PushOptInCard />
 
                 <div className="text-xs text-center text-gray-500 max-w-lg mx-auto leading-relaxed pt-8 mt-8 border-t border-gray-100">

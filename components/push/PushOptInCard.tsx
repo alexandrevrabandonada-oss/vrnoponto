@@ -102,15 +102,15 @@ export function PushOptInCard() {
                             <label className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition ${mode === 'DIGEST' ? 'border-brand bg-brand/5 ring-1 ring-brand/30' : 'border-gray-200 hover:bg-gray-50'}`}>
                                 <input type="radio" value="DIGEST" checked={mode === 'DIGEST'} onChange={() => setMode('DIGEST')} className="mt-1" />
                                 <div>
-                                    <div className="font-bold text-sm">Resumo Diário (DIGEST)</div>
-                                    <div className="text-xs text-gray-500">Condensa todos os alertas graves numa única mensagem matinal.</div>
+                                    <div className="font-bold text-sm">Resumo Diário (DIGEST) - Padrão</div>
+                                    <div className="text-xs text-gray-500">Sem spam: no máximo 1 mensagem por dia com os alertas relevantes.</div>
                                 </div>
                             </label>
                             <label className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition ${mode === 'IMMEDIATE' ? 'border-brand bg-brand/5 ring-1 ring-brand/30' : 'border-gray-200 hover:bg-gray-50'}`}>
                                 <input type="radio" value="IMMEDIATE" checked={mode === 'IMMEDIATE'} onChange={() => setMode('IMMEDIATE')} className="mt-1" />
                                 <div>
                                     <div className="font-bold text-sm">Tempo Real (IMMEDIATE)</div>
-                                    <div className="text-xs text-gray-500 flex items-center gap-1"><ShieldAlert size={12} /> Alertas Críticos imediatos na tela.</div>
+                                    <div className="text-xs text-gray-500 flex items-center gap-1"><ShieldAlert size={12} /> Somente para urgências: pode enviar mais de uma no mesmo dia.</div>
                                 </div>
                             </label>
                         </div>
