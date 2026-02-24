@@ -1,14 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Settings } from 'lucide-react';
-import { BrandSymbol } from './BrandSymbol';
-import { IconButton } from './IconButton';
-import { SettingsModal } from './SettingsModal';
+import { PublicQuickActions } from './PublicQuickActions';
+import { PublicTopBar } from './PublicTopBar';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { WifiOff, CloudUpload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface AppShellProps {
     title?: string;
@@ -16,20 +14,18 @@ interface AppShellProps {
     children: React.ReactNode;
     actions?: React.ReactNode;
     hideHeader?: boolean;
+    showQuickActions?: boolean;
 }
 
-export const AppShell = ({ title, backHref, children, actions, hideHeader = false }: AppShellProps) => {
-    const router = useRouter();
-    const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+export const AppShell = ({
+    title,
+    backHref,
+    children,
+    actions,
+    hideHeader = false,
+    showQuickActions = true
+}: AppShellProps) => {
     const { isOnline, pendingCount } = useOfflineSync();
-
-    const handleBack = () => {
-        if (backHref) {
-            router.push(backHref);
-        } else {
-            router.back();
-        }
-    };
 
     return (
         <div className="min-h-screen bg-[#070707] text-white flex flex-col">
@@ -38,34 +34,7 @@ export const AppShell = ({ title, backHref, children, actions, hideHeader = fals
 
             {/* Topbar */}
             {!hideHeader && (
-                <header className="sticky top-0 z-50 glass border-b border-white/5 px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <IconButton
-                            icon={<ArrowLeft size={24} />}
-                            variant="ghost"
-                            onClick={handleBack}
-                            aria-label="Voltar"
-                            className="!p-2 -ml-2 hover:bg-white/5 active:scale-90"
-                        />
-                        <div className="flex items-center gap-2">
-                            <BrandSymbol className="w-4 h-4 text-brand opacity-50" />
-                            <span className="font-industrial text-sm tracking-[0.2em] uppercase opacity-70">
-                                {title || 'VR NO PONTO'}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        {actions}
-                        <IconButton
-                            icon={<Settings size={20} />}
-                            variant="ghost"
-                            onClick={() => setIsSettingsOpen(true)}
-                            aria-label="Configurações de Acessibilidade"
-                            className="!p-2 hover:bg-white/5"
-                        />
-                    </div>
-                </header>
+                <PublicTopBar title={title || 'VR NO PONTO'} backHref={backHref} actions={actions} />
             )}
 
             {/* Global Offline/Sync Banner */}
@@ -94,12 +63,15 @@ export const AppShell = ({ title, backHref, children, actions, hideHeader = fals
             </AnimatePresence>
 
             {/* Content Container */}
-            <main className="flex-1 relative z-10 w-full max-w-4xl mx-auto px-4 py-8">
+            <main className={cn(
+                "flex-1 relative z-10 w-full max-w-4xl mx-auto px-4 py-8",
+                showQuickActions && "pb-32"
+            )}>
                 {children}
             </main>
 
-            {/* Accessibility Settings Modal */}
-            <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+            {/* Unified Quick Actions */}
+            {showQuickActions && <PublicQuickActions />}
         </div>
     );
 };
