@@ -4,38 +4,41 @@ import { useSearchParams } from 'next/navigation';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { RatingModal } from '@/components/RatingModal';
 import { QRScanner } from '@/components/QRScanner';
-import { QrCode, Navigation, MapPin, Bus, ChevronRight, Share2, Loader2, ChevronDown } from 'lucide-react';
+import { QrCode, Navigation, ChevronRight, Share2, Loader2, ChevronDown, Camera } from 'lucide-react';
 import { HelpModal } from '@/components/HelpModal';
 import {
-    AppShell, PageHeader, Button, Card, Divider, Field, Textarea, InlineAlert, PrimaryCTA, SecondaryCTA, SectionCard, PublicTopBar, NextStepBlock, SkeletonCard, SkeletonList, Skeleton
+    AppShell, PageHeader, Button, Card, Divider, InlineAlert, SecondaryCTA, PublicTopBar, NextStepBlock
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
-import { suggestLine, SuggestedLine } from '@/lib/suggestLine';
+import { suggestLine } from '@/lib/suggestLine';
 import { OneTapCard } from '@/components/OneTapCard';
+import { BusPhotoModal } from '@/components/BusPhotoModal';
+import { BusPhotoDraft, getRecentBusPhotoDraft } from '@/lib/busPhotoDraft';
 import Link from 'next/link';
 
 export default function Registrar() {
     const deviceId = useDeviceId();
     const searchParams = useSearchParams();
     const queryStopId = searchParams.get('stopId');
+    const queryLineId = searchParams.get('lineId');
 
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [gpsStatus, setGpsStatus] = useState<string>('Solicitando GPS...');
     const [nearestStops, setNearestStops] = useState<{ id: string, name: string, distance_m: number }[]>([]);
 
     const [selectedStopId, setSelectedStopId] = useState<string | null>(queryStopId);
-    const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
-    const [suggestion, setSuggestion] = useState<SuggestedLine | null>(null);
-
+    const [selectedLineId, setSelectedLineId] = useState<string | null>(queryLineId);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [isBusPhotoModalOpen, setIsBusPhotoModalOpen] = useState(false);
     const [message, setMessage] = useState('');
     const [lastTrust, setLastTrust] = useState<string | null>(null);
-    const [lastMethod, setLastMethod] = useState<string | null>(null);
-    const [observation, setObservation] = useState('');
     const [registrationComplete, setRegistrationComplete] = useState(false);
+    const [recentPhotoDraft, setRecentPhotoDraft] = useState<BusPhotoDraft | null>(() =>
+        typeof window === 'undefined' ? null : getRecentBusPhotoDraft()
+    );
 
-    const { isOnline, isSyncing, pendingCount, syncNow } = useOfflineSync();
+    const { isOnline, pendingCount } = useOfflineSync();
 
     // 1. Get GPS Location
     useEffect(() => {
@@ -81,7 +84,6 @@ export default function Registrar() {
             if (!selectedStopId) return;
             try {
                 const s = await suggestLine(selectedStopId, deviceId as string);
-                setSuggestion(s);
                 if (s) {
                     setSelectedLineId(s.line_id);
                 }
@@ -149,15 +151,15 @@ export default function Registrar() {
                                     <OneTapCard
                                         stopId={selectedStopId}
                                         stopName={currentStop?.name || 'Local Atual'}
-                                        mode="registrar"
+                                        defaultLineId={queryLineId || undefined}
                                         onRecorded={(result) => {
                                             if (result.ok) {
+                                                setRecentPhotoDraft(getRecentBusPhotoDraft());
                                                 if (result.queued) {
                                                     setMessage("SALVO NO CELULAR");
                                                 } else {
                                                     const trust = result.trust_level || 'L1';
                                                     setLastTrust(trust);
-                                                    setLastMethod(trust === 'L3' ? 'TRAJETO' : trust);
                                                     setMessage("RELATO ENVIADO!");
                                                 }
                                                 setRegistrationComplete(true);
@@ -190,13 +192,20 @@ export default function Registrar() {
 
                             <div className="pt-4 space-y-4">
                                 <Divider label="MEIOS DE PROVA" />
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                     <SecondaryCTA
                                         onClick={() => setIsScannerOpen(true)}
                                         icon={<QrCode size={18} aria-hidden="true" />}
                                         aria-label="Escanear QR Code no ponto parceiro"
                                     >
                                         QR CODE
+                                    </SecondaryCTA>
+                                    <SecondaryCTA
+                                        onClick={() => setIsBusPhotoModalOpen(true)}
+                                        icon={<Camera size={18} aria-hidden="true" />}
+                                        aria-label="Capturar foto opcional do ônibus"
+                                    >
+                                        FOTO
                                     </SecondaryCTA>
                                     <SecondaryCTA
                                         onClick={() => { /* toggle observation */ }}
@@ -206,6 +215,18 @@ export default function Registrar() {
                                         OBSERVAR
                                     </SecondaryCTA>
                                 </div>
+                                {recentPhotoDraft && (
+                                    <Card variant="surface2" className="border-emerald-500/20 bg-emerald-500/10">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                                            Foto de prova anexada
+                                        </p>
+                                        <p className="text-xs font-bold text-white mt-1">
+                                            {recentPhotoDraft.line_code
+                                                ? `Sugestão/linha: ${recentPhotoDraft.line_code}`
+                                                : 'Foto pronta para reforçar o próximo registro.'}
+                                        </p>
+                                    </Card>
+                                )}
                             </div>
                         </>
                     ) : (
@@ -271,6 +292,17 @@ export default function Registrar() {
             {isScannerOpen && (
                 <QRScanner onClose={() => setIsScannerOpen(false)} />
             )}
+
+            <BusPhotoModal
+                isOpen={isBusPhotoModalOpen}
+                onClose={() => setIsBusPhotoModalOpen(false)}
+                deviceId={deviceId}
+                stopId={selectedStopId}
+                lineId={selectedLineId || queryLineId}
+                location={location}
+                isOnline={isOnline}
+                onSaved={(draft) => setRecentPhotoDraft(draft)}
+            />
 
             <RatingModal
                 isOpen={isModalOpen}

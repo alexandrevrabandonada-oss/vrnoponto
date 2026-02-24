@@ -3,19 +3,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { HelpModal } from '@/components/HelpModal';
-import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2, HelpCircle } from 'lucide-react';
+import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2, HelpCircle, Camera } from 'lucide-react';
 import { StopSuggestionModal } from '@/components/StopSuggestionModal';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
 import { useRouter } from 'next/navigation';
 import {
     AppShell, Card, Divider, Button,
-    Field, Select, InlineAlert, Badge, PrimaryCTA, SectionCard,
-    PublicTopBar, NextStepBlock, PageHeader,
-    SkeletonList, Skeleton
+    Field, Select, Badge, PrimaryCTA, SectionCard,
+    PublicTopBar, NextStepBlock, PageHeader
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { enqueueEvent } from '@/lib/offlineQueue';
 import { OneTapCard } from '@/components/OneTapCard';
+import { BusPhotoModal } from '@/components/BusPhotoModal';
+import { BusPhotoDraft, getRecentBusPhotoDraft } from '@/lib/busPhotoDraft';
 import Link from 'next/link';
 
 export default function NoPonto() {
@@ -32,12 +33,16 @@ export default function NoPonto() {
     const [isLoadingStops, setIsLoadingStops] = useState(false);
     const [hasArrived, setHasArrived] = useState(false);
     const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+    const [isBusPhotoModalOpen, setIsBusPhotoModalOpen] = useState(false);
+    const [recentPhotoDraft, setRecentPhotoDraft] = useState<BusPhotoDraft | null>(() =>
+        typeof window === 'undefined' ? null : getRecentBusPhotoDraft()
+    );
 
     // Top Lines Logic
     const [topLines, setTopLines] = useState<{ line_id: string, code: string, name: string, count: number, pctVerified: number }[]>([]);
     const [isLoadingTopLines, setIsLoadingTopLines] = useState(false);
 
-    const { isOnline, isSyncing, pendingCount, syncNow, refreshPending } = useOfflineSync();
+    const { isOnline, refreshPending } = useOfflineSync();
 
     // Telemetry helper
     const trackTelemetry = useCallback((event: string) => {
@@ -294,6 +299,26 @@ export default function NoPonto() {
                                     <span className="font-industrial text-2xl leading-none italic uppercase">estou no ponto</span>
                                 </div>
                             </PrimaryCTA>
+                            <Button
+                                variant="secondary"
+                                onClick={() => setIsBusPhotoModalOpen(true)}
+                                className="w-full mt-3 !h-12 !text-[10px] font-black uppercase tracking-widest"
+                                icon={<Camera size={16} />}
+                            >
+                                Foto do ônibus (opcional)
+                            </Button>
+                            {recentPhotoDraft && (
+                                <Card variant="surface2" className="mt-3 border-emerald-500/20 bg-emerald-500/10">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                                        Foto de prova anexada
+                                    </p>
+                                    <p className="text-xs font-bold text-white mt-1">
+                                        {recentPhotoDraft.line_code
+                                            ? `Sugestão/linha: ${recentPhotoDraft.line_code}`
+                                            : 'Foto pronta para reforçar o próximo registro.'}
+                                    </p>
+                                </Card>
+                            )}
                         </div>
                     </div>
 
@@ -380,7 +405,9 @@ export default function NoPonto() {
                             <OneTapCard
                                 stopId={selectedStop}
                                 stopName={currentStop?.name || 'Ponto Selecionado'}
-                                mode="no-ponto"
+                                onRecorded={() => {
+                                    setRecentPhotoDraft(getRecentBusPhotoDraft());
+                                }}
                             />
 
                             <Link
@@ -433,6 +460,17 @@ export default function NoPonto() {
                     onClose={() => setShowSuggestionModal(false)}
                 />
             )}
+
+            <BusPhotoModal
+                isOpen={isBusPhotoModalOpen}
+                onClose={() => setIsBusPhotoModalOpen(false)}
+                deviceId={deviceId}
+                stopId={selectedStop || null}
+                lineId={topLines[0]?.line_id || null}
+                location={location}
+                isOnline={isOnline}
+                onSaved={(draft) => setRecentPhotoDraft(draft)}
+            />
         </AppShell>
     );
 }

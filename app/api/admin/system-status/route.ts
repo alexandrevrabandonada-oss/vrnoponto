@@ -157,6 +157,37 @@ export async function GET(req: Request) {
             .eq('is_active', false)
             .in('deactivation_reason', ['404', '410']);
 
+        // 7. Optional Bus Photo Proof Metrics (7d)
+        let proofUploads7d = 0;
+        let proofReadLine7d = 0;
+        let proofConfirmed7d = 0;
+        try {
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000).toISOString();
+            const { count: uploads } = await supabase
+                .from('bus_photo_events')
+                .select('*', { count: 'exact', head: true })
+                .gte('created_at', sevenDaysAgo);
+            const { count: withLineGuess } = await supabase
+                .from('bus_photo_events')
+                .select('*', { count: 'exact', head: true })
+                .gte('created_at', sevenDaysAgo)
+                .not('ai_line_guess', 'is', null);
+            const { count: confirmed } = await supabase
+                .from('bus_photo_events')
+                .select('*', { count: 'exact', head: true })
+                .gte('created_at', sevenDaysAgo)
+                .eq('user_confirmed', true);
+
+            proofUploads7d = uploads || 0;
+            proofReadLine7d = withLineGuess || 0;
+            proofConfirmed7d = confirmed || 0;
+        } catch {
+            // Optional feature can be absent in environments without migration.
+        }
+
+        const pctLineRead = proofUploads7d > 0 ? Math.round((proofReadLine7d / proofUploads7d) * 100) : 0;
+        const pctConfirmed = proofUploads7d > 0 ? Math.round((proofConfirmed7d / proofUploads7d) * 100) : 0;
+
         return NextResponse.json({
             health: {
                 api_health: apiHealth,
@@ -195,6 +226,13 @@ export async function GET(req: Request) {
                     immediate: pushImmediate,
                     crit_only: pushCrit
                 }
+            },
+            proofPhotos: {
+                uploads_7d: proofUploads7d,
+                with_line_read_7d: proofReadLine7d,
+                confirmed_7d: proofConfirmed7d,
+                pct_line_read_7d: pctLineRead,
+                pct_confirmed_7d: pctConfirmed
             },
             migrations
         });

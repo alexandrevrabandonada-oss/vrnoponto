@@ -24,7 +24,12 @@ const ALLOWED_EVENTS = new Set([
     'follow_bairro_click',
     'follow_linha_click',
     'push_optin_success',
-    'push_optin_denied'
+    'push_optin_denied',
+    'bus_photo_open',
+    'bus_photo_uploaded',
+    'bus_photo_ai_suggested',
+    'bus_photo_confirmed',
+    'bus_photo_fallback_manual'
 ]);
 
 export async function POST(req: Request) {

@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { enqueueEvent } from '@/lib/offlineQueue';
+import { getRecentBusPhotoDraft, clearBusPhotoDraft } from '@/lib/busPhotoDraft';
+import { updateProofTaskClientEvent } from '@/lib/offlineProofQueue';
 import { suggestLine, saveLastLine, SuggestedLine } from '@/lib/suggestLine';
 
 export type OneTapEventType = 'passed_by' | 'boarding';
@@ -12,6 +14,8 @@ export interface OneTapResult {
     ok: boolean;
     queued: boolean;
     trust_level?: string;
+    event_id?: string;
+    client_event_id?: string;
 }
 
 interface TopLine {
@@ -119,6 +123,65 @@ export function useOneTap({ stopId, defaultLineId, onRecorded }: UseOneTapOption
         trackTelemetry('no_ponto_one_tap_override_line');
     }, [trackTelemetry]);
 
+    const attachRecentPhotoProof = useCallback(async ({
+        eventId,
+        clientEventId,
+        lineId
+    }: {
+        eventId?: string | null;
+        clientEventId: string;
+        lineId: string;
+    }) => {
+        if (!deviceId || !stopId) return;
+
+        const draft = getRecentBusPhotoDraft();
+        if (!draft || draft.device_id !== deviceId) return;
+
+        const resolvedLineId = lineId || draft.line_id || null;
+
+        try {
+            if (draft.proof_task_id) {
+                await updateProofTaskClientEvent(draft.proof_task_id, clientEventId, {
+                    stop_id: stopId,
+                    line_id: resolvedLineId,
+                    lat: draft.lat ?? null,
+                    lng: draft.lng ?? null,
+                    user_confirmed: !!draft.user_confirmed
+                });
+                await refreshPending();
+                clearBusPhotoDraft();
+                return;
+            }
+
+            if (!isOnline || !draft.photo_path) return;
+
+            const finalizeRes = await fetch('/api/proof/finalize-photo-event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    device_id: deviceId,
+                    photo_path: draft.photo_path,
+                    stop_id: stopId,
+                    line_id: resolvedLineId,
+                    event_id: eventId || null,
+                    client_event_id: clientEventId,
+                    lat: draft.lat ?? null,
+                    lng: draft.lng ?? null,
+                    ai_text: draft.ai_text ?? null,
+                    ai_line_guess: draft.ai_line_guess ?? null,
+                    ai_confidence: draft.ai_confidence ?? null,
+                    user_confirmed: !!draft.user_confirmed
+                })
+            });
+
+            if (finalizeRes.ok) {
+                clearBusPhotoDraft();
+            }
+        } catch {
+            // No hard-fail: photo proof is optional
+        }
+    }, [deviceId, stopId, isOnline, refreshPending]);
+
     // Core: record an event
     const record = useCallback(async (eventType: OneTapEventType): Promise<OneTapResult> => {
         if (!deviceId || !stopId || !selectedLine) {
@@ -153,8 +216,17 @@ export function useOneTap({ stopId, defaultLineId, onRecorded }: UseOneTapOption
 
                 // Save last line even offline
                 saveLastLine(stopId, selectedLine);
+                await attachRecentPhotoProof({
+                    eventId: null,
+                    clientEventId,
+                    lineId: selectedLine.line_id
+                });
 
-                const result: OneTapResult = { ok: true, queued: true };
+                const result: OneTapResult = {
+                    ok: true,
+                    queued: true,
+                    client_event_id: clientEventId
+                };
                 setFeedback({ type: 'queued', text: 'Salvo (vai sincronizar)' });
                 onRecorded?.(result);
                 return result;
@@ -170,9 +242,20 @@ export function useOneTap({ stopId, defaultLineId, onRecorded }: UseOneTapOption
             if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
 
             saveLastLine(stopId, selectedLine);
+            await attachRecentPhotoProof({
+                eventId: data.event?.id || null,
+                clientEventId,
+                lineId: selectedLine.line_id
+            });
 
             const trustLevel = data.event?.trust_level || 'L1';
-            const result: OneTapResult = { ok: true, queued: false, trust_level: trustLevel };
+            const result: OneTapResult = {
+                ok: true,
+                queued: false,
+                trust_level: trustLevel,
+                event_id: data.event?.id || undefined,
+                client_event_id: clientEventId
+            };
             setFeedback({ type: 'ok', text: 'Registrado ✓' });
             onRecorded?.(result);
             return result;
@@ -183,7 +266,7 @@ export function useOneTap({ stopId, defaultLineId, onRecorded }: UseOneTapOption
         } finally {
             setIsSubmitting(false);
         }
-    }, [deviceId, stopId, selectedLine, isOnline, refreshPending, trackTelemetry, onRecorded]);
+    }, [deviceId, stopId, selectedLine, isOnline, refreshPending, trackTelemetry, onRecorded, attachRecentPhotoProof]);
 
     return {
         suggestion,

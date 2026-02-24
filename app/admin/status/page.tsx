@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import {
     Activity, Database, Server, Clock, AlertTriangle,
     CheckCircle2, Loader2, PlayCircle, RefreshCw, XCircle,
-    Send, MessageSquare
+    Send, MessageSquare, Camera
 } from 'lucide-react';
 
 interface SystemStatus {
@@ -42,6 +42,13 @@ interface SystemStatus {
             immediate: number;
             crit_only: number;
         };
+    };
+    proofPhotos?: {
+        uploads_7d: number;
+        with_line_read_7d: number;
+        confirmed_7d: number;
+        pct_line_read_7d: number;
+        pct_confirmed_7d: number;
     };
     migrations: { version: string, checked_at: string };
 }
@@ -118,6 +125,13 @@ export default function StatusDashboard() {
     }
 
     const { health, jobs, dataFreshness, migrations } = statusData;
+    const proof = statusData.proofPhotos || {
+        uploads_7d: 0,
+        with_line_read_7d: 0,
+        confirmed_7d: 0,
+        pct_line_read_7d: 0,
+        pct_confirmed_7d: 0
+    };
 
     return (
         <div className="space-y-6">
@@ -234,6 +248,28 @@ export default function StatusDashboard() {
                         {actionLoading === 'telegram' ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                         Notificar Agora
                     </button>
+                </div>
+
+                {/* Proof Photos Card */}
+                <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                    <div className="flex items-center gap-3 text-brand border-b border-zinc-800 pb-3">
+                        <Camera size={20} />
+                        <h2 className="font-bold text-white">Fotos de Prova (7d)</h2>
+                    </div>
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Total uploads</span>
+                            <span className="font-bold text-gray-900">{proof.uploads_7d}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Com leitura de linha</span>
+                            <span className="font-bold text-gray-900">{proof.pct_line_read_7d}%</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Confirmadas</span>
+                            <span className="font-bold text-gray-900">{proof.pct_confirmed_7d}%</span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Web Push Card */}
