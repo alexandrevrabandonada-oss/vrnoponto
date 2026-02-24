@@ -3,25 +3,25 @@
 import * as React from 'react';
 import { Button } from './Button';
 
-type SecondaryCTAProps = React.ComponentProps<typeof Button>;
+type ButtonProps = React.ComponentProps<typeof Button>;
 
-export const SecondaryCTA = (props: SecondaryCTAProps) => {
+export const SecondaryCTA = (props: ButtonProps) => {
     const {
         children,
-        href,
-        icon,
-        variant = 'secondary',
         className = '',
+        variant = 'secondary',
         ...rest
     } = props;
+
+    // Type assertion to ButtonProps to avoid union spread issues
+    const buttonProps = {
+        variant,
+        className: `w-full !h-12 !text-base ${className}`,
+        ...rest
+    } as ButtonProps;
+
     return (
-        <Button
-            variant={variant}
-            href={href as any}
-            icon={icon}
-            className={`w-full !h-12 !text-base ${className}`}
-            {...rest}
-        >
+        <Button {...buttonProps}>
             {children}
         </Button>
     );

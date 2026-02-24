@@ -9,7 +9,6 @@ interface OneTapCardProps {
     stopId: string;
     stopName: string;
     defaultLineId?: string;
-    mode?: 'registrar' | 'no-ponto';
     onRecorded?: (result: OneTapResult) => void;
 }
 
@@ -17,7 +16,6 @@ export const OneTapCard = ({
     stopId,
     stopName,
     defaultLineId,
-    mode = 'registrar',
     onRecorded
 }: OneTapCardProps) => {
     const {

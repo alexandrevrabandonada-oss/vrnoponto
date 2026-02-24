@@ -1,24 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
-import { MapPin, Info, ArrowRight, Loader2 } from 'lucide-react';
-import type { PartnerMapItem } from '@/components/DelayMap';
+import { MapPin, Info, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { TelemetryTracker } from '@/components/TelemetryTracker';
 import { InvitePartnerCard } from '@/components/InvitePartnerCard';
 
-// Import map dynamically for Client Side
-const DelayMap = dynamic(() => import('@/components/DelayMap'), {
-    ssr: false,
-    loading: () => (
-        <div className="w-full h-full bg-gray-100 dark:bg-gray-800 animate-pulse flex flex-col items-center justify-center text-gray-400 gap-2">
-            <Loader2 className="animate-spin" />
-            <span className="text-sm font-medium">Carregando Mapa...</span>
-        </div>
-    )
-});
+
 
 interface Partner {
     id: string;
@@ -87,10 +76,7 @@ export default function ParceirosPage() {
                 <div className="mt-4">
                     <InvitePartnerCard />
                 </div>
-                {/* Map Section */}
-                <div className="h-[300px] w-full bg-gray-200 dark:bg-gray-800 rounded-2xl overflow-hidden shadow-inner border dark:border-gray-700 relative z-0">
-                    <DelayMap stops={[]} partners={partners as unknown as PartnerMapItem[]} />
-                </div>
+
 
                 <div className="flex items-start gap-2 px-1 bg-brand/10 p-3 rounded-xl border border-brand/20">
                     <Info size={16} className="text-brand mt-0.5 flex-shrink-0" />

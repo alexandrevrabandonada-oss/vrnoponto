@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { Geist, Geist_Mono, Staatliches, Inter } from "next/font/google";
 import { EnvBanner } from "@/components/EnvBanner";
 import { MovementSeal } from "@/components/MovementSeal";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,7 +30,23 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "VR no Ponto",
   description: "App colaborativo de ônibus para Volta Redonda.",
-  manifest: "/manifest.json"
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "VR no Ponto",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport = {
+  themeColor: "#facc15",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default async function RootLayout({
@@ -49,6 +66,7 @@ export default async function RootLayout({
         <EnvBanner />
         {children}
         <MovementSeal />
+        <InstallPrompt />
       </body>
     </html>
   );

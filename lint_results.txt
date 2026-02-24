@@ -3,26 +3,64 @@
 > eslint
 
 
-C:\Projetos\vrnoponto\components\push\PushOptInCard.tsx
-  28:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+C:\Projetos\vrnoponto\app\admin\qualidade\page.tsx
+   5:43  warning  'MapPin' is defined but never used  @typescript-eslint/no-unused-vars
+  49:18  warning  'err' is defined but never used     @typescript-eslint/no-unused-vars
 
-Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
-* Update external systems with the latest state from React.
-* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+C:\Projetos\vrnoponto\app\admin\sugestoes\mapa\page.tsx
+  7:35  warning  'Clock' is defined but never used  @typescript-eslint/no-unused-vars
 
-Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+C:\Projetos\vrnoponto\app\boletim\page.tsx
+  18:83  warning  'MetricRow' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\components\push\PushOptInCard.tsx:28:13
-  26 |     useEffect(() => {
-  27 |         if (preferences) {
-> 28 |             setMode(preferences.mode || 'DIGEST');
-     |             ^^^^^^^ Avoid calling setState() directly within an effect
-  29 |             setSeverityMin(preferences.severity_min || 'CRIT');
-  30 |             setNeighborhoodsInput((preferences.neighborhoods_norm || []).join(', '));
-  31 |             setLinesInput((preferences.lines || []).join(', '));  react-hooks/set-state-in-effect
+C:\Projetos\vrnoponto\app\como-usar\page.tsx
+  3:10  warning  'Shield' is defined but never used  @typescript-eslint/no-unused-vars
 
-C:\Projetos\vrnoponto\lib\suggestLine.ts
-  16:51  warning  '_deviceId' is defined but never used  @typescript-eslint/no-unused-vars
+C:\Projetos\vrnoponto\app\linha\[id]\page.tsx
+  6:10  warning  'Zap' is defined but never used  @typescript-eslint/no-unused-vars
 
-Ô£û 2 problems (1 error, 1 warning)
+C:\Projetos\vrnoponto\app\mapa\bairros\loading.tsx
+  3:10  warning  'AppShell' is defined but never used      @typescript-eslint/no-unused-vars
+  3:20  warning  'PublicTopBar' is defined but never used  @typescript-eslint/no-unused-vars
+  3:34  warning  'Skeleton' is defined but never used      @typescript-eslint/no-unused-vars
+  4:10  warning  'MapPin' is defined but never used        @typescript-eslint/no-unused-vars
+  4:18  warning  'ArrowLeft' is defined but never used     @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\mutirao\page.tsx
+  33:22  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\app\registrar\page.tsx
+  13:23  warning  'SuggestedLine' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\components\OneTapCard.tsx
+  20:5  warning  'mode' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Projetos\vrnoponto\lib\official\parsePdfSchedule.ts
+  56:21  warning  '_init' is defined but never used   @typescript-eslint/no-unused-vars
+  58:22  warning  '_other' is defined but never used  @typescript-eslint/no-unused-vars
+  59:25  warning  '_other' is defined but never used  @typescript-eslint/no-unused-vars
+  60:23  warning  '_tx' is defined but never used     @typescript-eslint/no-unused-vars
+  60:37  warning  '_ty' is defined but never used     @typescript-eslint/no-unused-vars
+  60:51  warning  '_tz' is defined but never used     @typescript-eslint/no-unused-vars
+  61:19  warning  '_sx' is defined but never used     @typescript-eslint/no-unused-vars
+  61:33  warning  '_sy' is defined but never used     @typescript-eslint/no-unused-vars
+  61:47  warning  '_sz' is defined but never used     @typescript-eslint/no-unused-vars
+  61:61  warning  '_ox' is defined but never used     @typescript-eslint/no-unused-vars
+  61:75  warning  '_oy' is defined but never used     @typescript-eslint/no-unused-vars
+  61:89  warning  '_oz' is defined but never used     @typescript-eslint/no-unused-vars
+  62:20  warning  '_rx' is defined but never used     @typescript-eslint/no-unused-vars
+  62:34  warning  '_ry' is defined but never used     @typescript-eslint/no-unused-vars
+  62:48  warning  '_rz' is defined but never used     @typescript-eslint/no-unused-vars
+  63:29  warning  '_x' is defined but never used      @typescript-eslint/no-unused-vars
+  63:42  warning  '_y' is defined but never used      @typescript-eslint/no-unused-vars
+  63:55  warning  '_z' is defined but never used      @typescript-eslint/no-unused-vars
+  63:68  warning  '_angle' is defined but never used  @typescript-eslint/no-unused-vars
+  64:19  warning  '_sx' is defined but never used     @typescript-eslint/no-unused-vars
+  65:19  warning  '_sy' is defined but never used     @typescript-eslint/no-unused-vars
+  67:24  warning  '_value' is defined but never used  @typescript-eslint/no-unused-vars
+  80:33  warning  '_array' is defined but never used  @typescript-eslint/no-unused-vars
+  81:33  warning  '_array' is defined but never used  @typescript-eslint/no-unused-vars
+  82:27  warning  '_other' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 39 problems (0 errors, 39 warnings)
 

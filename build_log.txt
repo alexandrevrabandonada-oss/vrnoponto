@@ -1,51 +1,63 @@
 
 > vrnoponto@0.1.0 build
-> next build
+> npm run ui:guard && next build
 
-Ôû▓ Next.js 16.1.6 (Turbopack)
+
+> vrnoponto@0.1.0 ui:guard
+> node scripts/ui-guardrails.mjs
+
+🔍 Executando UI Guardrails...
+✅ UI Guardrails: Nenhuma regressão visual detectada.
+▲ Next.js 16.1.6 (Turbopack)
 - Environments: .env.local
 
-ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-Ô£ô Compiled successfully in 3.2s
-  Running TypeScript ...
-  Collecting page data using 11 workers ...
-ÔÜá Using edge runtime on a page currently disables static generation for that page
-  Generating static pages using 11 workers (0/14) ...
-  Generating static pages using 11 workers (3/14) 
-  Generating static pages using 11 workers (6/14) 
-  Generating static pages using 11 workers (10/14) 
-Ô£ô Generating static pages using 11 workers (14/14) in 261.3ms
-  Finalizing page optimization ...
 
-Route (app)
-Ôöî ãÆ /
-Ôö£ Ôùï /_not-found
-Ôö£ Ôùï /admin
-Ôö£ ãÆ /admin/linhas
-Ôö£ Ôùï /admin/oficial
-Ôö£ ãÆ /admin/pontos
-Ôö£ ãÆ /api/admin/sync-official
-Ôö£ ãÆ /api/admin/upload-pdf
-Ôö£ ãÆ /api/env-audit
-Ôö£ ãÆ /api/events/record
-Ôö£ ãÆ /api/health
-Ôö£ ãÆ /api/map/stops
-Ôö£ ãÆ /api/og/monthly-report
-Ôö£ ãÆ /api/report/monthly
-Ôö£ ãÆ /api/report/monthly.csv
-Ôö£ ãÆ /api/stops/nearest
-Ôö£ ãÆ /linha/[id]
-Ôö£ ãÆ /mapa
-Ôö£ Ôùï /no-ponto
-Ôö£ ãÆ /painel
-Ôö£ ãÆ /ponto/[id]
-Ôö£ Ôùï /registrar
-Ôöö ãÆ /relatorio/mensal
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./app/parceiros/page.tsx
+Module not found: Can't resolve '@/components/DelayMap'
+Import map: aliased to relative './components/DelayMap' inside of [project]/
 
 
-ãÆ Proxy (Middleware)
+Import traces:
+  Client Component Browser:
+    ./app/parceiros/page.tsx [Client Component Browser]
+    ./app/parceiros/page.tsx [Server Component]
 
-Ôùï  (Static)   prerendered as static content
-ãÆ  (Dynamic)  server-rendered on demand
+  Client Component SSR:
+    ./app/parceiros/page.tsx [Client Component SSR]
+    ./app/parceiros/page.tsx [Server Component]
 
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/parceiros/page.tsx:13:32
+Module not found: Can't resolve '@/components/DelayMap'
+  11 |
+  12 | // Import map dynamically for Client Side
+> 13 | const DelayMap = dynamic(() => import('@/components/DelayMap'), {
+     |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 |     ssr: false,
+  15 |     loading: () => (
+  16 |         <div className="w-full h-full bg-gray-100 dark:bg-gray-800 animate-pulse flex flex-col items-center justify-center text-gray-400 gap-2">
+
+Import map: aliased to relative './components/DelayMap' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./app/parceiros/page.tsx [Client Component Browser]
+    ./app/parceiros/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/parceiros/page.tsx [Client Component SSR]
+    ./app/parceiros/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/parceiros/page.tsx:13:32)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)

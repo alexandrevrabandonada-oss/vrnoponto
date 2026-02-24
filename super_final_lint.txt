@@ -1,0 +1,11 @@
+
+> vrnoponto@0.1.0 lint
+> eslint
+
+
+C:\Projetos\vrnoponto\app\parceiros\page.tsx
+  4:8   warning  'dynamic' is defined but never used  @typescript-eslint/no-unused-vars
+  6:36  warning  'Loader2' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)
+

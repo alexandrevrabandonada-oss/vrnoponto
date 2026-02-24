@@ -107,7 +107,7 @@ export default function QRCheckinPage(props: { params: Promise<{ token: string }
                             Seu relato recente foi promovido para Prova Forte. Obrigado por colaborar!
                         </p>
                         <Link
-                            href="/mapa"
+                            href="/mapa/bairros"
                             className="block w-full bg-gray-900 text-white py-4 rounded-2xl font-black shadow-xl shadow-gray-200 active:scale-95 transition-transform"
                         >
                             Ver Mapa de Atrasos

@@ -30,7 +30,7 @@ export default function MutiraoPage() {
                     text: 'Bora bater a meta de registros hoje!',
                     url: shareUrl,
                 });
-            } catch (err) { }
+            } catch { }
         } else {
             navigator.clipboard.writeText(shareUrl);
             setCopySuccess(true);

@@ -23,3 +23,4 @@ export * from './SectionCard';
 export * from './IconButton';
 export * from './PublicTopBar';
 export * from './NextStepBlock';
+export * from './Sparkline';

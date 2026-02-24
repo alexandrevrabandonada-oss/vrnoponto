@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useParams as useNextParams, useRouter } from 'next/navigation';
-import { Clock, TrendingUp, Users, BadgeAlert, AlertCircle, BarChart3, Bus } from 'lucide-react';
-import { Sparkline } from '@/components/metrics/Sparkline';
+import { AlertCircle, BarChart3, Bus } from 'lucide-react';
 import { StopPromisedVsRealCard } from '@/components/StopPromisedVsRealCard';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateStopCaption } from '@/lib/editorial/templates';
 import {
-    AppShell, PageHeader, Card, Divider,
+    AppShell, PageHeader, Divider,
     SkeletonCard, SkeletonList, EmptyState, InlineAlert, ListItem, MetricRow, MetricCard, SectionCard,
     PublicTopBar, NextStepBlock, Button
 } from '@/components/ui';

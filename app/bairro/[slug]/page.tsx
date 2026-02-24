@@ -4,16 +4,12 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
-    MapPin, Bus, Clock, Users, ShieldCheck, Download,
-    History as HistoryIcon, AlertCircle, BarChart3
+    Bus, History as HistoryIcon, AlertCircle, BarChart3
 } from 'lucide-react';
-import { Sparkline } from '@/components/Sparkline';
-import { EditorialCard } from '@/components/editorial/EditorialCard';
-import { generateNeighborhoodDetailCaption } from '@/lib/editorial/templates';
 import {
-    AppShell, PageHeader, Button, Card, Divider,
-    EmptyState, SkeletonBlock, SkeletonCard, SkeletonList, ListItem, MetricRow, MetricCard, SectionCard, SecondaryCTA,
-    PublicTopBar, NextStepBlock
+    AppShell, PageHeader, Button, Card,
+    EmptyState, SkeletonBlock, SkeletonCard, SkeletonList, ListItem, MetricRow, MetricCard, SectionCard,
+    PublicTopBar, NextStepBlock, Sparkline
 } from '@/components/ui';
 import { FollowButton, FollowBadge } from '@/components/push/FollowButton';
 import { FavoriteToggle } from '@/components/FavoriteToggle';
@@ -159,7 +155,7 @@ export default function BairroDetailPage() {
                             </div>
                             {sparkData.length > 1 && (
                                 <div className="hidden sm:block">
-                                    <Sparkline data={sparkData} width={100} height={24} color="#FFCC00" />
+                                    <Sparkline data={sparkData} width={100} height={24} color="#FFCC00" showPoints={false} />
                                 </div>
                             )}
                         </div>

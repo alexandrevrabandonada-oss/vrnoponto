@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ArrowRight, MapPin, Clock, ChevronRight, Info, ShieldCheck } from 'lucide-react';
-import { Button, Card, Badge, StatusPill, BrandSymbol, PrimaryCTA } from '@/components/ui';
+import { MapPin, Clock, ChevronRight, Info, ShieldCheck } from 'lucide-react';
+import { Card, Badge, BrandSymbol, PrimaryCTA } from '@/components/ui';
 import { PrivacyModal } from '@/components/PrivacyModal';
 import { createClient } from '@/lib/supabase/client';
 import { FavoritesSection } from '@/components/FavoritesSection';
@@ -11,7 +11,6 @@ import { QuickActions } from '@/components/QuickActions';
 import { MutiraoBanner } from '@/components/MutiraoBanner';
 
 export default function Home() {
-  const [isConnected, setIsConnected] = React.useState(true);
   const [isPrivacyOpen, setIsPrivacyOpen] = React.useState(false);
   const [isHeroLoading, setIsHeroLoading] = React.useState(false);
   const [isHeroSuccess, setIsHeroSuccess] = React.useState(false);
@@ -20,10 +19,9 @@ export default function Home() {
     const checkConnection = async () => {
       try {
         const supabase = createClient();
-        const { error } = await supabase.from('_ping').select('id').limit(1);
-        setIsConnected(!error);
+        await supabase.from('_ping').select('id').limit(1);
       } catch {
-        setIsConnected(false);
+        /* silent */
       }
     };
     checkConnection();
@@ -129,10 +127,6 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="w-full max-w-sm py-10 flex flex-col items-center gap-6 z-20">
-        <StatusPill
-          status={isConnected ? 'online' : 'offline'}
-          label={isConnected ? 'CONECTADO — REGISTRANDO' : 'MODO OFFLINE — SALVANDO LOCAL'}
-        />
         <button
           onClick={() => setIsPrivacyOpen(true)}
           className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-white transition-colors"

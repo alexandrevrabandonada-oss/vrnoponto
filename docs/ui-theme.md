@@ -24,8 +24,10 @@ O tema "VR Abandonada" traz uma estética industrial, de alto contraste, inspira
 - **Radial Glow**: Brilhos amarelos e ferrugem sutis nos cantos superiores para profundidade.
 - **Glassmorphism**: Camadas de vidro (`.glass`) com desfoque de 16px para interfaces modernas.
 
-## Componentes
+## Componentes Principais
 
-- **StatusIndicator**: Utiliza o brilho pulsante do amarelo industrial para indicar sistema operacional.
-- **HeroCard**: Aplica o gradiente de marca (`grad-brand`) com texto preto para máximo contraste.
+- **AppShell**: O container global que define a estrutura de layout industrial.
+- **EmptyState**: O componente padrão para estados vazios, com ícone, título industrial e CTAs contextuais.
+- **MetricCard**: Exibição de métricas técnicas com suporte a tendências e cores de alerta.
+- **Sparkline**: Visualização de fluxo temporal (P50/P90) integrada ao Design System.
 - **Tap Targets**: Todos os botões principais possuem altura mínima de 52px para fácil interação em dispositivos móveis.

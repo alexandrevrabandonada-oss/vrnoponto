@@ -53,18 +53,18 @@ function ensurePdfDomPolyfills(): void {
         is2D = true;
         isIdentity = true;
 
-        constructor(_init?: unknown) { }
+        constructor() { }
 
-        multiplySelf(_other?: unknown) { return this; }
-        preMultiplySelf(_other?: unknown) { return this; }
-        translateSelf(_tx?: number, _ty?: number, _tz?: number) { return this; }
-        scaleSelf(_sx?: number, _sy?: number, _sz?: number, _ox?: number, _oy?: number, _oz?: number) { return this; }
-        rotateSelf(_rx?: number, _ry?: number, _rz?: number) { return this; }
-        rotateAxisAngleSelf(_x?: number, _y?: number, _z?: number, _angle?: number) { return this; }
-        skewXSelf(_sx?: number) { return this; }
-        skewYSelf(_sy?: number) { return this; }
+        multiplySelf() { return this; }
+        preMultiplySelf() { return this; }
+        translateSelf() { return this; }
+        scaleSelf() { return this; }
+        rotateSelf() { return this; }
+        rotateAxisAngleSelf() { return this; }
+        skewXSelf() { return this; }
+        skewYSelf() { return this; }
         invertSelf() { return this; }
-        setMatrixValue(_value: string) { return this; }
+        setMatrixValue() { return this; }
         toFloat32Array() { return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); }
         toFloat64Array() { return new Float64Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); }
         inverse() { return new SimpleDOMMatrix(); }
@@ -77,9 +77,9 @@ function ensurePdfDomPolyfills(): void {
             };
         }
 
-        static fromFloat32Array(_array: Float32Array) { return new SimpleDOMMatrix(); }
-        static fromFloat64Array(_array: Float64Array) { return new SimpleDOMMatrix(); }
-        static fromMatrix(_other?: unknown) { return new SimpleDOMMatrix(); }
+        static fromFloat32Array() { return new SimpleDOMMatrix(); }
+        static fromFloat64Array() { return new SimpleDOMMatrix(); }
+        static fromMatrix() { return new SimpleDOMMatrix(); }
     }
 
     target.DOMMatrix = SimpleDOMMatrix;
@@ -141,7 +141,7 @@ type PdfParseInstance = {
 };
 
 type PdfParseConstructor = {
-    new (opts: { data: Buffer }): PdfParseInstance;
+    new(opts: { data: Buffer }): PdfParseInstance;
     setWorker?: (workerSrc?: string) => string;
 };
 

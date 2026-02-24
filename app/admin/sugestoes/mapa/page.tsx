@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {
-    CheckCircle, XCircle, MapPin, Clock, Users,
+    CheckCircle, XCircle, MapPin, Users,
     RefreshCw, List, Map as MapIcon, X, Filter
 } from 'lucide-react';
 
