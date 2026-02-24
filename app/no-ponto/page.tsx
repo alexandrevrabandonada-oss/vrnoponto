@@ -6,10 +6,12 @@ import { HelpModal } from '@/components/HelpModal';
 import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2, HelpCircle } from 'lucide-react';
 import { StopSuggestionModal } from '@/components/StopSuggestionModal';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
+import { useRouter } from 'next/navigation';
 import {
     AppShell, Card, Divider, Button,
     Field, Select, InlineAlert, Badge, PrimaryCTA, SectionCard,
-    PublicTopBar, NextStepBlock, PageHeader
+    PublicTopBar, NextStepBlock, PageHeader,
+    SkeletonList, Skeleton
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { enqueueEvent } from '@/lib/offlineQueue';
@@ -18,6 +20,7 @@ import Link from 'next/link';
 
 export default function NoPonto() {
     const deviceId = useDeviceId();
+    const router = useRouter();
 
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [gpsStatus, setGpsStatus] = useState<string>('Solicitando GPS...');
@@ -88,7 +91,7 @@ export default function NoPonto() {
         fetchStops();
     }, [location]);
 
-    // Efeito para buscar linhas top do ponto selecionado
+    // Efeito para buscar linhas top do ponto selecionado e PREFETCH
     useEffect(() => {
         async function fetchTopLines() {
             if (!selectedStop) {
@@ -96,6 +99,10 @@ export default function NoPonto() {
                 return;
             }
             setIsLoadingTopLines(true);
+
+            // Prefetch next probable step
+            router.prefetch(`/registrar?stopId=${selectedStop}`);
+
             try {
                 const res = await fetch(`/api/stop/top-lines?stop_id=${selectedStop}`);
                 if (res.ok) {
@@ -109,7 +116,7 @@ export default function NoPonto() {
             }
         }
         fetchTopLines();
-    }, [selectedStop]);
+    }, [selectedStop, router]);
 
     const handleArrived = async () => {
         if (!deviceId) return;
@@ -210,8 +217,14 @@ export default function NoPonto() {
                             <Field
                                 label=""
                                 hint={isLoadingStops ? "Buscando pontos próximos..." : ""}
+                                className="min-h-[64px]"
                             >
-                                {nearestStops.length > 0 ? (
+                                {isLoadingStops ? (
+                                    <div className="h-16 w-full bg-white/[0.03] rounded-2xl animate-pulse flex items-center px-4 gap-3 border border-white/10">
+                                        <div className="w-5 h-5 bg-white/10 rounded-full" />
+                                        <div className="h-4 w-1/2 bg-white/10 rounded-md" />
+                                    </div>
+                                ) : nearestStops.length > 0 ? (
                                     <Select
                                         id="stop"
                                         value={selectedStop}
@@ -298,48 +311,63 @@ export default function NoPonto() {
                     {selectedStop && (
                         <div className="space-y-4 animate-in fade-in duration-500">
                             <SectionCard title="Cenário Técnico" subtitle="Linhas mais vistas nesta parada (30D)">
-                                {isLoadingTopLines ? (
-                                    <div className="p-8 border border-white/5 rounded-2xl bg-white/[0.01] text-center text-white/40 text-[10px] font-black uppercase tracking-widest animate-pulse">
-                                        Buscando Histórico...
-                                    </div>
-                                ) : topLines.length > 0 ? (
-                                    <div className="space-y-3">
-                                        {topLines.map((line) => (
-                                            <div key={line.line_id} className="flex flex-col gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition-colors relative overflow-hidden group">
-                                                <div className="flex justify-between items-start gap-4 z-10">
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className="font-industrial text-lg text-brand tracking-widest leading-none bg-brand/10 px-2 py-0.5 rounded-md">
-                                                                {line.code}
-                                                            </span>
-                                                            <span className="text-sm font-bold text-white truncate max-w-[150px] sm:max-w-[200px]">
-                                                                {line.name}
-                                                            </span>
+                                <div className="min-h-[100px]">
+                                    {isLoadingTopLines ? (
+                                        <div className="space-y-3">
+                                            <div className="h-[120px] w-full bg-white/[0.02] border border-white/5 rounded-xl animate-pulse p-4">
+                                                <div className="flex gap-2 mb-4">
+                                                    <div className="h-8 w-16 bg-white/5 rounded-lg" />
+                                                    <div className="h-8 w-32 bg-white/5 rounded-lg" />
+                                                </div>
+                                                <div className="h-10 w-full bg-white/5 rounded-lg" />
+                                            </div>
+                                            <div className="h-[120px] w-full bg-white/[0.01] border border-white/5 rounded-xl animate-pulse p-4 hidden sm:block">
+                                                <div className="flex gap-2 mb-4">
+                                                    <div className="h-8 w-12 bg-white/5 rounded-lg opacity-40" />
+                                                    <div className="h-8 w-24 bg-white/5 rounded-lg opacity-40" />
+                                                </div>
+                                                <div className="h-10 w-full bg-white/5 rounded-lg opacity-40" />
+                                            </div>
+                                        </div>
+                                    ) : topLines.length > 0 ? (
+                                        <div className="space-y-3">
+                                            {topLines.map((line) => (
+                                                <div key={line.line_id} className="flex flex-col gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition-colors relative overflow-hidden group">
+                                                    <div className="flex justify-between items-start gap-4 z-10">
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="font-industrial text-lg text-brand tracking-widest leading-none bg-brand/10 px-2 py-0.5 rounded-md">
+                                                                    {line.code}
+                                                                </span>
+                                                                <span className="text-sm font-bold text-white truncate max-w-[150px] sm:max-w-[200px]">
+                                                                    {line.name}
+                                                                </span>
+                                                            </div>
+                                                            <TrustMixBadge total={line.count} pctVerified={line.pctVerified} />
                                                         </div>
-                                                        <TrustMixBadge total={line.count} pctVerified={line.pctVerified} />
+                                                    </div>
+
+                                                    {/* Botão de Registro Rápido */}
+                                                    <div className="pt-2 border-t border-white/5">
+                                                        <Link
+                                                            href={`/registrar?stopId=${selectedStop}&lineId=${line.line_id}`}
+                                                            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white/5 hover:bg-brand/20 hover:text-brand text-white text-[10px] font-black uppercase tracking-widest transition-colors border border-white/5 hover:border-brand/30"
+                                                        >
+                                                            <Bus size={14} />
+                                                            Registrar agora
+                                                        </Link>
                                                     </div>
                                                 </div>
-
-                                                {/* Botão de Registro Rápido */}
-                                                <div className="pt-2 border-t border-white/5">
-                                                    <Link
-                                                        href={`/registrar?stopId=${selectedStop}&lineId=${line.line_id}`}
-                                                        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white/5 hover:bg-brand/20 hover:text-brand text-white text-[10px] font-black uppercase tracking-widest transition-colors border border-white/5 hover:border-brand/30"
-                                                    >
-                                                        <Bus size={14} />
-                                                        Registrar agora
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01] text-center space-y-2">
-                                        <AlertCircle size={24} className="mx-auto text-white/20 mb-2" />
-                                        <p className="text-[10px] font-black text-white/40 uppercase tracking-tight">Sem dados ainda neste ponto.</p>
-                                        <p className="text-[10px] text-brand font-black uppercase tracking-widest">Seja o primeiro a registrar! 👑</p>
-                                    </div>
-                                )}
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-6 border border-dashed border-white/10 rounded-2xl bg-white/[0.01] text-center space-y-2">
+                                            <AlertCircle size={24} className="mx-auto text-white/20 mb-2" />
+                                            <p className="text-[10px] font-black text-white/40 uppercase tracking-tight">Sem dados ainda neste ponto.</p>
+                                            <p className="text-[10px] text-brand font-black uppercase tracking-widest">Seja o primeiro a registrar! 👑</p>
+                                        </div>
+                                    )}
+                                </div>
                             </SectionCard>
                         </div>
                     )}

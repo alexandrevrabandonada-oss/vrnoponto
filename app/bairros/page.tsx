@@ -46,13 +46,15 @@ export default function BairrosPage() {
             <AppShell hideHeader>
                 <PublicTopBar title="Ranking" />
                 <div className="max-w-md mx-auto py-8 space-y-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 min-h-[160px]">
                         <SkeletonCard />
                         <SkeletonCard />
                         <SkeletonCard />
                         <SkeletonCard />
                     </div>
-                    <SkeletonList items={10} />
+                    <div className="min-h-[400px]">
+                        <SkeletonList items={10} />
+                    </div>
                 </div>
             </AppShell>
         );

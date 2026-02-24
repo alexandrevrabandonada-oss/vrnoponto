@@ -116,14 +116,16 @@ export default function BoletimPage() {
             <AppShell hideHeader>
                 <PublicTopBar title="Boletim" />
                 <div className="max-w-md mx-auto py-8 space-y-8">
-                    <SkeletonBlock className="!h-20 w-full !rounded-3xl" />
-                    <SkeletonCard />
-                    <div className="grid grid-cols-2 gap-4">
+                    <SkeletonBlock className="!h-16 w-full !rounded-2xl" />
+                    <div className="grid grid-cols-2 gap-4 min-h-[120px]">
                         <SkeletonCard />
                         <SkeletonCard />
                     </div>
                     <Divider label="CARREGANDO AUDITORIA" />
-                    <SkeletonList items={5} />
+                    <div className="min-h-[300px] space-y-4">
+                        <SkeletonBlock className="!h-48 w-full !rounded-3xl" />
+                        <SkeletonList items={3} />
+                    </div>
                 </div>
             </AppShell>
         );

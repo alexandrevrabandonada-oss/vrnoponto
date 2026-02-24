@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams as useNextParams } from 'next/navigation';
+import { useParams as useNextParams, useRouter } from 'next/navigation';
 import { Clock, TrendingUp, Users, BadgeAlert, AlertCircle, BarChart3, Bus } from 'lucide-react';
 import { Sparkline } from '@/components/metrics/Sparkline';
 import { StopPromisedVsRealCard } from '@/components/StopPromisedVsRealCard';
@@ -42,6 +42,7 @@ type Alert = {
 
 export default function PontoDetailPage() {
     const params = useNextParams();
+    const router = useRouter();
     const stopId = params?.id as string;
 
     const [loading, setLoading] = useState(true);
@@ -74,7 +75,10 @@ export default function PontoDetailPage() {
             }
         }
         fetchData();
-    }, [stopId]);
+
+        // Prefetch bulletin
+        router.prefetch('/boletim');
+    }, [stopId, router]);
 
     if (loading && !data) {
         return (

@@ -6,7 +6,9 @@ import { RatingModal } from '@/components/RatingModal';
 import { QRScanner } from '@/components/QRScanner';
 import { QrCode, Navigation, MapPin, Bus, ChevronRight, Share2, Loader2, ChevronDown } from 'lucide-react';
 import { HelpModal } from '@/components/HelpModal';
-import { AppShell, PageHeader, Button, Card, Divider, Field, Textarea, InlineAlert, PrimaryCTA, SecondaryCTA, SectionCard, PublicTopBar, NextStepBlock } from '@/components/ui';
+import {
+    AppShell, PageHeader, Button, Card, Divider, Field, Textarea, InlineAlert, PrimaryCTA, SecondaryCTA, SectionCard, PublicTopBar, NextStepBlock, SkeletonCard, SkeletonList, Skeleton
+} from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { suggestLine, SuggestedLine } from '@/lib/suggestLine';
 import { OneTapCard } from '@/components/OneTapCard';
@@ -120,47 +122,64 @@ export default function Registrar() {
 
                     {!registrationComplete ? (
                         <>
-                            <Card variant="surface2" className="border-white/5 bg-white/[0.02]" aria-label="Status da Localização">
-                                <div className="flex items-center gap-3">
-                                    <Navigation size={14} className={location ? "text-brand" : "text-zinc-600 animate-pulse"} aria-hidden="true" />
-                                    <div className="flex-1">
-                                        <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Localização</p>
-                                        <p className="text-xs font-bold text-white uppercase truncate">
-                                            {location ? "Localizado via GPS" : gpsStatus}
-                                        </p>
-                                    </div>
-                                    {selectedStopId && (
-                                        <div className="text-right">
-                                            <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Seu Ponto</p>
-                                            <p className="text-xs font-bold text-brand uppercase truncate max-w-[120px]">
-                                                {currentStop?.name || queryStopId || 'Detectando...'}
+                            <div className="min-h-[64px]">
+                                <Card variant="surface2" className="border-white/5 bg-white/[0.02]" aria-label="Status da Localização">
+                                    <div className="flex items-center gap-3">
+                                        <Navigation size={14} className={location ? "text-brand" : "text-zinc-600 animate-pulse"} aria-hidden="true" />
+                                        <div className="flex-1">
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Localização</p>
+                                            <p className="text-xs font-bold text-white uppercase truncate">
+                                                {location ? "Localizado via GPS" : gpsStatus}
                                             </p>
                                         </div>
-                                    )}
-                                </div>
-                            </Card>
+                                        {selectedStopId && (
+                                            <div className="text-right">
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Seu Ponto</p>
+                                                <p className="text-xs font-bold text-brand uppercase truncate max-w-[120px]">
+                                                    {currentStop?.name || queryStopId || 'Detectando...'}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </Card>
+                            </div>
 
-                            {selectedStopId && (
-                                <OneTapCard
-                                    stopId={selectedStopId}
-                                    stopName={currentStop?.name || 'Local Atual'}
-                                    mode="registrar"
-                                    onRecorded={(result) => {
-                                        if (result.ok) {
-                                            if (result.queued) {
-                                                setMessage("SALVO NO CELULAR");
-                                            } else {
-                                                const trust = result.trust_level || 'L1';
-                                                setLastTrust(trust);
-                                                setLastMethod(trust === 'L3' ? 'TRAJETO' : trust);
-                                                setMessage("RELATO ENVIADO!");
+                            <div className="min-h-[180px]">
+                                {selectedStopId ? (
+                                    <OneTapCard
+                                        stopId={selectedStopId}
+                                        stopName={currentStop?.name || 'Local Atual'}
+                                        mode="registrar"
+                                        onRecorded={(result) => {
+                                            if (result.ok) {
+                                                if (result.queued) {
+                                                    setMessage("SALVO NO CELULAR");
+                                                } else {
+                                                    const trust = result.trust_level || 'L1';
+                                                    setLastTrust(trust);
+                                                    setLastMethod(trust === 'L3' ? 'TRAJETO' : trust);
+                                                    setMessage("RELATO ENVIADO!");
+                                                }
+                                                setRegistrationComplete(true);
+                                                setIsModalOpen(true);
                                             }
-                                            setRegistrationComplete(true);
-                                            setIsModalOpen(true);
-                                        }
-                                    }}
-                                />
-                            )}
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="space-y-4 animate-pulse">
+                                        <div className="h-[180px] w-full bg-white/[0.02] border border-white/5 rounded-3xl p-6 flex flex-col justify-between">
+                                            <div className="flex justify-between items-start">
+                                                <div className="space-y-2">
+                                                    <div className="h-4 w-24 bg-white/5 rounded" />
+                                                    <div className="h-6 w-48 bg-white/5 rounded" />
+                                                </div>
+                                                <div className="h-10 w-10 bg-white/5 rounded-full" />
+                                            </div>
+                                            <div className="h-12 w-full bg-brand/10 rounded-2xl" />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
                             {!selectedStopId && !location && (
                                 <Card className="p-12 text-center border-dashed border-white/5 bg-white/[0.01]">
