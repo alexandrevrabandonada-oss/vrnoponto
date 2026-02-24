@@ -16,7 +16,10 @@ export default function Loading() {
                             <div className="h-8 w-64 bg-white/5 rounded-lg animate-pulse" />
                             <div className="h-4 w-96 max-w-full bg-white/5 rounded animate-pulse" />
                         </div>
-                        <div className="h-12 w-48 bg-white/5 rounded-xl animate-pulse" />
+                        <div className="flex flex-col gap-2">
+                            <div className="h-3 w-24 bg-white/5 rounded animate-pulse" />
+                            <div className="h-12 w-48 bg-white/5 rounded-xl animate-pulse" />
+                        </div>
                     </div>
                 </SectionCard>
 

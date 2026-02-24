@@ -59,8 +59,7 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
     };
 
     return (
-        <AppShell hideHeader>
-            <PublicTopBar title="Mapa de Bairros" />
+        <AppShell title="Mapa de Bairros">
 
             <div className="max-w-7xl mx-auto py-4 space-y-8">
                 <SectionCard>
@@ -75,19 +74,22 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
 
                         <div className="flex flex-wrap gap-3">
                             {/* View Mode */}
-                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-                                <Link
-                                    href={toggleParam('m', '__clear__').replace('m=__clear__&', '').replace('?m=__clear__', '').replace('&m=__clear__', '')}
-                                    className={`px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all ${!listMode ? 'bg-brand text-black shadow-lg shadow-brand/20' : 'text-white/40 hover:text-white'}`}
-                                >
-                                    Mapa
-                                </Link>
-                                <Link
-                                    href={toggleParam('m', 'lista')}
-                                    className={`px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all ${listMode ? 'bg-brand text-black shadow-lg shadow-brand/20' : 'text-white/40 hover:text-white'}`}
-                                >
-                                    Lista
-                                </Link>
+                            <div className="flex flex-col gap-1">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-white/60 ml-1">Visualização</p>
+                                <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                    <Link
+                                        href={toggleParam('m', '__clear__').replace('m=__clear__&', '').replace('?m=__clear__', '').replace('&m=__clear__', '')}
+                                        className={`min-w-[88px] px-4 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest text-center transition-all ${!listMode ? 'bg-brand text-black shadow-lg shadow-brand/20' : 'text-white/60 hover:text-white'}`}
+                                    >
+                                        Mapa
+                                    </Link>
+                                    <Link
+                                        href={toggleParam('m', 'lista')}
+                                        className={`min-w-[88px] px-4 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest text-center transition-all ${listMode ? 'bg-brand text-black shadow-lg shadow-brand/20' : 'text-white/60 hover:text-white'}`}
+                                    >
+                                        Lista
+                                    </Link>
+                                </div>
                             </div>
 
                             {/* Type Mode (Circles vs Polygons) */}
