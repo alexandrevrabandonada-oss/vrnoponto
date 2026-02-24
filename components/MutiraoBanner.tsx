@@ -34,9 +34,14 @@ export function MutiraoBanner() {
                             Mutirão de Auditoria
                         </p>
                     </Link>
-                    <p className="text-xs font-industrial text-white truncate italic uppercase tracking-wider">
-                        {m.title} <span className="text-brand not-italic ml-1">({progress}/{goal})</span>
-                    </p>
+                    <div className="flex items-baseline gap-2 overflow-hidden">
+                        <p className="text-xs font-industrial text-white truncate italic uppercase tracking-wider">
+                            {m.title} <span className="text-brand not-italic ml-1">({progress}/{goal})</span>
+                        </p>
+                        <span className="text-[8px] font-bold text-white/20 uppercase tracking-tighter shrink-0 hidden xs:block">
+                            Dados, não pontos.
+                        </span>
+                    </div>
                 </div>
             </div>
             <Link href="/mutirao" className="shrink-0">

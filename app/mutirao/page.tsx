@@ -42,10 +42,13 @@ export default function MutiraoPage() {
 
     if (!status.active) {
         return (
-            <AppShell title="MUTIRÃO">
+            <AppShell title="MUTIRÃO DE AUDITORIA">
                 <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
                     <Zap size={64} className="text-white/10" />
                     <h2 className="text-2xl font-industrial text-white px-8 uppercase italic leading-none">Nenhum mutirão ativo</h2>
+                    <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">
+                        Mutirão = registrar relatos em pontos existentes.
+                    </p>
                     <Link href="/">
                         <Button variant="secondary" className="!h-12 !px-8">Voltar para Início</Button>
                     </Link>
@@ -61,8 +64,8 @@ export default function MutiraoPage() {
 
     const tasks = [
         { icon: MapPin, title: 'Estou no ponto', desc: 'Capture sua posição GPS exata.' },
-        { icon: MessageSquare, title: 'Registrar 1 evento', desc: 'Diga se o ônibus passou ou se você entrou.' },
-        { icon: BarChart3, title: 'Compartilhar boletim', desc: 'Fortaleça a rede e ajude mais pessoas.' }
+        { icon: MessageSquare, title: 'Relatar situação', desc: 'Diga se o ônibus passou ou se você entrou.' },
+        { icon: BarChart3, title: 'Fortalecer a rede', desc: 'Ajude mais pessoas com seu boletim.' }
     ];
 
     return (
@@ -72,9 +75,14 @@ export default function MutiraoPage() {
                     <h1 className="text-4xl font-industrial text-white tracking-tight leading-none italic uppercase">
                         {m.title}
                     </h1>
-                    <p className="text-brand text-[11px] font-black uppercase tracking-[0.2em] leading-relaxed">
-                        Ajude a bater a meta de 300 relatos para o boletim de hoje.
-                    </p>
+                    <div className="space-y-1">
+                        <p className="text-brand text-[11px] font-black uppercase tracking-[0.2em] leading-relaxed">
+                            Ajude a bater a meta de {goal} relatos para o boletim de hoje.
+                        </p>
+                        <p className="text-white/40 text-[9px] font-bold uppercase tracking-wider italic">
+                            Mutirão = registrar relatos em pontos existentes.
+                        </p>
+                    </div>
                 </div>
 
                 {/* Progress Visual */}

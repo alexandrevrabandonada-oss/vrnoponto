@@ -38,7 +38,7 @@ export function FirstDataMissionCard({ title = 'Mutirão de Auditoria' }: FirstD
             <div className="space-y-4">
                 <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-brand/80">{title}</p>
-                    <p className="text-xs text-white/70 mt-1 leading-tight">Fortaleça o sistema em 3 ações rápidas.</p>
+                    <p className="text-xs text-white/70 mt-1 leading-tight">Mutirão = registrar relatos em pontos existentes.</p>
                 </div>
 
                 <div className="space-y-2">

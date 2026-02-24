@@ -109,16 +109,16 @@ export function AppTour() {
 
     return (
         <div className="fixed inset-0 z-[200] pointer-events-none">
-            {/* Dark Overlay */}
+            {/* Light Overay - just to handle clicks */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-black/80 pointer-events-auto"
+                className="absolute inset-0 bg-black/10 pointer-events-auto"
                 onClick={finishTour}
             />
 
-            {/* Highlight Box */}
+            {/* Highlight Box with lower shadow opacity */}
             <motion.div
                 animate={{
                     top: coords.top - 8,

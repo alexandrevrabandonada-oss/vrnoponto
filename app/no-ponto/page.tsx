@@ -346,6 +346,13 @@ export default function NoPonto() {
                                             <LocateFixed size={14} className="text-brand" />
                                             Atualizar ponto pelo GPS
                                         </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowSearch(true)}
+                                            className="mt-2 w-full h-10 rounded-xl border border-dashed border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white/60 transition-colors"
+                                        >
+                                            Meu ponto não está aqui
+                                        </button>
                                     </>
                                 ) : (
                                     <div className="p-8 border-2 border-dashed border-white/5 rounded-[2rem] bg-white/[0.01] text-center space-y-5">
@@ -372,17 +379,20 @@ export default function NoPonto() {
                                             </Button>
 
                                             {location && nearestStops.length === 0 && !isLoadingStops && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        trackTelemetry('stop_suggestion_open');
-                                                        setShowSuggestionModal(true);
-                                                    }}
-                                                    className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-brand text-black text-xs font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all"
-                                                >
-                                                    <PlusCircle size={18} />
-                                                    Sugerir ponto aqui
-                                                </button>
+                                                <div className="space-y-3">
+                                                    <Divider label="OU" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            trackTelemetry('stop_suggestion_open');
+                                                            setShowSuggestionModal(true);
+                                                        }}
+                                                        className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/5 text-white/60 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 active:scale-[0.98] transition-all border border-white/5"
+                                                    >
+                                                        <PlusCircle size={14} />
+                                                        Sugerir novo ponto aqui
+                                                    </button>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
