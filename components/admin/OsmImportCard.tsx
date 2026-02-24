@@ -66,6 +66,11 @@ export function OsmImportCard() {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+                {dryRun && (
+                    <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm font-semibold">
+                        Dry run: nada foi salvo.
+                    </div>
+                )}
                 <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium text-gray-700">Região de Bounding Box (S, W, N, E):</label>
                     <div className="flex flex-wrap gap-2">
@@ -124,6 +129,11 @@ export function OsmImportCard() {
 
             {result && (
                 <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 space-y-2 relative overflow-hidden">
+                    {result.dryRun && (
+                        <div className="p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
+                            Dry run: nada foi salvo.
+                        </div>
+                    )}
                     {result.cacheHit && (
                         <div className="absolute top-2 right-2 text-[10px] font-bold uppercase text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200">
                             Respondeu do Cache (6h)

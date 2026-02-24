@@ -38,8 +38,15 @@ export default function AdminDataQualityPage() {
         checklist: 'idle'
     });
     const [wizardMessage, setWizardMessage] = useState('');
+    const [wizardLogs, setWizardLogs] = useState<string[]>([]);
+    const [copyMessage, setCopyMessage] = useState('');
 
     const OSM_MIN_BBOX = "-22.56,-44.15,-22.47,-44.05";
+
+    const addWizardLog = (msg: string) => {
+        const stamp = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        setWizardLogs(prev => [`[${stamp}] ${msg}`, ...prev].slice(0, 12));
+    };
 
 
     const fetchMetrics = async () => {
@@ -104,6 +111,7 @@ export default function AdminDataQualityPage() {
 
     const runWizardSeedStep = async (): Promise<boolean> => {
         if (!confirm('Passo 1/3: rodar Seed OSM mínimo (50 pontos) em dry-run?')) return false;
+        addWizardLog('Passo 1 iniciado: seed OSM mínimo (dry run).');
         setWizardStepStatus(prev => ({ ...prev, seed: 'running' }));
         const data = await runAdminAction('stops/import-osm', {
             bbox: OSM_MIN_BBOX,
@@ -111,31 +119,42 @@ export default function AdminDataQualityPage() {
             limit: 50
         });
         setWizardStepStatus(prev => ({ ...prev, seed: 'ok' }));
-        setWizardMessage(`Seed OSM dry-run concluído: ${data?.total || 0} pontos avaliados.`);
+        const msg = `Passo 1 OK: ${data?.total || 0} pontos avaliados (nada salvo).`;
+        setWizardMessage(msg);
+        addWizardLog(msg);
         return true;
     };
 
     const runWizardBackfillStep = async (): Promise<boolean> => {
         if (!confirm('Passo 2/3: rodar backfill de bairros via ST_Contains?')) return false;
+        addWizardLog('Passo 2 iniciado: backfill de bairros.');
         setWizardStepStatus(prev => ({ ...prev, backfill: 'running' }));
         const data = await runAdminAction('backfill-neighborhoods');
         setWizardStepStatus(prev => ({ ...prev, backfill: 'ok' }));
-        setWizardMessage(data?.message || 'Backfill concluído.');
+        const msg = data?.message || 'Passo 2 OK: backfill concluído.';
+        setWizardMessage(msg);
+        addWizardLog(msg);
         return true;
     };
 
     const runWizardChecklistStep = async () => {
+        addWizardLog('Passo 3 iniciado: atualização de checklist.');
         setWizardStepStatus(prev => ({ ...prev, checklist: 'running' }));
         await Promise.all([fetchMetrics(), fetchReadiness()]);
         setWizardStepStatus(prev => ({ ...prev, checklist: 'ok' }));
-        setWizardMessage('Checklist atualizado no painel.');
+        const msg = 'Passo 3 OK: checklist atualizado no painel.';
+        setWizardMessage(msg);
+        addWizardLog(msg);
     };
 
     const runWizardAll = async () => {
         if (!confirm('Rodar Wizard completo (3 passos) agora?')) return;
         setWizardRunning(true);
         setWizardMessage('');
+        setWizardLogs([]);
+        setCopyMessage('');
         setWizardStepStatus({ seed: 'idle', backfill: 'idle', checklist: 'idle' });
+        addWizardLog('Wizard iniciado: executando os 3 passos em sequência.');
 
         try {
             const seedOk = await runWizardSeedStep();
@@ -144,12 +163,37 @@ export default function AdminDataQualityPage() {
             if (!backfillOk) throw new Error('Wizard cancelado no passo 2.');
             await runWizardChecklistStep();
             setWizardMessage('Wizard concluído com sucesso.');
+            addWizardLog('Wizard finalizado com sucesso.');
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Falha inesperada no wizard.';
             setWizardMessage(`Erro no wizard: ${msg}`);
             setActionMessage(`Erro no wizard: ${msg}`);
+            addWizardLog(`Erro no wizard: ${msg}`);
         } finally {
             setWizardRunning(false);
+        }
+    };
+
+    const copyWizardReport = async () => {
+        const steps = [
+            `Seed OSM: ${wizardStepStatus.seed}`,
+            `Backfill bairros: ${wizardStepStatus.backfill}`,
+            `Checklist: ${wizardStepStatus.checklist}`
+        ];
+        const report = [
+            'Relatório Seed VR',
+            ...steps,
+            wizardMessage ? `Mensagem final: ${wizardMessage}` : '',
+            '',
+            'Logs:',
+            ...(wizardLogs.length > 0 ? wizardLogs : ['Sem logs nesta execução.'])
+        ].filter(Boolean).join('\n');
+
+        try {
+            await navigator.clipboard.writeText(report);
+            setCopyMessage('Relatório copiado.');
+        } catch {
+            setCopyMessage('Não foi possível copiar automaticamente.');
         }
     };
 
@@ -284,6 +328,27 @@ export default function AdminDataQualityPage() {
                         {wizardMessage}
                     </div>
                 )}
+
+                <div className="mt-4 rounded-lg border border-gray-200 bg-white p-3">
+                    <div className="flex items-center justify-between gap-3">
+                        <p className="text-xs font-black uppercase tracking-widest text-gray-500">Logs do wizard</p>
+                        <button
+                            type="button"
+                            onClick={copyWizardReport}
+                            className="text-xs font-bold px-2.5 py-1.5 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
+                        >
+                            Copiar relatório
+                        </button>
+                    </div>
+                    {copyMessage && <p className="mt-2 text-xs font-bold text-gray-600">{copyMessage}</p>}
+                    <div className="mt-2 space-y-1 max-h-36 overflow-y-auto">
+                        {wizardLogs.length > 0 ? wizardLogs.map((line, idx) => (
+                            <p key={`${line}-${idx}`} className="text-xs text-gray-700">{line}</p>
+                        )) : (
+                            <p className="text-xs text-gray-500">Sem execução recente.</p>
+                        )}
+                    </div>
+                </div>
             </Card>
 
             {/* Pronto Pra Lançar? Checklist */}

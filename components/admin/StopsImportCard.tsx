@@ -135,6 +135,11 @@ export function StopsImportCard() {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+                {dryRun && (
+                    <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm font-semibold">
+                        Dry run: nada foi salvo.
+                    </div>
+                )}
                 <div className="flex flex-wrap gap-4 items-end">
                     <div className="flex-1 min-w-[200px]">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Arquivo</label>
@@ -215,6 +220,11 @@ export function StopsImportCard() {
 
             {result && (
                 <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 space-y-2">
+                    {result.dryRun && (
+                        <div className="p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
+                            Dry run: nada foi salvo.
+                        </div>
+                    )}
                     <div className="flex items-center gap-2">
                         {result.dryRun ? (
                             <FileText size={16} className="text-yellow-400" />

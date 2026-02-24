@@ -72,6 +72,9 @@ export default function StatusDashboard() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [token, setToken] = useState('');
+    const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
+    const [cleanupResult, setCleanupResult] = useState<{ deleted: number; failed: number } | null>(null);
+    const [cleanupError, setCleanupError] = useState('');
 
     const fetchStatus = async (adminToken: string) => {
         setLoading(true);
@@ -107,11 +110,27 @@ export default function StatusDashboard() {
         try {
             // For bulletin it's GET, others are POST usually but we can use fetch natively
             const method = endpoint.includes('bulletin') ? 'GET' : 'POST';
-            await fetch(`${endpoint}${endpoint.includes('?') ? '&' : '?'}t=${token}`, { method });
+            const res = await fetch(`${endpoint}${endpoint.includes('?') ? '&' : '?'}t=${token}`, { method });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data?.error || 'Falha na ação.');
+            }
+            if (jobName === 'proof_cleanup') {
+                const deleted = Number(data?.deleted_files || 0);
+                const attempted = Number(data?.deleted_events || 0);
+                const failed = Math.max(0, attempted - deleted);
+                setCleanupResult({ deleted, failed });
+                setCleanupError('');
+            }
             // wait a sec then refresh
             setTimeout(() => fetchStatus(token), 2000);
         } catch (err) {
             console.error(err);
+            if (jobName === 'proof_cleanup') {
+                setCleanupResult(null);
+                setCleanupError(err instanceof Error ? err.message : 'Falha ao limpar fotos antigas.');
+            }
+        } finally {
             setActionLoading(null);
         }
     };
@@ -135,6 +154,37 @@ export default function StatusDashboard() {
 
     return (
         <div className="space-y-6">
+            {cleanupModalOpen && (
+                <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+                    <div className="w-full max-w-md rounded-2xl bg-white border border-gray-200 shadow-xl p-5 space-y-4">
+                        <h3 className="text-lg font-bold text-gray-900">Confirmar limpeza de fotos antigas</h3>
+                        <p className="text-sm text-gray-700">
+                            Esta ação remove fotos antigas do bucket privado e apaga os registros vinculados. Deseja continuar agora?
+                        </p>
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => setCleanupModalOpen(false)}
+                                className="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 font-bold text-sm hover:bg-gray-50"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    setCleanupResult(null);
+                                    setCleanupError('');
+                                    await triggerAction('proof_cleanup', '/api/admin/proof/cleanup-old');
+                                    setCleanupModalOpen(false);
+                                }}
+                                disabled={actionLoading === 'proof_cleanup'}
+                                className="px-4 py-2 rounded-xl bg-brand text-black font-bold text-sm hover:brightness-110 disabled:opacity-60"
+                            >
+                                {actionLoading === 'proof_cleanup' ? 'Limpando...' : 'Confirmar limpeza'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="flex justify-between items-end">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">System Status</h1>
@@ -271,13 +321,20 @@ export default function StatusDashboard() {
                         </div>
                     </div>
                     <button
-                        onClick={() => triggerAction('proof_cleanup', '/api/admin/proof/cleanup-old')}
+                        onClick={() => setCleanupModalOpen(true)}
                         disabled={actionLoading === 'proof_cleanup'}
                         className="w-full flex items-center justify-center gap-2 bg-brand/10 hover:bg-brand/20 text-brand px-3 py-2 rounded-xl text-xs font-bold transition disabled:opacity-50"
                     >
                         {actionLoading === 'proof_cleanup' ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
                         Limpar fotos antigas (manual)
                     </button>
+                    {(cleanupResult || cleanupError) && (
+                        <div className={`p-2 rounded-lg text-xs font-bold ${cleanupError ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'}`}>
+                            {cleanupError
+                                ? `Falha na limpeza: ${cleanupError}`
+                                : `Resultado: apagadas ${cleanupResult?.deleted ?? 0}, falhas ${cleanupResult?.failed ?? 0}.`}
+                        </div>
+                    )}
                 </div>
 
                 {/* Web Push Card */}
