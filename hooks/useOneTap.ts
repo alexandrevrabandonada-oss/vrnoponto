@@ -30,6 +30,9 @@ interface UseOneTapOptions {
     onRecorded?: (result: OneTapResult) => void;
 }
 
+const HUMAN_RATE_LIMIT_MESSAGE =
+    'Calma, já recebemos um registro seu agora há pouco. Tentar de novo em alguns minutos.';
+
 export function useOneTap({ stopId, defaultLineId, onRecorded }: UseOneTapOptions) {
     const deviceId = useDeviceId();
     const { isOnline, refreshPending } = useOfflineSync();
@@ -239,7 +242,13 @@ export function useOneTap({ stopId, defaultLineId, onRecorded }: UseOneTapOption
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
+            if (!res.ok) {
+                if (res.status === 429) {
+                    setFeedback({ type: 'error', text: HUMAN_RATE_LIMIT_MESSAGE });
+                    return { ok: false, queued: false };
+                }
+                throw new Error(data.error || 'Erro desconhecido');
+            }
 
             saveLastLine(stopId, selectedLine);
             await attachRecentPhotoProof({
@@ -261,7 +270,12 @@ export function useOneTap({ stopId, defaultLineId, onRecorded }: UseOneTapOption
             return result;
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Erro desconhecido';
-            setFeedback({ type: 'error', text: msg });
+            const normalized = msg.toLowerCase();
+            if (normalized.includes('rate limit') || normalized.includes('429')) {
+                setFeedback({ type: 'error', text: HUMAN_RATE_LIMIT_MESSAGE });
+            } else {
+                setFeedback({ type: 'error', text: msg });
+            }
             return { ok: false, queued: false };
         } finally {
             setIsSubmitting(false);

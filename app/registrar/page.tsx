@@ -16,6 +16,19 @@ import { BusPhotoModal } from '@/components/BusPhotoModal';
 import { BusPhotoDraft, getRecentBusPhotoDraft } from '@/lib/busPhotoDraft';
 import Link from 'next/link';
 
+const TRUST_COPY: Record<string, string> = {
+    L1: 'vale como relato.',
+    L2: 'confirmado por mais gente.',
+    L3: 'prova forte.'
+};
+
+const DAILY_TIPS = [
+    "Se puder, registre 'passou' e depois 'entrei' - melhora a prova.",
+    'Registrar em 2 pontos diferentes no dia ajuda a leitura real da cidade.',
+    'Quando trocar de linha, atualize o registro para manter o mapa limpo.'
+];
+const DAILY_TIP_INDEX = Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % DAILY_TIPS.length;
+
 export default function Registrar() {
     const deviceId = useDeviceId();
     const searchParams = useSearchParams();
@@ -32,7 +45,6 @@ export default function Registrar() {
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [isBusPhotoModalOpen, setIsBusPhotoModalOpen] = useState(false);
     const [message, setMessage] = useState('');
-    const [lastTrust, setLastTrust] = useState<string | null>(null);
     const [registrationComplete, setRegistrationComplete] = useState(false);
     const [recentPhotoDraft, setRecentPhotoDraft] = useState<BusPhotoDraft | null>(() =>
         typeof window === 'undefined' ? null : getRecentBusPhotoDraft()
@@ -95,6 +107,7 @@ export default function Registrar() {
     }, [selectedStopId, deviceId]);
 
     const currentStop = nearestStops.find(s => s.id === selectedStopId);
+    const dailyTip = DAILY_TIPS[DAILY_TIP_INDEX];
 
     return (
         <AppShell hideHeader>
@@ -147,6 +160,14 @@ export default function Registrar() {
                             </div>
 
                             <div className="min-h-[180px]">
+                                <Card variant="surface2" className="mb-3 border-white/10 bg-white/[0.03]">
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-brand/80">
+                                        Dica do dia
+                                    </p>
+                                    <p className="text-xs font-bold text-white/85 mt-1">
+                                        {dailyTip}
+                                    </p>
+                                </Card>
                                 {selectedStopId ? (
                                     <OneTapCard
                                         stopId={selectedStopId}
@@ -154,13 +175,17 @@ export default function Registrar() {
                                         defaultLineId={queryLineId || undefined}
                                         onRecorded={(result) => {
                                             if (result.ok) {
+                                                // Increment PWA action count
+                                                const currentCount = parseInt(localStorage.getItem('pwa_action_count') || '0', 10);
+                                                localStorage.setItem('pwa_action_count', (currentCount + 1).toString());
+
                                                 setRecentPhotoDraft(getRecentBusPhotoDraft());
                                                 if (result.queued) {
                                                     setMessage("SALVO NO CELULAR");
                                                 } else {
                                                     const trust = result.trust_level || 'L1';
-                                                    setLastTrust(trust);
-                                                    setMessage("RELATO ENVIADO!");
+                                                    const trustCopy = TRUST_COPY[trust] || TRUST_COPY.L1;
+                                                    setMessage(`Seu registro contou como: ${trust} - ${trustCopy}`);
                                                 }
                                                 setRegistrationComplete(true);
                                                 setIsModalOpen(true);
@@ -237,11 +262,6 @@ export default function Registrar() {
                                     : 'bg-brand/10 border-brand/20 text-brand'
                                     }`}>
                                     {message}
-                                    {lastTrust === 'L3' && (
-                                        <p className="text-[10px] uppercase font-sans font-black tracking-tighter opacity-70 mt-2 text-white/60">
-                                            PROVA FORTE ATIVADA
-                                        </p>
-                                    )}
                                 </div>
                             )}
 
