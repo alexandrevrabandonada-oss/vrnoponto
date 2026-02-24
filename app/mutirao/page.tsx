@@ -68,19 +68,19 @@ export default function MutiraoPage() {
     return (
         <AppShell title="MUTIRÃO DE AUDITORIA">
             <div className="space-y-10 py-8 px-4 animate-in fade-in slide-in-from-bottom-4 duration-700 flex flex-col items-center">
-                <div className="text-center space-y-3 max-w-xs">
+                <div className="text-center space-y-3 max-w-sm">
                     <h1 className="text-4xl font-industrial text-white tracking-tight leading-none italic uppercase">
                         {m.title}
                     </h1>
-                    <p className="text-brand text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed">
-                        Gerando os primeiros dados da rede.
+                    <p className="text-brand text-[11px] font-black uppercase tracking-[0.2em] leading-relaxed">
+                        Ajude a bater a meta de 300 relatos para o boletim de hoje.
                     </p>
                 </div>
 
                 {/* Progress Visual */}
                 <div className="w-full max-w-sm space-y-6">
-                    <div className="relative p-8 rounded-3xl bg-white/[0.02] border border-white/5 overflow-hidden flex flex-col items-center">
-                        <div className="absolute inset-0 bg-brand/5 blur-3xl rounded-full scale-150 animate-pulse" />
+                    <div className="relative p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 overflow-hidden flex flex-col items-center">
+                        <div className="absolute inset-0 bg-brand/5 blur-3xl rounded-full scale-150" />
                         <div className="relative text-center">
                             <div className="text-7xl font-industrial leading-none text-white tracking-tighter italic">
                                 {progress}<span className="text-white/20 text-2xl not-italic">/{goal}</span>
@@ -100,20 +100,17 @@ export default function MutiraoPage() {
                 </div>
 
                 {/* The 3 Tasks */}
-                <div className="w-full max-w-sm space-y-4">
-                    <SectionCard title="Sua Missão" subtitle="Complete as 3 tarefas abaixo">
+                <div className="w-full max-w-sm space-y-6">
+                    <SectionCard title="Sua Missão" subtitle="Complete as 3 ações abaixo">
                         <div className="space-y-6 py-2">
                             {tasks.map((task, i) => (
-                                <div key={i} className="flex items-start gap-4 group">
-                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-brand/10 transition-colors">
-                                        <task.icon size={16} className="text-white/40 group-hover:text-brand transition-colors" />
+                                <div key={i} className="flex items-center gap-4 group">
+                                    <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 border border-white/5 group-hover:bg-brand/10 group-hover:border-brand/20 transition-all">
+                                        <task.icon size={18} className="text-white/40 group-hover:text-brand transition-colors" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-white leading-none mb-1">
-                                            {i + 1}. {task.title}
-                                        </p>
-                                        <p className="text-[11px] text-white/40 font-medium">
-                                            {task.desc}
+                                        <p className="text-[11px] font-black uppercase tracking-widest text-white leading-none">
+                                            {task.title}
                                         </p>
                                     </div>
                                 </div>
@@ -121,13 +118,13 @@ export default function MutiraoPage() {
                         </div>
                     </SectionCard>
 
-                    <div className="pt-4 space-y-4">
+                    <div className="pt-2 space-y-4">
                         <Link href="/no-ponto" className="block">
                             <Button
-                                className="w-full h-16 !text-lg !bg-brand !text-black shadow-2xl shadow-brand/10 uppercase font-black italic tracking-widest"
+                                className="w-full h-20 !text-xl !bg-brand !text-black shadow-2xl shadow-brand/20 uppercase font-black italic tracking-widest !rounded-[2rem]"
                                 icon={<CheckCircle2 size={24} />}
                             >
-                                COMEÇAR AGORA
+                                ESTOU NO PONTO
                             </Button>
                         </Link>
 

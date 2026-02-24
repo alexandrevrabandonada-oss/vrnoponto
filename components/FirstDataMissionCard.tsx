@@ -38,18 +38,18 @@ export function FirstDataMissionCard({ title = 'Mutirão de Auditoria' }: FirstD
             <div className="space-y-4">
                 <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-brand/80">{title}</p>
-                    <p className="text-xs text-white/70 mt-1">Três passos para fortalecer o sistema.</p>
+                    <p className="text-xs text-white/70 mt-1 leading-tight">Fortaleça o sistema em 3 ações rápidas.</p>
                 </div>
 
                 <div className="space-y-2">
                     <Link href="/no-ponto" className="block">
-                        <Button variant="primary" className="w-full h-11 !text-[10px] font-black uppercase tracking-widest">
+                        <Button variant="primary" className="w-full h-11 !text-[11px] font-black uppercase tracking-widest">
                             1. Estou no ponto
                         </Button>
                     </Link>
 
                     <Link href="/no-ponto" className="block">
-                        <Button variant="secondary" className="w-full h-11 !text-[10px] font-black uppercase tracking-widest">
+                        <Button variant="secondary" className="w-full h-11 !text-[11px] font-black uppercase tracking-widest">
                             2. Registrar 1 evento
                         </Button>
                     </Link>
@@ -57,7 +57,7 @@ export function FirstDataMissionCard({ title = 'Mutirão de Auditoria' }: FirstD
                     <Button
                         variant="ghost"
                         onClick={handleShare}
-                        className="w-full h-11 !text-[10px] font-black uppercase tracking-widest bg-white/[0.04]"
+                        className="w-full h-11 !text-[11px] font-black uppercase tracking-widest bg-white/[0.04]"
                         icon={<Share2 size={14} />}
                     >
                         3. Compartilhar boletim

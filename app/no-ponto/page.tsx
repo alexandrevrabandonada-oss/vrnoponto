@@ -255,8 +255,7 @@ export default function NoPonto() {
     const currentStop = nearestStops.find(s => s.id === selectedStop);
 
     return (
-        <AppShell hideHeader>
-            <PublicTopBar title="No Ponto" />
+        <AppShell title="No Ponto">
 
             <div className="max-w-md mx-auto py-8 space-y-8">
                 <PageHeader
@@ -372,7 +371,7 @@ export default function NoPonto() {
                                                 Buscar ponto pelo nome
                                             </Button>
 
-                                            {location && !isLoadingStops && (
+                                            {location && nearestStops.length === 0 && !isLoadingStops && (
                                                 <button
                                                     type="button"
                                                     onClick={() => {
@@ -673,15 +672,6 @@ export default function NoPonto() {
                 </NextStepBlock>
             </div>
 
-            <HelpModal
-                storageKey="help_no_ponto_v1"
-                tips={[
-                    "O GPS é capturado automáticamente ao abrir a página.",
-                    "Sempre selecione o ponto correto da lista para que seu dado seja computado.",
-                    "Após fazer check-in, você pode registrar passagem ou embarque com 1 toque.",
-                    "Se não encontrar seu ponto, use 'Sugerir ponto aqui' para ajudar a mapear a cidade.",
-                ]}
-            />
 
             {showSuggestionModal && location && (
                 <StopSuggestionModal
