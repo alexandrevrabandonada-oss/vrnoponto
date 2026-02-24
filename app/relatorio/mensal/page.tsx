@@ -257,9 +257,9 @@ export default async function MonthlyReportPage({ searchParams }: { searchParams
                             <strong>Aviso de Metodologia:</strong> Os dados deste relatório mensal são construídos de forma colaborativa (`crowdsourcing`), ou seja, alimentados pelos próprios passageiros que usam o sistema <em>VR no Ponto</em>.
                         </p>
                         <ul className="list-disc pl-5 space-y-1">
-                            <li><strong>Tempo Típico (p50):</strong> Indica o tempo de espera que ocorre na maioria das vezes.</li>
-                            <li><strong>Cenário Crítico (p90):</strong> Indica o tempo em que 90% das passagens ocorreram (cenário de alta espera).</li>
-                            <li>Apenas pontos/linhas com <strong>Mínimo de 3 amostras</strong> validadas no mês aparecem na consolidação final.</li>
+                            <li><strong>Tempo Típico:</strong> Tempo de espera que ocorre na maioria das vezes (p50).</li>
+                            <li><strong>Cenário Crítico:</strong> Tempo em que 90% das passagens ocorreram (cenário de alta espera).</li>
+                            <li>Apenas pontos/linhas com <strong>Amostra Mínima</strong> (3 relatos) validados no mês aparecem na consolidação final.</li>
                         </ul>
                     </div>
                 </div>

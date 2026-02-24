@@ -3,13 +3,20 @@
 import * as React from 'react';
 import { HelpCircle, X } from 'lucide-react';
 
+import { GLOSSARY, GlossaryKey } from '@/lib/glossary';
+
 interface GlossaryHintProps {
-    title: string;
-    content: string;
+    title?: string;
+    content?: string;
+    term?: GlossaryKey;
     className?: string;
 }
 
-export function GlossaryHint({ title, content, className = '' }: GlossaryHintProps) {
+export function GlossaryHint({ title, content, term, className = '' }: GlossaryHintProps) {
+    const termData = term ? GLOSSARY[term] : null;
+    const displayTitle = termData?.title || title || '';
+    const displayContent = termData?.description || content || '';
+
     const [isOpen, setIsOpen] = React.useState(false);
     const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -46,7 +53,7 @@ export function GlossaryHint({ title, content, className = '' }: GlossaryHintPro
             <button
                 onClick={toggle}
                 className="p-1 rounded-full text-white/30 hover:text-brand hover:bg-white/5 transition-colors focus:outline-none focus:ring-1 focus:ring-brand/50"
-                aria-label={`Ajuda para ${title}`}
+                aria-label={`Ajuda para ${displayTitle}`}
                 type="button"
             >
                 <HelpCircle size={14} />
@@ -59,7 +66,7 @@ export function GlossaryHint({ title, content, className = '' }: GlossaryHintPro
                     aria-modal="true"
                 >
                     <div className="flex items-start justify-between gap-3 mb-2">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-brand">{title}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-brand">{displayTitle}</p>
                         <button
                             onClick={() => setIsOpen(false)}
                             className="p-1 -mr-1 rounded-lg text-white/20 hover:text-white"
@@ -68,7 +75,7 @@ export function GlossaryHint({ title, content, className = '' }: GlossaryHintPro
                         </button>
                     </div>
                     <p className="text-[11px] font-medium leading-relaxed text-white/70 italic">
-                        {content}
+                        {displayContent}
                     </p>
 
                     {/* Arrow */}

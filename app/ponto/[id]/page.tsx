@@ -160,8 +160,7 @@ export default function PontoDetailPage() {
                             value={metrics.p50_wait_min ? `${metrics.p50_wait_min}m` : '--'}
                             trend="Espera comum"
                             icon={<Timer className="text-brand/50" size={16} />}
-                            hintTitle="Tempo Típico"
-                            hintContent="É o tempo que o ônibus costuma levar na maior parte do dia."
+                            term="tempo_tipico"
                         />
                         <MetricCard
                             label="Cenário Crítico"
@@ -169,16 +168,14 @@ export default function PontoDetailPage() {
                             trendColor="danger"
                             trend="Pior caso"
                             icon={<AlertTriangle className="text-danger/50" size={16} />}
-                            hintTitle="Cenário Crítico"
-                            hintContent="O pior tempo registrado. É o que você pode esperar nos piores horários."
+                            term="cenario_critico"
                         />
                         <MetricCard
                             label="Confiabilidade"
                             value={data.trust_mix ? `${data.trust_mix.pct_verified}%` : metrics.samples > 20 ? 'Alta' : 'Em análise'}
                             trend={metrics.samples > 50 ? 'Auditado' : 'Consolidando'}
                             icon={<ShieldCheck className="text-emerald-500/50" size={16} />}
-                            hintTitle="Confiabilidade"
-                            hintContent="Quanto a gente pode confiar nos dados baseado na quantidade e frequência de relatos."
+                            term="confiabilidade"
                         />
                     </div>
 
@@ -250,8 +247,7 @@ export default function PontoDetailPage() {
                                                     value: `${w.samples} relatos`,
                                                     isPositive: w.samples > 30
                                                 }}
-                                                hintTitle="Relatos mínimos"
-                                                hintContent="Precisamos de pelo menos 3 relatos pra mostrar uma média segura."
+                                                term="amostra_minima"
                                             />
                                         ))
                                     )}

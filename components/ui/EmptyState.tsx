@@ -5,6 +5,8 @@ import { LucideIcon, MapPin, Search } from 'lucide-react';
 import { Button } from './Button';
 import { GlossaryHint } from './GlossaryHint';
 
+import { GlossaryKey } from '@/lib/glossary';
+
 interface EmptyStateProps {
     icon: LucideIcon;
     title: string;
@@ -18,6 +20,7 @@ interface EmptyStateProps {
     children?: React.ReactNode;
     hintTitle?: string;
     hintContent?: string;
+    term?: GlossaryKey;
 }
 
 export const EmptyState = ({
@@ -32,7 +35,8 @@ export const EmptyState = ({
     className = '',
     children,
     hintTitle,
-    hintContent
+    hintContent,
+    term
 }: EmptyStateProps) => {
     return (
         <div className={`flex flex-col items-center justify-center p-12 text-center animate-in fade-in zoom-in-95 duration-500 bg-white/[0.01] border border-dashed border-white/5 rounded-3xl ${className}`}>
@@ -46,8 +50,8 @@ export const EmptyState = ({
             <div className="space-y-3 max-w-sm mx-auto mb-8">
                 <h3 className="flex items-center justify-center gap-2 font-industrial text-xl uppercase tracking-widest text-white italic">
                     {title}
-                    {hintTitle && hintContent && (
-                        <GlossaryHint title={hintTitle} content={hintContent} />
+                    {(term || (hintTitle && hintContent)) && (
+                        <GlossaryHint term={term} title={hintTitle} content={hintContent} />
                     )}
                 </h3>
                 <p className="text-[10px] font-bold text-muted uppercase tracking-tight leading-relaxed opacity-60">

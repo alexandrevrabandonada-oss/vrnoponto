@@ -222,8 +222,7 @@ export default function BoletimPage() {
                             onAction={() => window.location.href = '/no-ponto'}
                             secondaryActionLabel="Como Funciona"
                             onSecondaryAction={() => window.location.href = '/como-usar'}
-                            hintTitle="Amostra mínima"
-                            hintContent="Número de registros necessários pra que o cálculo faça sentido e seja real."
+                            term="amostra_minima"
                         />
                     ) : (
                         <>
@@ -235,16 +234,14 @@ export default function BoletimPage() {
                                         value={data.summary.critCount}
                                         trendColor="danger"
                                         trend={t('status.bad')}
-                                        hintTitle="Cenário crítico"
-                                        hintContent="Quantidade de alertas com piora forte no período."
+                                        term="cenario_critico"
                                     />
                                     <MetricCard
                                         label={t('alerts.warning')}
                                         value={data.summary.warnCount}
                                         trendColor="brand"
                                         trend={t('status.delay')}
-                                        hintTitle="Confiabilidade"
-                                        hintContent="Com mais relatos, os alertas refletem melhor a realidade."
+                                        term="confiabilidade"
                                     />
                                 </div>
                             )}

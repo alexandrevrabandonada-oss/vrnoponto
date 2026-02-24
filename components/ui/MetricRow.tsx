@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
+import { GlossaryKey } from '@/lib/glossary';
 import { GlossaryHint } from './GlossaryHint';
 
 export interface MetricRowProps {
@@ -21,6 +22,7 @@ export interface MetricRowProps {
     };
     hintTitle?: string;
     hintContent?: string;
+    term?: GlossaryKey;
 }
 
 export const MetricRow = ({
@@ -35,7 +37,8 @@ export const MetricRow = ({
     unit,
     trend,
     hintTitle,
-    hintContent
+    hintContent,
+    term
 }: MetricRowProps) => {
 
 
@@ -58,8 +61,8 @@ export const MetricRow = ({
                     <span className="font-industrial text-[11px] text-muted uppercase tracking-widest">
                         {label}
                     </span>
-                    {hintTitle && hintContent && (
-                        <GlossaryHint title={hintTitle} content={hintContent} />
+                    {(term || (hintTitle && hintContent)) && (
+                        <GlossaryHint term={term} title={hintTitle} content={hintContent} />
                     )}
                 </div>
                 {finalSublabel && (
