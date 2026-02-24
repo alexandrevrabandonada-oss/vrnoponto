@@ -21,3 +21,5 @@ export * from './SecondaryCTA';
 export * from './MetricCard';
 export * from './SectionCard';
 export * from './IconButton';
+export * from './PublicTopBar';
+export * from './NextStepBlock';

@@ -6,7 +6,7 @@ import { RatingModal } from '@/components/RatingModal';
 import { QRScanner } from '@/components/QRScanner';
 import { QrCode, Navigation, MapPin, Bus, ChevronRight, Share2, Loader2, ChevronDown } from 'lucide-react';
 import { HelpModal } from '@/components/HelpModal';
-import { AppShell, PageHeader, Button, Card, Divider, Field, Textarea, InlineAlert, PrimaryCTA, SecondaryCTA, SectionCard } from '@/components/ui';
+import { AppShell, PageHeader, Button, Card, Divider, Field, Textarea, InlineAlert, PrimaryCTA, SecondaryCTA, SectionCard, PublicTopBar, NextStepBlock } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { suggestLine, SuggestedLine } from '@/lib/suggestLine';
 import { OneTapCard } from '@/components/OneTapCard';
@@ -93,158 +93,160 @@ export default function Registrar() {
     const currentStop = nearestStops.find(s => s.id === selectedStopId);
 
     return (
-        <AppShell title="REGISTRAR AUDITORIA">
-            <PageHeader
-                title={registrationComplete ? "Relato Concluído!" : "Relatar Presença"}
-                subtitle={registrationComplete ? "Seu dado já está ajudando a cidade." : `Relate agora onde você está`}
-            />
+        <AppShell hideHeader>
+            <PublicTopBar title="Registrar" />
 
-            <div className="space-y-6">
-                {(!isOnline || pendingCount > 0) && (
-                    <InlineAlert
-                        variant={isOnline ? "warning" : "error"}
-                        title={isOnline ? "Sincronizando Dados" : "Internet Instável (Offline)"}
-                    >
-                        <div className="flex flex-col gap-3 mt-1">
-                            <p className="text-xs">
-                                {!isOnline
-                                    ? "Você está sem internet. O registro ficará salvo no celular e será enviado assim que a rede voltar."
-                                    : "A rede voltou. Enviando os relatos que estavam guardados..."}
-                            </p>
-                        </div>
-                    </InlineAlert>
-                )}
+            <div className="max-w-md mx-auto py-4 space-y-6">
+                <PageHeader
+                    title={registrationComplete ? "Relato Concluído!" : "Relatar Presença"}
+                    subtitle={registrationComplete ? "Seu dado já está ajudando a cidade." : `Relate agora onde você está`}
+                />
 
-                {!registrationComplete ? (
-                    <>
-                        <Card variant="surface2" className="border-white/5 bg-white/[0.02]" aria-label="Status da Localização">
-                            <div className="flex items-center gap-3">
-                                <Navigation size={14} className={location ? "text-brand" : "text-zinc-600 animate-pulse"} aria-hidden="true" />
-                                <div className="flex-1">
-                                    <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Localização</p>
-                                    <p className="text-xs font-bold text-white uppercase truncate">
-                                        {location ? "Localizado via GPS" : gpsStatus}
-                                    </p>
-                                </div>
-                                {selectedStopId && (
-                                    <div className="text-right">
-                                        <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Seu Ponto</p>
-                                        <p className="text-xs font-bold text-brand uppercase truncate max-w-[120px]">
-                                            {currentStop?.name || queryStopId || 'Detectando...'}
+                <div className="space-y-6">
+                    {(!isOnline || pendingCount > 0) && (
+                        <InlineAlert
+                            variant={isOnline ? "warning" : "error"}
+                            title={isOnline ? "Sincronizando Dados" : "Internet Instável (Offline)"}
+                        >
+                            <div className="flex flex-col gap-3 mt-1">
+                                <p className="text-xs">
+                                    {!isOnline
+                                        ? "Você está sem internet. O registro ficará salvo no celular e será enviado assim que a rede voltar."
+                                        : "A rede voltou. Enviando os relatos que estavam guardados..."}
+                                </p>
+                            </div>
+                        </InlineAlert>
+                    )}
+
+                    {!registrationComplete ? (
+                        <>
+                            <Card variant="surface2" className="border-white/5 bg-white/[0.02]" aria-label="Status da Localização">
+                                <div className="flex items-center gap-3">
+                                    <Navigation size={14} className={location ? "text-brand" : "text-zinc-600 animate-pulse"} aria-hidden="true" />
+                                    <div className="flex-1">
+                                        <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Localização</p>
+                                        <p className="text-xs font-bold text-white uppercase truncate">
+                                            {location ? "Localizado via GPS" : gpsStatus}
                                         </p>
                                     </div>
-                                )}
-                            </div>
-                        </Card>
-
-                        {selectedStopId && (
-                            <OneTapCard
-                                stopId={selectedStopId}
-                                stopName={currentStop?.name || 'Local Atual'}
-                                mode="registrar"
-                                onRecorded={(result) => {
-                                    if (result.ok) {
-                                        if (result.queued) {
-                                            setMessage("SALVO NO CELULAR");
-                                        } else {
-                                            const trust = result.trust_level || 'L1';
-                                            setLastTrust(trust);
-                                            setLastMethod(trust === 'L3' ? 'TRAJETO' : trust);
-                                            setMessage("RELATO ENVIADO!");
-                                        }
-                                        setRegistrationComplete(true);
-                                        setIsModalOpen(true);
-                                    }
-                                }}
-                            />
-                        )}
-
-                        {!selectedStopId && !location && (
-                            <Card className="p-12 text-center border-dashed border-white/5 bg-white/[0.01]">
-                                <Loader2 className="animate-spin text-brand mx-auto mb-4" size={32} aria-hidden="true" />
-                                <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Iniciando auditoria...</p>
+                                    {selectedStopId && (
+                                        <div className="text-right">
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Seu Ponto</p>
+                                            <p className="text-xs font-bold text-brand uppercase truncate max-w-[120px]">
+                                                {currentStop?.name || queryStopId || 'Detectando...'}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
                             </Card>
-                        )}
 
-                        <div className="pt-4 space-y-4">
-                            <Divider label="MEIOS DE PROVA" />
-                            <div className="grid grid-cols-2 gap-3">
-                                <SecondaryCTA
-                                    onClick={() => setIsScannerOpen(true)}
-                                    icon={<QrCode size={18} aria-hidden="true" />}
-                                    aria-label="Escanear QR Code no ponto parceiro"
-                                >
-                                    QR CODE
-                                </SecondaryCTA>
-                                <SecondaryCTA
-                                    onClick={() => { /* toggle observation */ }}
-                                    icon={<ChevronDown size={18} aria-hidden="true" />}
-                                    aria-label="Adicionar uma observação ao relato"
-                                >
-                                    OBSERVAR
-                                </SecondaryCTA>
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500" role="alert">
-                        {message && (
-                            <div className={`p-8 rounded-[2.5rem] text-center font-industrial text-2xl tracking-widest border-2 shadow-xl ${message.includes('ERRO')
-                                ? 'bg-danger/10 border-danger/20 text-danger'
-                                : 'bg-brand/10 border-brand/20 text-brand'
-                                }`}>
-                                {message}
-                                {lastTrust === 'L3' && (
-                                    <p className="text-[10px] uppercase font-sans font-black tracking-tighter opacity-70 mt-2 text-white/60">
-                                        PROVA FORTE ATIVADA
-                                    </p>
-                                )}
-                            </div>
-                        )}
+                            {selectedStopId && (
+                                <OneTapCard
+                                    stopId={selectedStopId}
+                                    stopName={currentStop?.name || 'Local Atual'}
+                                    mode="registrar"
+                                    onRecorded={(result) => {
+                                        if (result.ok) {
+                                            if (result.queued) {
+                                                setMessage("SALVO NO CELULAR");
+                                            } else {
+                                                const trust = result.trust_level || 'L1';
+                                                setLastTrust(trust);
+                                                setLastMethod(trust === 'L3' ? 'TRAJETO' : trust);
+                                                setMessage("RELATO ENVIADO!");
+                                            }
+                                            setRegistrationComplete(true);
+                                            setIsModalOpen(true);
+                                        }
+                                    }}
+                                />
+                            )}
 
-                        <SectionCard title="Próximos Passos" subtitle="O que você deseja fazer agora?">
-                            <div className="grid grid-cols-1 gap-4 text-left">
-                                <Link href={`/ponto/${selectedStopId}`}>
-                                    <Card variant="surface2" className="group flex items-center justify-between !p-5 border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all cursor-pointer">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-2.5 bg-white/5 rounded-xl group-hover:bg-brand group-hover:text-black transition-colors">
-                                                <MapPin size={22} />
-                                            </div>
-                                            <div>
-                                                <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-1">Painel Público</p>
-                                                <p className="font-industrial text-base text-white tracking-tight leading-none">VER ESTE PONTO</p>
-                                            </div>
+                            {!selectedStopId && !location && (
+                                <Card className="p-12 text-center border-dashed border-white/5 bg-white/[0.01]">
+                                    <Loader2 className="animate-spin text-brand mx-auto mb-4" size={32} aria-hidden="true" />
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Iniciando auditoria...</p>
+                                </Card>
+                            )}
+
+                            <div className="pt-4 space-y-4">
+                                <Divider label="MEIOS DE PROVA" />
+                                <div className="grid grid-cols-2 gap-3">
+                                    <SecondaryCTA
+                                        onClick={() => setIsScannerOpen(true)}
+                                        icon={<QrCode size={18} aria-hidden="true" />}
+                                        aria-label="Escanear QR Code no ponto parceiro"
+                                    >
+                                        QR CODE
+                                    </SecondaryCTA>
+                                    <SecondaryCTA
+                                        onClick={() => { /* toggle observation */ }}
+                                        icon={<ChevronDown size={18} aria-hidden="true" />}
+                                        aria-label="Adicionar uma observação ao relato"
+                                    >
+                                        OBSERVAR
+                                    </SecondaryCTA>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500" role="alert">
+                            {message && (
+                                <div className={`p-8 rounded-[2.5rem] text-center font-industrial text-2xl tracking-widest border-2 shadow-xl ${message.includes('ERRO')
+                                    ? 'bg-danger/10 border-danger/20 text-danger'
+                                    : 'bg-brand/10 border-brand/20 text-brand'
+                                    }`}>
+                                    {message}
+                                    {lastTrust === 'L3' && (
+                                        <p className="text-[10px] uppercase font-sans font-black tracking-tighter opacity-70 mt-2 text-white/60">
+                                            PROVA FORTE ATIVADA
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
+                            <NextStepBlock>
+                                <Link href={`/ponto/${selectedStopId}`} className="block">
+                                    <Button
+                                        variant="secondary"
+                                        className="w-full justify-between group h-14"
+                                        icon={<ChevronRight className="opacity-0 group-hover:opacity-100 transition-all" />}
+                                        iconPosition="right"
+                                    >
+                                        <div className="text-left">
+                                            <p className="text-[8px] uppercase tracking-widest opacity-60">Status Real</p>
+                                            <p>Ver este ponto</p>
                                         </div>
-                                        <ChevronRight size={20} className="text-white/20" />
-                                    </Card>
+                                    </Button>
                                 </Link>
 
-                                <Link href="/boletim">
-                                    <Card variant="surface2" className="group flex items-center justify-between !p-5 border-brand/10 bg-brand/5 hover:bg-brand/10 transition-all cursor-pointer">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-2.5 bg-brand/10 rounded-xl group-hover:bg-brand group-hover:text-black transition-colors">
-                                                <Share2 size={22} />
-                                            </div>
-                                            <div>
-                                                <p className="text-[9px] font-black uppercase tracking-widest text-brand/60 mb-1 leading-none">Transparência</p>
-                                                <p className="font-industrial text-lg text-brand tracking-tight leading-none">COMPARTILHAR BOLETIM</p>
-                                            </div>
+                                <Link href="/boletim" className="block">
+                                    <Button
+                                        variant="primary"
+                                        className="w-full justify-between group h-14"
+                                        icon={<Share2 className="opacity-50 group-hover:opacity-100 transition-all" />}
+                                        iconPosition="right"
+                                    >
+                                        <div className="text-left">
+                                            <p className="text-[8px] uppercase tracking-widest opacity-60 font-black">Impacto</p>
+                                            <p>Ver Boletim</p>
                                         </div>
-                                        <ChevronRight size={20} className="text-brand/40" />
-                                    </Card>
+                                    </Button>
                                 </Link>
+                            </NextStepBlock>
 
-                                <SecondaryCTA
+                            <div className="text-center">
+                                <Button
                                     variant="ghost"
                                     onClick={() => setRegistrationComplete(false)}
-                                    className="!h-10 !text-[10px] opacity-40 hover:opacity-100"
+                                    className="text-[10px] opacity-40 hover:opacity-100"
                                 >
                                     Registrar outro ônibus
-                                </SecondaryCTA>
+                                </Button>
                             </div>
-                        </SectionCard>
-                    </div>
-                )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {isScannerOpen && (
