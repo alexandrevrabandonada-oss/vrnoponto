@@ -16,6 +16,7 @@ export interface OneTapResult {
     trust_level?: string;
     event_id?: string;
     client_event_id?: string;
+    event_type?: OneTapEventType;
 }
 
 interface TopLine {
@@ -228,9 +229,10 @@ export function useOneTap({ stopId, defaultLineId, onRecorded }: UseOneTapOption
                 const result: OneTapResult = {
                     ok: true,
                     queued: true,
-                    client_event_id: clientEventId
+                    client_event_id: clientEventId,
+                    event_type: eventType
                 };
-                setFeedback({ type: 'queued', text: 'Salvo (vai sincronizar)' });
+                setFeedback({ type: 'queued', text: 'Salvo no celular. Envio quando voltar.' });
                 onRecorded?.(result);
                 return result;
             }
@@ -263,7 +265,8 @@ export function useOneTap({ stopId, defaultLineId, onRecorded }: UseOneTapOption
                 queued: false,
                 trust_level: trustLevel,
                 event_id: data.event?.id || undefined,
-                client_event_id: clientEventId
+                client_event_id: clientEventId,
+                event_type: eventType
             };
             setFeedback({ type: 'ok', text: 'Registrado ✓' });
             onRecorded?.(result);

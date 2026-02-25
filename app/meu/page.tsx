@@ -7,8 +7,6 @@ import {
     WifiOff,
     History,
     MapPin,
-    Bus,
-    ChevronRight,
     RefreshCw,
     Trash2,
     Info,
@@ -25,9 +23,13 @@ import {
 import { useDeviceId } from '@/hooks/useDeviceId';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { getPendingEvents, clearEventQueue } from '@/lib/offlineQueue';
+import { ServiceRatingCard } from '@/components/ServiceRatingCard';
+
+type ServiceRating = 'GOOD' | 'REGULAR' | 'BAD';
 
 interface AuditEvent {
     id: string;
+    clientEventId?: string | null;
     stopId: string;
     stopName: string;
     lineId: string;
@@ -36,6 +38,8 @@ interface AuditEvent {
     eventType: string;
     occurredAt: string | number;
     trustLevel: string;
+    service_rating: ServiceRating | null;
+    service_rating_at: string | null;
     status: 'SENT' | 'PENDING' | 'FAILED';
 }
 
@@ -65,8 +69,11 @@ export default function MeuAuditoriaPage() {
 
             // 2. Fetch Local Pending Events
             const pendingParams = await getPendingEvents(20);
-            const localEvents: AuditEvent[] = pendingParams.map(p => ({
+            const localEvents: AuditEvent[] = pendingParams
+                .filter((p) => (p.kind || 'event_record') === 'event_record')
+                .map(p => ({
                 id: p.id,
+                clientEventId: (p.payload.clientEventId as string | undefined) || p.id,
                 stopId: p.payload.stopId as string,
                 stopName: 'Ponto (sincronizando...)',
                 lineId: p.payload.lineId as string,
@@ -75,8 +82,10 @@ export default function MeuAuditoriaPage() {
                 eventType: p.payload.eventType as string,
                 occurredAt: p.created_at,
                 trustLevel: 'L1',
+                service_rating: null,
+                service_rating_at: null,
                 status: p.status === 'FAILED' ? 'FAILED' : 'PENDING'
-            }));
+                }));
 
             // 3. Merge and Sort
             const allEvents = [...localEvents, ...remoteEvents].sort((a, b) => {
@@ -96,6 +105,10 @@ export default function MeuAuditoriaPage() {
     React.useEffect(() => {
         loadData();
     }, [loadData, pendingCount]);
+
+    const latestBoardingWithoutRating = React.useMemo(() => (
+        events.find((ev) => ev.eventType === 'boarding' && !ev.service_rating && !!ev.clientEventId) || null
+    ), [events]);
 
     const handleSync = async () => {
         if (!isOnline) {
@@ -157,6 +170,28 @@ export default function MeuAuditoriaPage() {
                     title="Seu Impacto"
                     subtitle="Central de sincronização offline e dados locais."
                 />
+
+                {latestBoardingWithoutRating && (
+                    <ServiceRatingCard
+                        deviceId={deviceId}
+                        clientEventId={latestBoardingWithoutRating.clientEventId}
+                        eventId={latestBoardingWithoutRating.status === 'SENT' ? latestBoardingWithoutRating.id : null}
+                        eventType={latestBoardingWithoutRating.eventType}
+                        initialRating={latestBoardingWithoutRating.service_rating}
+                        initialRatingAt={latestBoardingWithoutRating.service_rating_at}
+                        title="Avaliar última viagem"
+                        onSaved={(rating) => {
+                            setEvents((prev) => prev.map((ev) => {
+                                if (ev.clientEventId !== latestBoardingWithoutRating.clientEventId) return ev;
+                                return {
+                                    ...ev,
+                                    service_rating: rating,
+                                    service_rating_at: new Date().toISOString()
+                                };
+                            }));
+                        }}
+                    />
+                )}
 
                 {/* Status Card: Contador Grande */}
                 <Card variant="surface" className={`relative overflow-hidden border-2 transition-all ${pendingCount > 0 ? 'border-brand bg-brand/5 shadow-[0_0_30px_rgba(var(--brand-rgb),0.1)]' : 'border-white/5 bg-white/[0.02]'}`}>

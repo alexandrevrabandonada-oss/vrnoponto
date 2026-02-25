@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
             .from('stop_events')
             .select(`
                 id,
+                client_event_id,
                 stop_id,
                 line_id,
                 event_type,
@@ -32,6 +33,7 @@ export async function GET(req: NextRequest) {
 
         interface RawEvent {
             id: string;
+            client_event_id?: string | null;
             stop_id: string;
             line_id: string;
             event_type: string;
@@ -41,9 +43,40 @@ export async function GET(req: NextRequest) {
             lines?: { code: string, name: string } | null;
         }
 
+        interface RatingRow {
+            client_event_id: string;
+            rating: 'GOOD' | 'REGULAR' | 'BAD';
+            rating_at: string;
+        }
+
+        const rawEvents = (data as unknown as RawEvent[]) || [];
+        const clientEventIds = rawEvents
+            .map((ev) => ev.client_event_id)
+            .filter((id): id is string => typeof id === 'string' && id.length > 0);
+
+        const ratingsByClientEventId = new Map<string, RatingRow>();
+
+        if (clientEventIds.length > 0) {
+            const { data: ratingsData, error: ratingsError } = await supabase
+                .from('event_service_ratings')
+                .select('client_event_id, rating, rating_at')
+                .eq('device_id', deviceId)
+                .in('client_event_id', clientEventIds);
+
+            if (ratingsError) throw ratingsError;
+
+            ((ratingsData as unknown as RatingRow[]) || []).forEach((row) => {
+                ratingsByClientEventId.set(row.client_event_id, row);
+            });
+        }
+
         // Clean up the response to match a simpler format
-        const events = (data as unknown as RawEvent[] || []).map((ev) => ({
+        const events = rawEvents.map((ev) => {
+            const ratingRow = ev.client_event_id ? ratingsByClientEventId.get(ev.client_event_id) : undefined;
+
+            return {
             id: ev.id,
+            clientEventId: ev.client_event_id || null,
             stopId: ev.stop_id,
             stopName: ev.stops?.name || 'Ponto desconhecido',
             lineId: ev.line_id,
@@ -52,8 +85,11 @@ export async function GET(req: NextRequest) {
             eventType: ev.event_type,
             occurredAt: ev.occurred_at,
             trustLevel: ev.trust_level,
+            service_rating: ratingRow?.rating || null,
+            service_rating_at: ratingRow?.rating_at || null,
             status: 'SENT' as const
-        }));
+            };
+        });
 
         return NextResponse.json({ events });
 

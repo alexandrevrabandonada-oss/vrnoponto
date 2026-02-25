@@ -2,27 +2,22 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useDeviceId } from '@/hooks/useDeviceId';
-import { RatingModal } from '@/components/RatingModal';
 import { QRScanner } from '@/components/QRScanner';
-import { QrCode, Navigation, ChevronRight, Share2, Loader2, ChevronDown, Camera, Bus, Search } from 'lucide-react';
+import { QrCode, Navigation, Loader2, ChevronDown, Camera, Bus, Search } from 'lucide-react';
 import {
-    AppShell, PageHeader, Button, Card, Divider, InlineAlert, SecondaryCTA, NextStepBlock, RecordReceipt
+    AppShell, PageHeader, Button, Card, Divider, InlineAlert, SecondaryCTA, RecordReceipt
 } from '@/components/ui';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { suggestLine } from '@/lib/suggestLine';
 import { OneTapCard } from '@/components/OneTapCard';
+import type { OneTapResult } from '@/hooks/useOneTap';
 import { BusPhotoModal } from '@/components/BusPhotoModal';
 import { LineSearchModal } from '@/components/LineSearchModal';
 import { BusPhotoDraft, getRecentBusPhotoDraft } from '@/lib/busPhotoDraft';
+import { ServiceRatingCard } from '@/components/ServiceRatingCard';
 import Link from 'next/link';
 import { saveLastLine } from '@/lib/suggestLine';
 import { trackFunnel, FUNNEL_EVENTS } from '@/lib/telemetry';
-
-const TRUST_COPY: Record<string, string> = {
-    L1: 'vale como relato.',
-    L2: 'confirmado por mais gente.',
-    L3: 'prova forte.'
-};
 
 const DAILY_TIPS = [
     "Se puder, registre 'passou' e depois 'entrei' - melhora a prova.",
@@ -43,13 +38,12 @@ export default function Registrar() {
 
     const [selectedStopId, setSelectedStopId] = useState<string | null>(queryStopId);
     const [selectedLineId, setSelectedLineId] = useState<string | null>(queryLineId);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
     const [isLineSearchOpen, setIsLineSearchOpen] = useState(false);
     const [isBusPhotoModalOpen, setIsBusPhotoModalOpen] = useState(false);
-    const [message, setMessage] = useState('');
     const [registrationComplete, setRegistrationComplete] = useState(false);
     const [registrationData, setRegistrationData] = useState<{ trust_level?: string; queued?: boolean } | null>(null);
+    const [lastRecorded, setLastRecorded] = useState<OneTapResult | null>(null);
     const [recentPhotoDraft, setRecentPhotoDraft] = useState<BusPhotoDraft | null>(() =>
         typeof window === 'undefined' ? null : getRecentBusPhotoDraft()
     );
@@ -214,8 +208,8 @@ export default function Registrar() {
                                                     trust_level: result.trust_level,
                                                     queued: result.queued
                                                 });
+                                                setLastRecorded(result);
                                                 setRegistrationComplete(true);
-                                                setIsModalOpen(true);
                                                 trackFunnel(FUNNEL_EVENTS.EVENT_RECORDED);
                                             }
                                         }}
@@ -286,6 +280,14 @@ export default function Registrar() {
                         </>
                     ) : (
                         <div className="space-y-8">
+                            <ServiceRatingCard
+                                deviceId={deviceId}
+                                clientEventId={lastRecorded?.client_event_id}
+                                eventId={lastRecorded?.event_id}
+                                eventType={lastRecorded?.event_type}
+                                title="Como foi o serviço nesta viagem?"
+                            />
+
                             <RecordReceipt
                                 stopId={selectedStopId || ''}
                                 stopName={currentStop?.name || 'selecionado'}
@@ -355,13 +357,6 @@ export default function Registrar() {
                 location={location}
                 isOnline={isOnline}
                 onSaved={(draft) => setRecentPhotoDraft(draft)}
-            />
-
-            <RatingModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                lineId={selectedLineId || ''}
-                deviceId={deviceId}
             />
         </AppShell>
     );

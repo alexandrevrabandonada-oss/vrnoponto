@@ -15,8 +15,10 @@ import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { useUiPrefs } from '@/lib/useUiPrefs';
 import { enqueueEvent } from '@/lib/offlineQueue';
 import { OneTapCard } from '@/components/OneTapCard';
+import type { OneTapResult } from '@/hooks/useOneTap';
 import { BusPhotoModal } from '@/components/BusPhotoModal';
 import { BusPhotoDraft, getRecentBusPhotoDraft } from '@/lib/busPhotoDraft';
+import { ServiceRatingCard } from '@/components/ServiceRatingCard';
 import Link from 'next/link';
 import { trackFunnel, FUNNEL_EVENTS } from '@/lib/telemetry';
 
@@ -37,6 +39,7 @@ export default function NoPonto() {
     const [hasArrived, setHasArrived] = useState(false);
     const [showSuggestionModal, setShowSuggestionModal] = useState(false);
     const [isBusPhotoModalOpen, setIsBusPhotoModalOpen] = useState(false);
+    const [lastRecorded, setLastRecorded] = useState<OneTapResult | null>(null);
     const [recentPhotoDraft, setRecentPhotoDraft] = useState<BusPhotoDraft | null>(() =>
         typeof window === 'undefined' ? null : getRecentBusPhotoDraft()
     );
@@ -686,9 +689,17 @@ export default function NoPonto() {
                             <OneTapCard
                                 stopId={selectedStop}
                                 stopName={currentStop?.name || 'Ponto Selecionado'}
-                                onRecorded={() => {
+                                onRecorded={(result) => {
                                     setRecentPhotoDraft(getRecentBusPhotoDraft());
+                                    setLastRecorded(result);
                                 }}
+                            />
+                            <ServiceRatingCard
+                                deviceId={deviceId}
+                                clientEventId={lastRecorded?.client_event_id}
+                                eventId={lastRecorded?.event_id}
+                                eventType={lastRecorded?.event_type}
+                                title="Como foi o serviço desta viagem?"
                             />
 
                             <Link
