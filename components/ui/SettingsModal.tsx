@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { X, ChevronRight, Lock, History, MapPin, Bell, Type, Trash2, AlertTriangle } from 'lucide-react';
-import { IconButton, AdminGuard } from './index';
+import { IconButton } from './index';
 import { useUiPrefs } from '@/lib/useUiPrefs';
 import Link from 'next/link';
 
@@ -216,7 +216,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                             </div>
                             <ChevronRight size={18} className="text-white/20" />
                         </Link>
-                        <AdminGuard><AdminLogin /></AdminGuard>
+                        <AdminLogin />
                     </div>
                 </div>
             </div>
