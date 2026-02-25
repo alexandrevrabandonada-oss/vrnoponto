@@ -69,7 +69,7 @@ export const InviteABDashboard = ({ adminToken }: { adminToken?: string }) => {
 
     if (loading) {
         return (
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex justify-center items-center text-gray-400">
+            <div className="bg-[#0c0f14] rounded-2xl border border-white/10 shadow-2xl p-6 flex justify-center items-center text-white/20">
                 <Loader2 className="animate-spin" />
             </div>
         );
@@ -78,28 +78,28 @@ export const InviteABDashboard = ({ adminToken }: { adminToken?: string }) => {
     if (variants.length === 0) return null;
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-[#0c0f14] rounded-2xl border border-white/10 shadow-2xl p-6">
             <div className="flex items-center gap-2 mb-6">
                 <div className="bg-brand/10 text-brand p-2 rounded-xl">
                     <Zap size={20} />
                 </div>
-                <h2 className="text-lg font-black text-gray-900">Teste A/B: Convites (30 dias)</h2>
+                <h2 className="text-lg font-black text-white italic uppercase tracking-tight">Teste A/B: Convites (30 dias)</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {variants.map(v => (
-                    <Card key={v.key} variant="surface" className={`border p-5 rounded-2xl relative ${v.is_active ? 'border-brand/30 bg-brand/5' : 'border-gray-200 bg-gray-50 opacity-70 grayscale'}`}>
+                    <Card key={v.key} variant="surface" className={`border p-5 rounded-2xl relative shadow-xl transition-all ${v.is_active ? 'border-brand/30 bg-brand/[0.03]' : 'border-white/5 bg-white/[0.02] opacity-50 grayscale'}`}>
                         <div className="flex justify-between items-start mb-4">
                             <div>
-                                <h3 className="font-industrial text-xl font-black text-gray-900 flex items-center gap-2">
+                                <h3 className="font-industrial text-xl font-black text-white italic flex items-center gap-2">
                                     VARIANTE {v.key}
-                                    {!v.is_active && <span className="text-[10px] bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full font-bold">DESATIVADA</span>}
+                                    {!v.is_active && <span className="text-[9px] bg-white/5 text-white/40 px-2 py-0.5 rounded-full font-black uppercase tracking-widest">DESATIVADA</span>}
                                 </h3>
-                                <p className="text-xs text-gray-500 font-bold uppercase truncate max-w-[200px]">{v.title}</p>
+                                <p className="text-[10px] text-brand font-black uppercase tracking-widest truncate max-w-[200px]">{v.title}</p>
                             </div>
                             <Button
                                 variant={v.is_active ? "secondary" : "primary"}
-                                className="!text-[10px] !px-3 !h-8"
+                                className="!text-[9px] !px-3 !h-8 !font-black uppercase tracking-widest"
                                 loading={actionLoading === v.key}
                                 onClick={() => toggleVariant(v.key, v.is_active)}
                             >
@@ -108,24 +108,24 @@ export const InviteABDashboard = ({ adminToken }: { adminToken?: string }) => {
                         </div>
 
                         <div className="grid grid-cols-3 gap-2 mb-4">
-                            <div className="bg-white px-3 py-2 rounded-xl shadow-sm border border-gray-100/50 flex flex-col items-center justify-center">
-                                <Users size={14} className="text-gray-400 mb-1" />
-                                <span className="text-lg font-black text-gray-900">{v.metrics.impressions}</span>
-                                <span className="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Prints</span>
+                            <div className="bg-white/5 px-3 py-2 rounded-xl border border-white/5 flex flex-col items-center justify-center">
+                                <Users size={14} className="text-white/20 mb-1" />
+                                <span className="text-lg font-black text-white italic">{v.metrics.impressions}</span>
+                                <span className="text-[9px] uppercase font-black text-white/20 tracking-widest">Prints</span>
                             </div>
-                            <div className="bg-white px-3 py-2 rounded-xl shadow-sm border border-gray-100/50 flex flex-col items-center justify-center">
-                                <Hand size={14} className="text-gray-400 mb-1" />
-                                <span className="text-lg font-black text-gray-900">{v.metrics.clicks}</span>
-                                <span className="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Clicks ({v.metrics.ctr.toFixed(1)}%)</span>
+                            <div className="bg-white/5 px-3 py-2 rounded-xl border border-white/5 flex flex-col items-center justify-center">
+                                <Hand size={14} className="text-white/20 mb-1" />
+                                <span className="text-lg font-black text-white italic">{v.metrics.clicks}</span>
+                                <span className="text-[9px] uppercase font-black text-white/20 tracking-widest">Clicks ({v.metrics.ctr.toFixed(1)}%)</span>
                             </div>
-                            <div className="bg-white px-3 py-2 rounded-xl shadow-sm border border-gray-100/50 flex flex-col items-center justify-center">
-                                <Target size={14} className="text-gray-400 mb-1" />
-                                <span className="text-lg font-black text-brand">{v.metrics.requests}</span>
-                                <span className="text-[9px] uppercase font-bold text-brand/70 tracking-wider">Leads ({v.metrics.conversionRate.toFixed(1)}%)</span>
+                            <div className="bg-white/5 px-3 py-2 rounded-xl border border-white/5 flex flex-col items-center justify-center">
+                                <Target size={14} className="text-brand/40 mb-1" />
+                                <span className="text-lg font-black text-brand italic">{v.metrics.requests}</span>
+                                <span className="text-[9px] uppercase font-black text-brand/40 tracking-widest">Leads ({v.metrics.conversionRate.toFixed(1)}%)</span>
                             </div>
                         </div>
 
-                        <div className="text-[11px] text-gray-500 italic bg-white/50 p-2 rounded-lg line-clamp-2">
+                        <div className="text-[11px] text-white/40 italic bg-white/[0.03] p-3 rounded-xl line-clamp-2 border border-white/5">
                             &quot;{v.message}&quot;
                         </div>
                     </Card>
