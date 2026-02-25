@@ -69,9 +69,7 @@ export default function MeuAuditoriaPage() {
 
             // 2. Fetch Local Pending Events
             const pendingParams = await getPendingEvents(20);
-            const localEvents: AuditEvent[] = pendingParams
-                .filter((p) => (p.kind || 'event_record') === 'event_record')
-                .map(p => ({
+            const localEvents: AuditEvent[] = pendingParams.map(p => ({
                 id: p.id,
                 clientEventId: (p.payload.clientEventId as string | undefined) || p.id,
                 stopId: p.payload.stopId as string,
@@ -85,7 +83,7 @@ export default function MeuAuditoriaPage() {
                 service_rating: null,
                 service_rating_at: null,
                 status: p.status === 'FAILED' ? 'FAILED' : 'PENDING'
-                }));
+            }));
 
             // 3. Merge and Sort
             const allEvents = [...localEvents, ...remoteEvents].sort((a, b) => {
