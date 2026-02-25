@@ -11,12 +11,13 @@ export const dynamic = 'force-dynamic';
  *   ok: boolean,
  *   generatedAt: string,
  *   periodDays: number,
- *   summary: { samplesTotal: number, verifiedPct: number } | null,
+ *   summary: { samplesTotal: number, critCount: number, warnCount: number, infoCount: number } | null,
  *   worstStops: [],
  *   worstNeighborhoods: [],
  *   topAlertsCrit: [],
  *   topAlertsWarn: [],
  *   worstLines: [],
+ *   serviceQuality: null | { ... },
  *   notes: string[]
  * }
  */
@@ -29,8 +30,9 @@ export async function GET(req: Request) {
 
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
         const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-        if (!supabaseUrl || !supabaseAnonKey) {
+        if (!supabaseUrl || (!supabaseAnonKey && !supabaseServiceKey)) {
             return NextResponse.json({
                 ok: true,
                 generatedAt: new Date().toISOString(),
@@ -45,7 +47,8 @@ export async function GET(req: Request) {
             });
         }
 
-        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+        // Use service role if available for consolidation tasks
+        const supabase = createClient(supabaseUrl, supabaseServiceKey || supabaseAnonKey);
 
         const thresholdDate = new Date();
         thresholdDate.setDate(thresholdDate.getDate() - days);
@@ -102,7 +105,7 @@ export async function GET(req: Request) {
             .order('avg_delta_min', { ascending: false })
             .limit(5);
 
-        // 6. Service Quality (User Ratings)
+        // 6. Service Quality (User Ratings) - v1.1
         const MIN_SAMPLE = 5;
         const MIN_BUCKET = 10;
 
@@ -119,24 +122,39 @@ export async function GET(req: Request) {
                 rating,
                 line_id,
                 client_event_id,
+                event_id,
                 lines (code)
             `)
             .gte('rating_at', isoThreshold);
 
         // Fetch neighborhood info via stop_events and stops
-        const clientEventIds = (ratingsData || []).map(r => r.client_event_id).filter(Boolean);
+        const eventIds = (ratingsData || []).map(r => r.event_id).filter(Boolean);
+        const clientIds = (ratingsData || []).map(r => r.client_event_id).filter(Boolean);
+
         let neighborhoodMap: Record<string, string> = {};
 
-        if (clientEventIds.length > 0) {
-            const { data: stopEvents } = await supabase
-                .from('stop_events')
-                .select('client_event_id, stops(neighborhood)')
-                .in('client_event_id', clientEventIds);
+        if (eventIds.length > 0 || clientIds.length > 0) {
+            // Filter out any undefined/null values from ids for join
+            const validEventIds = eventIds.map(id => `'${id}'`).join(',');
+            const validClientIds = clientIds.map(id => `'${id}'`).join(',');
+
+            let query = supabase.from('stop_events').select('id, client_event_id, stops(neighborhood)');
+
+            if (eventIds.length > 0 && clientIds.length > 0) {
+                query = query.or(`id.in.(${validEventIds}),client_event_id.in.(${validClientIds})`);
+            } else if (eventIds.length > 0) {
+                query = query.in('id', eventIds);
+            } else {
+                query = query.in('client_event_id', clientIds);
+            }
+
+            const { data: stopEvents } = await query;
 
             neighborhoodMap = (stopEvents || []).reduce((acc: Record<string, string>, curr: any) => {
                 const neighborhood = curr.stops?.neighborhood;
-                if (curr.client_event_id && neighborhood) {
-                    acc[curr.client_event_id] = neighborhood;
+                if (neighborhood) {
+                    if (curr.id) acc[curr.id] = neighborhood;
+                    if (curr.client_event_id) acc[curr.client_event_id] = neighborhood;
                 }
                 return acc;
             }, {});
@@ -183,7 +201,7 @@ export async function GET(req: Request) {
 
         // Group by Neighborhood
         const neighborhoodMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: any) => {
-            const neighborhood = neighborhoodMap[curr.client_event_id] || 'N/A';
+            const neighborhood = neighborhoodMap[curr.event_id] || neighborhoodMap[curr.client_event_id] || 'N/A';
             if (neighborhood === 'N/A') return acc;
             if (!acc[neighborhood]) acc[neighborhood] = { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 };
             const r = curr.rating as 'GOOD' | 'REGULAR' | 'BAD';
@@ -202,6 +220,21 @@ export async function GET(req: Request) {
             .sort((a, b) => b.score - a.score)
             .slice(0, 5);
 
+        const serviceQuality = ratingsDistribution.total >= MIN_SAMPLE ? {
+            overallScore,
+            totalRatings: ratingsDistribution.total,
+            distribution: {
+                GOOD: ratingsDistribution.GOOD,
+                REGULAR: ratingsDistribution.REGULAR,
+                BAD: ratingsDistribution.BAD,
+                pct_good: Math.round((ratingsDistribution.GOOD / ratingsDistribution.total) * 100),
+                pct_regular: Math.round((ratingsDistribution.REGULAR / ratingsDistribution.total) * 100),
+                pct_bad: Math.round((ratingsDistribution.BAD / ratingsDistribution.total) * 100),
+            },
+            topLines,
+            topNeighborhoods
+        } : null;
+
         return NextResponse.json({
             ok: true,
             generatedAt: new Date().toISOString(),
@@ -217,17 +250,7 @@ export async function GET(req: Request) {
             worstStops: worstStops || [],
             worstLines: worstLines || [],
             worstNeighborhoods: worstNeighborhoods || [],
-            serviceQuality: {
-                overallScore,
-                totalRatings: ratingsDistribution.total,
-                distribution: {
-                    GOOD: ratingsDistribution.GOOD,
-                    REGULAR: ratingsDistribution.REGULAR,
-                    BAD: ratingsDistribution.BAD,
-                },
-                topLines,
-                topNeighborhoods
-            },
+            serviceQuality,
             notes,
         });
     } catch (err: unknown) {

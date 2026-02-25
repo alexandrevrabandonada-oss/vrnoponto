@@ -32,12 +32,14 @@ I've consolidated the service rating system, offline queue improvements, and `/a
 - Events and ratings are queued in IndexedDB if the user is offline.
 - Automatic sync occurs when connectivity is restored, with deduplication/idempotency handled by the server.
 
-### 4. Bulletin: Service Quality Section
-- **Aggregated Analytics**: Added a new section to the weekly bulletin that summarizes user feedback.
+### 4. Bulletin: Service Quality Section (v1.1)
+- **Service Role Consolidation**: Backend aggregation upgraded to use `SUPABASE_SERVICE_ROLE_KEY` for secure, server-side data processing.
 - **Privacy Enforcement**:
     - **MIN_SAMPLE=5**: Section only displays if there are at least 5 ratings in the period.
     - **MIN_BUCKET=10**: Line/Neighborhood rankings only display items with at least 10 ratings.
-- **Visuals**: Modern satisfaction meter and distribution bar (Good/Regular/Bad) in the bulletin UI.
+- **Aggregate Metrics**: Returns total samples, counts per rating (Good/Regular/Bad), and rounded percentages.
+- **Zero Leakage**: Strict filtering ensures no individual IDs (`device_id`, `event_id`) are exposed in the JSON response.
+- **Visuals**: Modern satisfaction meter and distribution bar in the bulletin UI.
 
 ---
 
