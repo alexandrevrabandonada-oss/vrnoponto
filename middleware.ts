@@ -28,16 +28,35 @@ export function middleware(request: NextRequest) {
                 sameSite: 'lax',
                 maxAge: 60 * 60 * 24 * 7 // 1 semana
             })
+            // Compatibilidade para páginas client-side que ainda leem token via document.cookie
+            response.cookies.set('admin_token', urlToken, {
+                path: '/admin',
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 60 * 60 * 24 * 7 // 1 semana
+            })
 
             return response
         }
 
         // 3. Se não veio via query param, verificar se há um cookie válido
-        const cookieToken = request.cookies.get('vrnp_admin_token')?.value;
+        const cookieToken =
+            request.cookies.get('vrnp_admin_token')?.value ||
+            request.cookies.get('admin_token')?.value;
 
         if (cookieToken === adminTokenEnv) {
             // Cookie válido, segue o jogo
-            return NextResponse.next();
+            const response = NextResponse.next();
+            // Garante cookie de compatibilidade sempre atualizado para páginas client-side.
+            response.cookies.set('admin_token', cookieToken, {
+                path: '/admin',
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 60 * 60 * 24 * 7 // 1 semana
+            });
+            return response;
         }
 
         // 4. Sem token ou token inválido -> Bloquear acesso
