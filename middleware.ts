@@ -7,6 +7,13 @@ function getSafeAdminNext(nextPath: string | null): string {
     return nextPath;
 }
 
+function sanitizeNextWithSearch(pathname: string, searchParams: URLSearchParams): string {
+    const safe = new URLSearchParams(searchParams);
+    safe.delete('t');
+    const query = safe.toString();
+    return `${pathname}${query ? `?${query}` : ''}`;
+}
+
 export function middleware(request: NextRequest) {
     // Apenas proteger rotas que começam com /admin
     if (request.nextUrl.pathname.startsWith('/admin')) {
@@ -14,14 +21,14 @@ export function middleware(request: NextRequest) {
         const isLoginRoute = pathname === '/admin/login';
 
         // 1. Verificar se a funcionalidade admin está habilitada globalmente
-        const adminTokenEnv = process.env.ADMIN_TOKEN;
+        const adminTokenEnv = (process.env.ADMIN_TOKEN || '').trim();
         if (!adminTokenEnv) {
             // Retorna uma reescrita ou erro simples avisando que o Admin está desativado na infraestrutura
             return new NextResponse('Admin desabilitado. Defina ADMIN_TOKEN nas variáveis de ambiente.', { status: 403 });
         }
 
         // 2. Verificar se o usuário está tentando se autenticar via query param (?t=TOKEN)
-        const urlToken = request.nextUrl.searchParams.get('t');
+        const urlToken = request.nextUrl.searchParams.get('t')?.trim();
 
         if (urlToken === adminTokenEnv) {
             // Autenticação aceita via URL. Vamos setar o cookie e redirecionar pra limpar a URL.
@@ -50,8 +57,8 @@ export function middleware(request: NextRequest) {
 
         // 3. Se não veio via query param, verificar se há um cookie válido
         const cookieToken =
-            request.cookies.get('vrnp_admin_token')?.value ||
-            request.cookies.get('admin_token')?.value;
+            request.cookies.get('vrnp_admin_token')?.value?.trim() ||
+            request.cookies.get('admin_token')?.value?.trim();
 
         if (cookieToken === adminTokenEnv) {
             if (isLoginRoute) {
@@ -78,7 +85,7 @@ export function middleware(request: NextRequest) {
         }
 
         const loginUrl = new URL('/admin/login', request.url);
-        loginUrl.searchParams.set('next', `${pathname}${request.nextUrl.search}`);
+        loginUrl.searchParams.set('next', sanitizeNextWithSearch(pathname, request.nextUrl.searchParams));
         return NextResponse.redirect(loginUrl);
     }
 

@@ -7,9 +7,13 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
-        const providedToken = req.headers.get('authorization')?.replace('Bearer ', '') || searchParams.get('t');
+        const providedToken =
+            req.headers.get('authorization')?.replace('Bearer ', '').trim() ||
+            searchParams.get('t')?.trim() ||
+            '';
+        const expectedToken = (process.env.ADMIN_TOKEN || '').trim();
 
-        if (providedToken !== process.env.ADMIN_TOKEN) {
+        if (!providedToken || !expectedToken || providedToken !== expectedToken) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -33,7 +37,7 @@ export async function GET(req: Request) {
         // ping /api/env-audit directly
         let envAudit = 'MISSING';
         try {
-            const eRes = await fetch(`${baseUrl}/api/env-audit?t=${process.env.ADMIN_TOKEN}`);
+            const eRes = await fetch(`${baseUrl}/api/env-audit?t=${encodeURIComponent(expectedToken)}`);
             if (eRes.ok) {
                 const eData = await eRes.json();
                 const envOk =

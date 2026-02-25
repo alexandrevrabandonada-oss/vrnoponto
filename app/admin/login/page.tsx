@@ -7,7 +7,16 @@ import { KeyRound, LogIn } from 'lucide-react';
 function getSafeAdminNext(nextPath: string | null): string {
     if (!nextPath) return '/admin';
     if (!nextPath.startsWith('/admin')) return '/admin';
-    return nextPath;
+
+    try {
+        const parsed = new URL(nextPath, 'https://vrnoponto.local');
+        if (!parsed.pathname.startsWith('/admin')) return '/admin';
+        parsed.searchParams.delete('t');
+        const query = parsed.searchParams.toString();
+        return `${parsed.pathname}${query ? `?${query}` : ''}`;
+    } catch {
+        return '/admin';
+    }
 }
 
 export default function AdminLoginPage() {
@@ -23,7 +32,9 @@ export default function AdminLoginPage() {
         }
     }, []);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const clean = token.trim();
         if (!clean) {
@@ -31,12 +42,30 @@ export default function AdminLoginPage() {
             return;
         }
 
-        localStorage.setItem('vrnp_admin_token', clean);
-        localStorage.setItem('admin_token', clean);
+        setIsSubmitting(true);
+        setError('');
 
-        const nextPath = getSafeAdminNext(searchParams.get('next'));
-        const join = nextPath.includes('?') ? '&' : '?';
-        router.push(`${nextPath}${join}t=${encodeURIComponent(clean)}`);
+        try {
+            // Validação explícita para evitar sensação de "nada acontece".
+            const res = await fetch(`/api/admin/system-status?t=${encodeURIComponent(clean)}`, {
+                cache: 'no-store'
+            });
+            if (!res.ok) {
+                setError('Token inválido ou sem permissão.');
+                return;
+            }
+
+            localStorage.setItem('vrnp_admin_token', clean);
+            localStorage.setItem('admin_token', clean);
+
+            const nextPath = getSafeAdminNext(searchParams.get('next'));
+            const join = nextPath.includes('?') ? '&' : '?';
+            router.push(`${nextPath}${join}t=${encodeURIComponent(clean)}`);
+        } catch {
+            setError('Falha de rede ao validar token.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -74,14 +103,14 @@ export default function AdminLoginPage() {
 
                     <button
                         type="submit"
-                        className="w-full h-12 rounded-xl bg-brand text-black font-black text-[10px] uppercase tracking-widest hover:brightness-105 transition inline-flex items-center justify-center gap-2"
+                        disabled={isSubmitting}
+                        className="w-full h-12 rounded-xl bg-brand text-black font-black text-[10px] uppercase tracking-widest hover:brightness-105 transition inline-flex items-center justify-center gap-2 disabled:opacity-60"
                     >
                         <LogIn size={14} />
-                        Entrar no Admin
+                        {isSubmitting ? 'Validando...' : 'Entrar no Admin'}
                     </button>
                 </form>
             </div>
         </div>
     );
 }
-
