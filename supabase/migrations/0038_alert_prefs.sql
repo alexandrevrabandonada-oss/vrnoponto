@@ -2,7 +2,7 @@
 -- Description: Creates the telegram_subscriptions table for user preferences and digest mode
 
 CREATE TABLE IF NOT EXISTS public.telegram_subscriptions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     chat_id TEXT NOT NULL UNIQUE,
     mode TEXT NOT NULL DEFAULT 'DIGEST' CHECK (mode IN ('DIGEST', 'IMMEDIATE')),
     severity_min TEXT NOT NULL DEFAULT 'CRIT' CHECK (severity_min IN ('WARN', 'CRIT')),
