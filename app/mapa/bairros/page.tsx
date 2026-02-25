@@ -4,7 +4,7 @@ import { Loader2, CircleDot } from 'lucide-react';
 import NeighborhoodMapWrapper from '@/components/NeighborhoodMapWrapper';
 import { type NeighborhoodMapItem } from '@/components/NeighborhoodMap';
 import {
-    AppShell, PageHeader, SectionCard, SecondaryCTA, EmptyState
+    AppShell, PageHeader, SectionCard, SecondaryCTA
 } from '@/components/ui';
 import { NeighborhoodListView } from './NeighborhoodListView';
 
@@ -135,16 +135,38 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
                 {listMode ? (
                     <NeighborhoodListView neighborhoods={neighborhoods} critOnly={critOnly} />
                 ) : neighborhoods.length === 0 ? (
-                    <EmptyState
-                        icon={CircleDot}
-                        title="Sem dados do mapa"
-                        description="Ainda não há amostra suficiente para desenhar o mapa. Faça os primeiros registros para ativar esta visualização."
-                        actionLabel="Estou no ponto"
-                        actionHref="/no-ponto"
-                        secondaryActionLabel="Ver ranking"
-                        secondaryActionHref="/bairros"
-                        term="amostra_minima"
-                    />
+                    <SectionCard className="text-center">
+                        <div className="flex flex-col items-center justify-center gap-4 py-8">
+                            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                                <CircleDot className="text-brand" size={28} />
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="font-industrial text-2xl italic uppercase tracking-tight text-white">
+                                    Sem dados do mapa
+                                </h3>
+                                <p className="text-[11px] font-bold uppercase tracking-widest text-white/60 max-w-xl">
+                                    Ainda não há amostra suficiente para desenhar o mapa. Faça os primeiros registros para ativar esta visualização.
+                                </p>
+                            </div>
+                            <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-brand">
+                                Amostra mínima
+                            </div>
+                            <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+                                <Link
+                                    href="/no-ponto"
+                                    className="rounded-xl bg-brand px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black hover:brightness-105 transition"
+                                >
+                                    Estou no ponto
+                                </Link>
+                                <Link
+                                    href="/bairros"
+                                    className="rounded-xl border border-white/15 bg-white/[0.04] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white/80 hover:text-white transition"
+                                >
+                                    Ver ranking
+                                </Link>
+                            </div>
+                        </div>
+                    </SectionCard>
                 ) : (
                     <div className="space-y-6">
                         {/* Legend */}
