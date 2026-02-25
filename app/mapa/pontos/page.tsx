@@ -60,7 +60,7 @@ export default function PointsMapPage() {
     };
 
     return (
-        <AppShell title="Mapa de Pontos" hideFooter>
+        <AppShell title="Mapa de Pontos" showQuickActions={false}>
             <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-black">
                 {/* Search Bar Floating */}
                 <div className="absolute top-4 left-0 right-0 z-[1000] px-4 pointer-events-none">

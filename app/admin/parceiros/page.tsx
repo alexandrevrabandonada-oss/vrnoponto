@@ -285,7 +285,7 @@ export default async function AdminParceiros({ searchParams }: { searchParams: P
                                         </td>
                                         <td className="p-4 flex items-center justify-end gap-2">
                                             <PartnerKitModal partner={partner} />
-                                            <QRGenerator partnerId={partner.id} stopName={partner.name} />
+                                            <QRGenerator stopId={partner.id} stopName={partner.name} />
                                         </td>
                                     </tr>
                                 ))}
