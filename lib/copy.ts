@@ -8,7 +8,7 @@ export const dictionary = {
     'action.report': 'Relatar agora',
     'action.create': 'Criar Registros',
     'metric.worst': 'Pior Atraso',
-    'samples.audit': 'Auditoria Comunitária',
+    'samples.audit': 'Relatos da Comunidade',
     'samples.total': 'registros comunitários',
     'trend.stable': 'estável',
     'trend.worsening': 'Piora de',

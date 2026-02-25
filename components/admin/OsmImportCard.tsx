@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { DownloadCloud, CheckCircle, AlertCircle, FileText, ArrowRight, MapPin, Layers } from 'lucide-react';
+import { DownloadCloud, CheckCircle, AlertCircle, FileText, MapPin, Layers } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui';
 

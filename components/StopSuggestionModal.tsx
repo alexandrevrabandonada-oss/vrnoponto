@@ -154,7 +154,7 @@ export function StopSuggestionModal({ lat, lng, deviceId, onClose }: StopSuggest
                                     maxLength={200}
                                 />
                                 <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-1 ml-1">
-                                    Use referências: "Em frente ao...", "Próximo à..."
+                                    Use referências: &quot;Em frente ao...&quot;, &quot;Próximo à...&quot;
                                 </p>
                             </div>
 

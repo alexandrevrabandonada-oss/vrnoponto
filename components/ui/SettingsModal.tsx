@@ -1,10 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { X, Shield, ChevronRight, Lock, Clock, History, MapPin, Bell, Type, Trash2, AlertTriangle } from 'lucide-react';
-import { IconButton } from './IconButton';
+import { X, ChevronRight, Lock, History, MapPin, Bell, Type, Trash2, AlertTriangle } from 'lucide-react';
+import { IconButton, AdminGuard } from './index';
 import { useUiPrefs } from '@/lib/useUiPrefs';
-import { useOfflineSync } from '@/hooks/useOfflineSync';
 import Link from 'next/link';
 
 interface SettingsModalProps {
@@ -15,15 +14,12 @@ interface SettingsModalProps {
 export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     const {
         uiMode,
-        density,
         stopMode,
         notifMode,
         setUiMode,
-        setDensity,
         setStopMode,
         setNotifMode
     } = useUiPrefs();
-    const { pendingCount } = useOfflineSync();
 
     const [isClearing, setIsClearing] = React.useState(false);
     const [showConfirmClear, setShowConfirmClear] = React.useState(false);
@@ -220,7 +216,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                             </div>
                             <ChevronRight size={18} className="text-white/20" />
                         </Link>
-                        <AdminLogin />
+                        <AdminGuard><AdminLogin /></AdminGuard>
                     </div>
                 </div>
             </div>

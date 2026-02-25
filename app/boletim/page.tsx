@@ -223,8 +223,8 @@ export default function BoletimPage() {
                         <EmptyState
                             icon={BarChart3}
                             title="Ainda sem amostra suficiente"
-                            description="Não há dados de auditoria suficientes para gerar o boletim neste período. Colabore com pelo menos 3 registros hoje!"
-                            actionLabel="Auditar Ponto"
+                            description="Não há relatos suficientes para gerar o boletim neste período. Colabore com pelo menos 3 registros hoje!"
+                            actionLabel="Lançar Relato"
                             actionHref="/no-ponto"
                             secondaryActionLabel="Como Funciona"
                             secondaryActionHref="/como-usar"
@@ -349,7 +349,7 @@ export default function BoletimPage() {
                                                 <div>
                                                     <div className="text-[8px] font-black uppercase tracking-widest text-white/90">Como calculamos:</div>
                                                     <div className="text-[8px] text-muted leading-relaxed mt-1">
-                                                        O score é uma média ponderada: <span className="text-brand">Bom (100 pts)</span>, <span className="text-zinc-400">Regular (50 pts)</span> e <span className="text-danger/80">Ruim (0 pts)</span>. Exigimos amostra mínima de 10 relatos no período.
+                                                        O score é uma média ponderada: <span className="text-brand">Bom (100 pts)</span>, <span className="text-zinc-400">Regular (50 pts)</span> e <span className="text-danger/80">Ruim (0 pts)</span>. Exigimos mínimo de 10 relatos no período.
                                                     </div>
                                                 </div>
                                             </div>

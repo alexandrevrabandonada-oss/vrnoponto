@@ -8,15 +8,15 @@ interface FirstDataMissionCardProps {
     title?: string;
 }
 
-export function FirstDataMissionCard({ title = 'Mutirão de Auditoria' }: FirstDataMissionCardProps) {
+export function FirstDataMissionCard({ title = 'Mutirão de Provas' }: FirstDataMissionCardProps) {
     const handleShare = async () => {
-        const text = 'Ajuda a gerar os primeiros dados no VR no Ponto: registre um evento rápido e compartilhe o boletim.';
+        const text = 'Ajuda a gerar as primeiras provas no VR no Ponto: registre um relato rápido e compartilhe o boletim.';
         const url = typeof window !== 'undefined' ? window.location.origin + '/boletim' : '/boletim';
 
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'Mutirão de Auditoria',
+                    title: 'Mutirão de Provas',
                     text,
                     url
                 });

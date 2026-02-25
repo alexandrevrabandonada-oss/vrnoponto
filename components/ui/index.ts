@@ -26,3 +26,4 @@ export * from './NextStepBlock';
 export * from './Sparkline';
 export * from './GlossaryHint';
 export * from '../RecordReceipt';
+export * from './AdminGuard';

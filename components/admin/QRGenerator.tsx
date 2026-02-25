@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { Download, Printer, QrCode, Loader2, X } from 'lucide-react';
+import { Download, Printer, QrCode, X } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 export function QRGenerator({ stopId, stopName }: { stopId: string, stopName: string }) {
@@ -113,7 +113,7 @@ export function QRGenerator({ stopId, stopName }: { stopId: string, stopName: st
 
                             <div className="space-y-2">
                                 <p className="text-[14px] font-black text-white uppercase italic tracking-tight">
-                                    "Escaneie e registre em 10s"
+                                    &quot;Escaneie e registre em 10s&quot;
                                 </p>
                                 <p className="text-[10px] text-white/30 font-mono">
                                     Código: {shortCode}

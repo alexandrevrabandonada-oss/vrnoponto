@@ -266,7 +266,7 @@ export default function NoPonto() {
             <div className="max-w-md mx-auto py-8 space-y-8">
                 <PageHeader
                     title="Cheguei agora"
-                    subtitle="Valide sua presença para auditoria real"
+                    subtitle="Confirme sua presença para gerar provas reais"
                 />
 
                 <div className="space-y-6">
@@ -344,44 +344,79 @@ export default function NoPonto() {
                                         <div className="h-4 w-1/2 bg-white/10 rounded-md" />
                                     </div>
                                 ) : nearestStops.length > 0 ? (
-                                    <>
-                                        <Select
-                                            id="stop"
-                                            value={selectedStop}
-                                            onChange={(e) => {
-                                                const nextStopId = e.target.value;
-                                                setSelectedStop(nextStopId);
-                                                setAutoNearestStop(false);
-                                                trackFunnel(FUNNEL_EVENTS.STOP_SELECTED);
-                                            }}
-                                            icon={<MapPin size={18} className="text-brand" />}
-                                            className="h-16 !text-base font-bold !bg-white/[0.03] !border-white/10"
-                                        >
-                                            {nearestStops.map((stop) => (
-                                                <option key={stop.id} value={stop.id} className="bg-zinc-900">
-                                                    {stop.name} ({stop.distance_m}m)
-                                                </option>
-                                            ))}
-                                        </Select>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setAutoNearestStop(true);
-                                                refreshGpsPosition();
-                                            }}
-                                            className="mt-3 w-full h-10 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-[10px] font-black uppercase tracking-widest text-white/80 transition-colors inline-flex items-center justify-center gap-2"
-                                        >
-                                            <LocateFixed size={14} className="text-brand" />
-                                            Atualizar ponto pelo GPS
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowSearch(true)}
-                                            className="mt-2 w-full h-10 rounded-xl border border-dashed border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white/60 transition-colors"
-                                        >
-                                            Meu ponto não está aqui
-                                        </button>
-                                    </>
+                                    (() => {
+                                        const selectedStopData = nearestStops.find(s => s.id === selectedStop);
+                                        const isFarAway = selectedStopData && selectedStopData.distance_m > 60;
+
+                                        return (
+                                            <>
+                                                <Select
+                                                    id="stop"
+                                                    value={selectedStop}
+                                                    onChange={(e) => {
+                                                        const nextStopId = e.target.value;
+                                                        setSelectedStop(nextStopId);
+                                                        setAutoNearestStop(false);
+                                                        trackFunnel(FUNNEL_EVENTS.STOP_SELECTED);
+                                                    }}
+                                                    icon={<MapPin size={18} className={isFarAway ? "text-danger" : "text-brand"} />}
+                                                    className={`h-16 !text-base font-bold !bg-white/[0.03] transition-colors ${isFarAway ? "!border-danger/50" : "!border-white/10"}`}
+                                                >
+                                                    {nearestStops.map((stop) => (
+                                                        <option key={stop.id} value={stop.id} className="bg-zinc-900">
+                                                            {stop.name} ({stop.distance_m}m)
+                                                        </option>
+                                                    ))}
+                                                </Select>
+
+                                                {isFarAway && (
+                                                    <div className="mt-3 p-4 rounded-xl bg-danger/10 border border-danger/20 flex items-start gap-3 animate-in fade-in slide-in-from-top-1">
+                                                        <AlertCircle size={18} className="text-danger shrink-0 mt-0.5" />
+                                                        <p className="text-[11px] font-bold text-danger/90 leading-relaxed uppercase tracking-tight">
+                                                            GPS impreciso. Esse ponto pode não ser o seu.
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                                <div className="mt-4 space-y-3">
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        onClick={() => {
+                                                            setAutoNearestStop(true);
+                                                            refreshGpsPosition();
+                                                        }}
+                                                        className={`w-full !h-14 font-black uppercase tracking-widest transition-all shadow-lg ${isFarAway ? "bg-brand text-black border-brand hover:bg-brand/90 scale-[1.02]" : "bg-white/5 border-white/10"}`}
+                                                        icon={<LocateFixed size={18} />}
+                                                    >
+                                                        Atualizar ponto pelo GPS
+                                                    </Button>
+
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setAutoNearestStop(false);
+                                                                const selectEl = document.getElementById('stop') as HTMLSelectElement;
+                                                                if (selectEl) selectEl.focus();
+                                                            }}
+                                                            className="h-10 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-[9px] font-black uppercase tracking-widest text-white/60 transition-colors inline-flex items-center justify-center gap-2"
+                                                        >
+                                                            <MapPin size={12} />
+                                                            Escolher manualmente
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowSearch(true)}
+                                                            className="h-10 rounded-xl border border-dashed border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white/60 transition-colors"
+                                                        >
+                                                            Buscar pelo nome
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        );
+                                    })()
                                 ) : (
                                     <div className="p-8 border-2 border-dashed border-white/5 rounded-[2rem] bg-white/[0.01] text-center space-y-5">
                                         <div className="p-4 bg-white/5 w-fit mx-auto rounded-2xl">
@@ -572,7 +607,7 @@ export default function NoPonto() {
                                     </div>
                                     <p className="font-industrial text-xl italic uppercase tracking-tight leading-none">Registrado</p>
                                     <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 max-w-[240px] mx-auto leading-relaxed">
-                                        Isso fortalece a auditoria no bairro <span className="text-white">{rewardStopInfo.neighborhood || 'Local'}</span>.
+                                        Isso ajuda a gerar o relato no bairro <span className="text-white">{rewardStopInfo.neighborhood || 'Local'}</span>.
                                     </p>
                                 </div>
                             </div>

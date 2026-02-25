@@ -112,8 +112,8 @@ export default function Registrar() {
         <AppShell title="Registrar">
             <div className="max-w-md mx-auto py-4 space-y-6">
                 <PageHeader
-                    title={registrationComplete ? "Relato Concluído!" : "Relatar Presença"}
-                    subtitle={registrationComplete ? "Seu dado já está ajudando a cidade." : `Relate agora onde você está`}
+                    title={registrationComplete ? "Relato Concluído!" : "Registrar Relato"}
+                    subtitle={registrationComplete ? "Seu relato já está ajudando a cidade." : `Diga agora onde você está`}
                 />
 
                 <div className="space-y-6">
@@ -233,7 +233,7 @@ export default function Registrar() {
                             {!selectedStopId && !location && (
                                 <Card className="p-12 text-center border-dashed border-white/5 bg-white/[0.01]">
                                     <Loader2 className="animate-spin text-brand mx-auto mb-4" size={32} aria-hidden="true" />
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Iniciando auditoria...</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Preparando relato...</p>
                                 </Card>
                             )}
 

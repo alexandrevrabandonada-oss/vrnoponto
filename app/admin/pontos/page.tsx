@@ -141,7 +141,7 @@ export default async function AdminPontos({
                                         <tr>
                                             <td colSpan={4} className="px-6 py-16 text-center text-white/20 font-black uppercase tracking-widest italic leading-loose">
                                                 Nenhum ponto cadastrado ainda.<br />
-                                                <span className="text-[10px] opacity-50 not-italic">Dica: Use 'Seed VR' para importar ou 'Cadastro Rápido' acima.</span>
+                                                <span className="text-[10px] opacity-50 not-italic">Dica: Use &apos;Seed VR&apos; para importar ou &apos;Cadastro Rápido&apos; acima.</span>
                                             </td>
                                         </tr>
                                     )}

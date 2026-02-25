@@ -170,13 +170,21 @@ export async function GET(req: Request) {
         const overallScore = calculateScore(ratingsDistribution);
 
         // Rankings Logic (Only if feature flag is TRUE)
-        let topLines: any[] = [];
-        let topNeighborhoods: any[] = [];
+        interface RankingItem {
+            line_code?: string;
+            neighborhood?: string;
+            score: number;
+            count: number;
+        }
+
+        let topLines: RankingItem[] = [];
+        let topNeighborhoods: RankingItem[] = [];
 
         if (FEATURE_SERVICE_RANKINGS) {
             // Group by Line
-            const lineMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: any) => {
-                const lineCode = curr.lines?.code || 'N/A';
+            const lineMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: { rating: string; lines: { code: string } | { code: string }[] }) => {
+                const lines = Array.isArray(curr.lines) ? curr.lines[0] : curr.lines;
+                const lineCode = lines?.code || 'N/A';
                 if (!acc[lineCode]) acc[lineCode] = { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 };
                 const r = curr.rating as 'GOOD' | 'REGULAR' | 'BAD';
                 acc[lineCode][r]++;
@@ -213,8 +221,9 @@ export async function GET(req: Request) {
                 }
                 const { data: stopEvents } = await query;
 
-                neighborhoodMap = (stopEvents || []).reduce((acc: Record<string, string>, curr: any) => {
-                    const neighborhood = curr.stops?.neighborhood;
+                neighborhoodMap = (stopEvents || []).reduce((acc: Record<string, string>, curr: { id: string; client_event_id: string; stops: { neighborhood: string } | { neighborhood: string }[] }) => {
+                    const stops = Array.isArray(curr.stops) ? curr.stops[0] : curr.stops;
+                    const neighborhood = stops?.neighborhood;
                     if (neighborhood) {
                         if (curr.id) acc[curr.id] = neighborhood;
                         if (curr.client_event_id) acc[curr.client_event_id] = neighborhood;
@@ -223,7 +232,7 @@ export async function GET(req: Request) {
                 }, {});
             }
 
-            const neighborhoodMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: any) => {
+            const neighborhoodMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: { event_id: string; client_event_id: string; rating: string }) => {
                 const neighborhood = neighborhoodMap[curr.event_id] || neighborhoodMap[curr.client_event_id] || 'N/A';
                 if (neighborhood === 'N/A') return acc;
                 if (!acc[neighborhood]) acc[neighborhood] = { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 };

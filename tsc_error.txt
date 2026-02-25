@@ -1,0 +1,2 @@
+app/mapa/pontos/page.tsx(63,42): error TS2322: Type '{ children: Element; title: string; hideFooter: true; }' is not assignable to type 'IntrinsicAttributes & AppShellProps'.
+  Property 'hideFooter' does not exist on type 'IntrinsicAttributes & AppShellProps'.

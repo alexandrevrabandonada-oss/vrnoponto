@@ -1,43 +1,49 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 export type UIMode = 'default' | 'legivel';
 export type UIDensity = 'comfort' | 'compact';
 export type StopMode = 'auto' | 'manual';
 export type NotifMode = 'digest' | 'immediate';
 
-export function useUiPrefs() {
-    const [uiMode, setUiModeState] = useState<UIMode>('default');
-    const [density, setDensityState] = useState<UIDensity>('comfort');
-    const [stopMode, setStopModeState] = useState<StopMode>('auto');
-    const [notifMode, setNotifModeState] = useState<NotifMode>('digest');
-
-    useEffect(() => {
-        // Hydrate from current DOM attributes (SSR injected)
-        const currentUiMode = document.documentElement.getAttribute('data-ui') as UIMode || 'default';
-        const currentDensity = document.documentElement.getAttribute('data-density') as UIDensity || 'comfort';
-
-        // Hydrate others from cookies or localStorage (client only side)
-        const getCookie = (name: string) => {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop()?.split(';').shift();
-            return null;
+function getInitialPrefs() {
+    if (typeof document === 'undefined') {
+        return {
+            uiMode: 'default' as UIMode,
+            density: 'comfort' as UIDensity,
+            stopMode: 'auto' as StopMode,
+            notifMode: 'digest' as NotifMode
         };
+    }
 
-        const currentStopMode = (getCookie('vrnp_stop_mode') || localStorage.getItem('vrnp_stop_mode')) as StopMode || 'auto';
-        const currentNotifMode = getCookie('vrnp_notif') as NotifMode || 'digest';
+    const currentUiMode = (document.documentElement.getAttribute('data-ui') as UIMode) || 'default';
+    const currentDensity = (document.documentElement.getAttribute('data-density') as UIDensity) || 'comfort';
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setUiModeState(currentUiMode);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setDensityState(currentDensity);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setStopModeState(currentStopMode);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setNotifModeState(currentNotifMode);
-    }, []);
+    const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return null;
+    };
+
+    const currentStopMode = ((getCookie('vrnp_stop_mode') || localStorage.getItem('vrnp_stop_mode')) as StopMode) || 'auto';
+    const currentNotifMode = (getCookie('vrnp_notif') as NotifMode) || 'digest';
+
+    return {
+        uiMode: currentUiMode,
+        density: currentDensity,
+        stopMode: currentStopMode,
+        notifMode: currentNotifMode
+    };
+}
+
+export function useUiPrefs() {
+    const initial = getInitialPrefs();
+    const [uiMode, setUiModeState] = useState<UIMode>(initial.uiMode);
+    const [density, setDensityState] = useState<UIDensity>(initial.density);
+    const [stopMode, setStopModeState] = useState<StopMode>(initial.stopMode);
+    const [notifMode, setNotifModeState] = useState<NotifMode>(initial.notifMode);
 
     const setPreference = useCallback((key: 'vrnp_ui' | 'vrnp_density' | 'vrnp_stop_mode' | 'vrnp_notif', value: string) => {
         // 1. Save strictly to cookies (1 year expiration)

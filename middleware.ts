@@ -1,9 +1,17 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+function getSafeAdminNext(nextPath: string | null): string {
+    if (!nextPath) return '/admin';
+    if (!nextPath.startsWith('/admin')) return '/admin';
+    return nextPath;
+}
+
 export function middleware(request: NextRequest) {
     // Apenas proteger rotas que começam com /admin
     if (request.nextUrl.pathname.startsWith('/admin')) {
+        const pathname = request.nextUrl.pathname;
+        const isLoginRoute = pathname === '/admin/login';
 
         // 1. Verificar se a funcionalidade admin está habilitada globalmente
         const adminTokenEnv = process.env.ADMIN_TOKEN;
@@ -46,6 +54,11 @@ export function middleware(request: NextRequest) {
             request.cookies.get('admin_token')?.value;
 
         if (cookieToken === adminTokenEnv) {
+            if (isLoginRoute) {
+                const target = getSafeAdminNext(request.nextUrl.searchParams.get('next'));
+                return NextResponse.redirect(new URL(target, request.url));
+            }
+
             // Cookie válido, segue o jogo
             const response = NextResponse.next();
             // Garante cookie de compatibilidade sempre atualizado para páginas client-side.
@@ -59,8 +72,14 @@ export function middleware(request: NextRequest) {
             return response;
         }
 
-        // 4. Sem token ou token inválido -> Bloquear acesso
-        return new NextResponse('Acesso Negado (401 Unauthorized)', { status: 401 });
+        // 4. Sem token ou token inválido -> redirecionar para login admin.
+        if (isLoginRoute) {
+            return NextResponse.next();
+        }
+
+        const loginUrl = new URL('/admin/login', request.url);
+        loginUrl.searchParams.set('next', `${pathname}${request.nextUrl.search}`);
+        return NextResponse.redirect(loginUrl);
     }
 
     // Deixar as rotas públicas passarem

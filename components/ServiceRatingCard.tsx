@@ -32,7 +32,7 @@ export function ServiceRatingCard({
     eventType,
     initialRating = null,
     initialRatingAt = null,
-    title = 'Como foi o serviço desta viagem?',
+    title = 'Depois da viagem, como foi o serviço?',
     onSaved,
     onDismiss
 }: ServiceRatingCardProps) {
@@ -121,7 +121,7 @@ export function ServiceRatingCard({
         <Card variant="surface2" className="border-white/10 bg-white/[0.03]">
             <div className="p-4 space-y-4">
                 <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-brand">Avaliação rápida</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-brand">1 toque. Sem nome.</p>
                     <p className="text-sm font-bold text-white mt-1">{title}</p>
                 </div>
 
@@ -143,8 +143,11 @@ export function ServiceRatingCard({
                     <button
                         type="button"
                         onClick={() => {
-                            setDismissed(true);
-                            onDismiss?.();
+                            setMessage('Tudo bem. Você pode avaliar depois em Meu.');
+                            window.setTimeout(() => {
+                                setDismissed(true);
+                                onDismiss?.();
+                            }, 2000);
                         }}
                         className="text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white/80 transition-colors"
                     >
