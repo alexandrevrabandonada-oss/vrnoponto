@@ -32,14 +32,16 @@ I've consolidated the service rating system, offline queue improvements, and `/a
 - Events and ratings are queued in IndexedDB if the user is offline.
 - Automatic sync occurs when connectivity is restored, with deduplication/idempotency handled by the server.
 
-### 4. Bulletin: Service Quality Section (v1.1)
-- **Service Role Consolidation**: Backend aggregation upgraded to use `SUPABASE_SERVICE_ROLE_KEY` for secure, server-side data processing.
-- **Privacy Enforcement**:
-    - **MIN_SAMPLE=5**: Section only displays if there are at least 5 ratings in the period.
-    - **MIN_BUCKET=10**: Line/Neighborhood rankings only display items with at least 10 ratings.
-- **Aggregate Metrics**: Returns total samples, counts per rating (Good/Regular/Bad), and rounded percentages.
-- **Zero Leakage**: Strict filtering ensures no individual IDs (`device_id`, `event_id`) are exposed in the JSON response.
-- **Visuals**: Modern satisfaction meter and distribution bar in the bulletin UI.
+### 4. Bulletin: Street Safe Hotfix (v1.2)
+- **Privacy Thresholds**: Upgraded `MIN_SAMPLE` to 10 and `MIN_BUCKET` to 20 for increased anonymity.
+- **Rankings Feature Flag**: Introduced `FEATURE_SERVICE_RANKINGS` (default `false`) to hide sensitive rankings until a higher volume of data is reached.
+- **Score Transparency**: Added "Como calculamos" tooltip/explanation for the satisfaction score.
+- **Stabilized Suppression**: Ensure `service_quality` returns `null` if thresholds aren't met, with clean UI fallback.
+
+#### QA Checklist (Manual Verification)
+- [ ] **Scenario 1: Low Sample (< 10 ratings)**: Verify the "Qualidade do Serviço" section stays hidden.
+- [ ] **Scenario 2: High Sample (>= 10), Rankings Off**: Verify the overall score and distribution bar show up, but the "Melhores por Categoria" lists are hidden.
+- [ ] **Scenario 3: High Sample (>= 20), Rankings On**: (Developer test) Set flag to `true` and verify lists appear with sample counts for each item.
 
 ---
 

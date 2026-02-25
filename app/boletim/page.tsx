@@ -10,6 +10,7 @@ import {
     BarChart3,
     MessageCircle,
     Bus,
+    HelpCircle,
 } from 'lucide-react';
 import { EditorialCard } from '@/components/editorial/EditorialCard';
 import { generateBulletinCaption } from '@/lib/editorial/templates';
@@ -40,10 +41,10 @@ interface BulletinData {
     serviceQuality?: {
         overallScore: number | null;
         totalRatings: number;
-        distribution: { GOOD: number; REGULAR: number; BAD: number };
-        topLines: { line_code: string; score: number; count: number }[];
-        topNeighborhoods: { neighborhood: string; score: number; count: number }[];
-    };
+        distribution: { GOOD: number; REGULAR: number; BAD: number; pct_good: number; pct_regular: number; pct_bad: number };
+        topLines: { line_code: string; score: number; count: number }[] | null;
+        topNeighborhoods: { neighborhood: string; score: number; count: number }[] | null;
+    } | null;
     notes: string[];
 }
 
@@ -325,32 +326,43 @@ export default function BoletimPage() {
                                             <div className="h-1.5 w-full bg-zinc-800 rounded-full flex overflow-hidden">
                                                 <div
                                                     className="bg-brand transition-all duration-1000"
-                                                    style={{ width: `${(data.serviceQuality.distribution.GOOD / data.serviceQuality.totalRatings) * 100}%` }}
+                                                    style={{ width: `${data.serviceQuality.distribution.pct_good}%` }}
                                                 />
                                                 <div
                                                     className="bg-zinc-500 transition-all duration-1000"
-                                                    style={{ width: `${(data.serviceQuality.distribution.REGULAR / data.serviceQuality.totalRatings) * 100}%` }}
+                                                    style={{ width: `${data.serviceQuality.distribution.pct_regular}%` }}
                                                 />
                                                 <div
                                                     className="bg-danger/80 transition-all duration-1000"
-                                                    style={{ width: `${(data.serviceQuality.distribution.BAD / data.serviceQuality.totalRatings) * 100}%` }}
+                                                    style={{ width: `${data.serviceQuality.distribution.pct_bad}%` }}
                                                 />
                                             </div>
                                             <div className="flex justify-between mt-2 text-[7px] font-black uppercase tracking-widest text-muted/60">
-                                                <span>Bom</span>
-                                                <span>Regular</span>
-                                                <span>Ruim</span>
+                                                <span>Bom ({data.serviceQuality.distribution.GOOD})</span>
+                                                <span>Regular ({data.serviceQuality.distribution.REGULAR})</span>
+                                                <span>Ruim ({data.serviceQuality.distribution.BAD})</span>
+                                            </div>
+
+                                            {/* Score Explanation */}
+                                            <div className="mt-6 pt-4 border-t border-white/5 flex items-start gap-2 text-left">
+                                                <HelpCircle size={10} className="text-brand shrink-0 mt-0.5" />
+                                                <div>
+                                                    <div className="text-[8px] font-black uppercase tracking-widest text-white/90">Como calculamos:</div>
+                                                    <div className="text-[8px] text-muted leading-relaxed mt-1">
+                                                        O score é uma média ponderada: <span className="text-brand">Bom (100 pts)</span>, <span className="text-zinc-400">Regular (50 pts)</span> e <span className="text-danger/80">Ruim (0 pts)</span>. Exigimos amostra mínima de 10 relatos no período.
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {/* Top Performing Buckets */}
-                                        {(data.serviceQuality.topLines.length > 0 || data.serviceQuality.topNeighborhoods.length > 0) && (
+                                        {/* Top Performing Buckets (Only if enabled and data present) */}
+                                        {((data.serviceQuality.topLines?.length ?? 0) > 0 || (data.serviceQuality.topNeighborhoods?.length ?? 0) > 0) && (
                                             <div className="space-y-4">
                                                 <div className="text-[9px] font-black uppercase tracking-widest text-brand/60 px-1 border-l-2 border-brand ml-1">
-                                                    Melhores por Categoria (Min. 10 relatos)
+                                                    Melhores por Categoria (Min. 20 relatos)
                                                 </div>
                                                 <div className="space-y-2">
-                                                    {data.serviceQuality.topLines.map(line => (
+                                                    {data.serviceQuality.topLines?.map(line => (
                                                         <ListItem
                                                             key={line.line_code}
                                                             leftIcon={<Bus size={14} className="opacity-50" />}
@@ -364,7 +376,7 @@ export default function BoletimPage() {
                                                             }
                                                         />
                                                     ))}
-                                                    {data.serviceQuality.topNeighborhoods.map(nb => (
+                                                    {data.serviceQuality.topNeighborhoods?.map(nb => (
                                                         <ListItem
                                                             key={nb.neighborhood}
                                                             leftIcon={<MapPin size={14} className="opacity-50" />}

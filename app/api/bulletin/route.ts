@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
+// Feature Flag: Rankings for lines/neighborhoods in Service Quality
+const FEATURE_SERVICE_RANKINGS = false;
+
 /**
  * GET /api/bulletin?days=7
  *
@@ -105,9 +108,9 @@ export async function GET(req: Request) {
             .order('avg_delta_min', { ascending: false })
             .limit(5);
 
-        // 6. Service Quality (User Ratings) - v1.1
-        const MIN_SAMPLE = 5;
-        const MIN_BUCKET = 10;
+        // 6. Service Quality (User Ratings) - v1.2 Hotfix Street Safe
+        const MIN_SAMPLE = 10;
+        const MIN_BUCKET = 20;
 
         interface RatingBucket {
             GOOD: number;
@@ -127,39 +130,6 @@ export async function GET(req: Request) {
             `)
             .gte('rating_at', isoThreshold);
 
-        // Fetch neighborhood info via stop_events and stops
-        const eventIds = (ratingsData || []).map(r => r.event_id).filter(Boolean);
-        const clientIds = (ratingsData || []).map(r => r.client_event_id).filter(Boolean);
-
-        let neighborhoodMap: Record<string, string> = {};
-
-        if (eventIds.length > 0 || clientIds.length > 0) {
-            // Filter out any undefined/null values from ids for join
-            const validEventIds = eventIds.map(id => `'${id}'`).join(',');
-            const validClientIds = clientIds.map(id => `'${id}'`).join(',');
-
-            let query = supabase.from('stop_events').select('id, client_event_id, stops(neighborhood)');
-
-            if (eventIds.length > 0 && clientIds.length > 0) {
-                query = query.or(`id.in.(${validEventIds}),client_event_id.in.(${validClientIds})`);
-            } else if (eventIds.length > 0) {
-                query = query.in('id', eventIds);
-            } else {
-                query = query.in('client_event_id', clientIds);
-            }
-
-            const { data: stopEvents } = await query;
-
-            neighborhoodMap = (stopEvents || []).reduce((acc: Record<string, string>, curr: any) => {
-                const neighborhood = curr.stops?.neighborhood;
-                if (neighborhood) {
-                    if (curr.id) acc[curr.id] = neighborhood;
-                    if (curr.client_event_id) acc[curr.client_event_id] = neighborhood;
-                }
-                return acc;
-            }, {});
-        }
-
         const ratingsDistribution = (ratingsData || []).reduce(
             (acc, curr) => {
                 const r = curr.rating as 'GOOD' | 'REGULAR' | 'BAD';
@@ -170,57 +140,111 @@ export async function GET(req: Request) {
             { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 } as RatingBucket
         );
 
+        // Initial suppression: if lower than MIN_SAMPLE, return null early
+        if (ratingsDistribution.total < MIN_SAMPLE) {
+            return NextResponse.json({
+                ok: true,
+                generatedAt: new Date().toISOString(),
+                periodDays: days,
+                summary: {
+                    samplesTotal: counts.total,
+                    critCount: counts.CRIT,
+                    warnCount: counts.WARN,
+                    infoCount: counts.INFO,
+                },
+                topAlertsCrit,
+                topAlertsWarn,
+                worstStops: worstStops || [],
+                worstLines: worstLines || [],
+                worstNeighborhoods: worstNeighborhoods || [],
+                serviceQuality: null,
+                notes,
+            });
+        }
+
         const calculateScore = (dist: RatingBucket) => {
             if (dist.total === 0) return 0;
             return Math.round(((dist.GOOD * 100) + (dist.REGULAR * 50)) / dist.total);
         };
 
-        const overallScore = ratingsDistribution.total >= MIN_SAMPLE
-            ? calculateScore(ratingsDistribution)
-            : null;
+        const overallScore = calculateScore(ratingsDistribution);
 
-        // Group by Line
-        const lineMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: any) => {
-            const lineCode = curr.lines?.code || 'N/A';
-            if (!acc[lineCode]) acc[lineCode] = { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 };
-            const r = curr.rating as 'GOOD' | 'REGULAR' | 'BAD';
-            acc[lineCode][r]++;
-            acc[lineCode].total++;
-            return acc;
-        }, {});
+        // Rankings Logic (Only if feature flag is TRUE)
+        let topLines: any[] = [];
+        let topNeighborhoods: any[] = [];
 
-        const topLines = Object.entries(lineMetrics)
-            .filter(([_, dist]) => dist.total >= MIN_BUCKET)
-            .map(([code, dist]) => ({
-                line_code: code,
-                score: calculateScore(dist),
-                count: dist.total
-            }))
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 5);
+        if (FEATURE_SERVICE_RANKINGS) {
+            // Group by Line
+            const lineMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: any) => {
+                const lineCode = curr.lines?.code || 'N/A';
+                if (!acc[lineCode]) acc[lineCode] = { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 };
+                const r = curr.rating as 'GOOD' | 'REGULAR' | 'BAD';
+                acc[lineCode][r]++;
+                acc[lineCode].total++;
+                return acc;
+            }, {});
 
-        // Group by Neighborhood
-        const neighborhoodMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: any) => {
-            const neighborhood = neighborhoodMap[curr.event_id] || neighborhoodMap[curr.client_event_id] || 'N/A';
-            if (neighborhood === 'N/A') return acc;
-            if (!acc[neighborhood]) acc[neighborhood] = { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 };
-            const r = curr.rating as 'GOOD' | 'REGULAR' | 'BAD';
-            acc[neighborhood][r]++;
-            acc[neighborhood].total++;
-            return acc;
-        }, {});
+            topLines = Object.entries(lineMetrics)
+                .filter(([_, dist]) => dist.total >= MIN_BUCKET)
+                .map(([code, dist]) => ({
+                    line_code: code,
+                    score: calculateScore(dist),
+                    count: dist.total
+                }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
 
-        const topNeighborhoods = Object.entries(neighborhoodMetrics)
-            .filter(([_, dist]) => dist.total >= MIN_BUCKET)
-            .map(([name, dist]) => ({
-                neighborhood: name,
-                score: calculateScore(dist),
-                count: dist.total
-            }))
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 5);
+            // Group by Neighborhood
+            const eventIds = (ratingsData || []).map(r => r.event_id).filter(Boolean);
+            const clientIds = (ratingsData || []).map(r => r.client_event_id).filter(Boolean);
+            let neighborhoodMap: Record<string, string> = {};
 
-        const serviceQuality = ratingsDistribution.total >= MIN_SAMPLE ? {
+            if (eventIds.length > 0 || clientIds.length > 0) {
+                const validEventIds = eventIds.map(id => `'${id}'`).join(',');
+                const validClientIds = clientIds.map(id => `'${id}'`).join(',');
+
+                let query = supabase.from('stop_events').select('id, client_event_id, stops(neighborhood)');
+                if (eventIds.length > 0 && clientIds.length > 0) {
+                    query = query.or(`id.in.(${validEventIds}),client_event_id.in.(${validClientIds})`);
+                } else if (eventIds.length > 0) {
+                    query = query.in('id', eventIds);
+                } else {
+                    query = query.in('client_event_id', clientIds);
+                }
+                const { data: stopEvents } = await query;
+
+                neighborhoodMap = (stopEvents || []).reduce((acc: Record<string, string>, curr: any) => {
+                    const neighborhood = curr.stops?.neighborhood;
+                    if (neighborhood) {
+                        if (curr.id) acc[curr.id] = neighborhood;
+                        if (curr.client_event_id) acc[curr.client_event_id] = neighborhood;
+                    }
+                    return acc;
+                }, {});
+            }
+
+            const neighborhoodMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: any) => {
+                const neighborhood = neighborhoodMap[curr.event_id] || neighborhoodMap[curr.client_event_id] || 'N/A';
+                if (neighborhood === 'N/A') return acc;
+                if (!acc[neighborhood]) acc[neighborhood] = { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 };
+                const r = curr.rating as 'GOOD' | 'REGULAR' | 'BAD';
+                acc[neighborhood][r]++;
+                acc[neighborhood].total++;
+                return acc;
+            }, {});
+
+            topNeighborhoods = Object.entries(neighborhoodMetrics)
+                .filter(([_, dist]) => dist.total >= MIN_BUCKET)
+                .map(([name, dist]) => ({
+                    neighborhood: name,
+                    score: calculateScore(dist),
+                    count: dist.total
+                }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
+        }
+
+        const serviceQuality = {
             overallScore,
             totalRatings: ratingsDistribution.total,
             distribution: {
@@ -231,9 +255,9 @@ export async function GET(req: Request) {
                 pct_regular: Math.round((ratingsDistribution.REGULAR / ratingsDistribution.total) * 100),
                 pct_bad: Math.round((ratingsDistribution.BAD / ratingsDistribution.total) * 100),
             },
-            topLines,
-            topNeighborhoods
-        } : null;
+            topLines: topLines.length > 0 ? topLines : null,
+            topNeighborhoods: topNeighborhoods.length > 0 ? topNeighborhoods : null
+        };
 
         return NextResponse.json({
             ok: true,
