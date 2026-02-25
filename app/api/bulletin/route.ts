@@ -102,15 +102,105 @@ export async function GET(req: Request) {
             .order('avg_delta_min', { ascending: false })
             .limit(5);
 
-        // Summary
-        const samplesTotal = counts.total;
-        const hasData = samplesTotal > 0 ||
-            (worstStops && worstStops.length > 0) ||
-            (worstLines && worstLines.length > 0);
+        // 6. Service Quality (User Ratings)
+        const MIN_SAMPLE = 5;
+        const MIN_BUCKET = 10;
 
-        if (!hasData) {
-            notes.push('Sem amostra mínima no período selecionado. Registre horários para gerar o boletim.');
+        interface RatingBucket {
+            GOOD: number;
+            REGULAR: number;
+            BAD: number;
+            total: number;
         }
+
+        const { data: ratingsData } = await supabase
+            .from('event_service_ratings')
+            .select(`
+                rating,
+                line_id,
+                client_event_id,
+                lines (code)
+            `)
+            .gte('rating_at', isoThreshold);
+
+        // Fetch neighborhood info via stop_events and stops
+        const clientEventIds = (ratingsData || []).map(r => r.client_event_id).filter(Boolean);
+        let neighborhoodMap: Record<string, string> = {};
+
+        if (clientEventIds.length > 0) {
+            const { data: stopEvents } = await supabase
+                .from('stop_events')
+                .select('client_event_id, stops(neighborhood)')
+                .in('client_event_id', clientEventIds);
+
+            neighborhoodMap = (stopEvents || []).reduce((acc: Record<string, string>, curr: any) => {
+                const neighborhood = curr.stops?.neighborhood;
+                if (curr.client_event_id && neighborhood) {
+                    acc[curr.client_event_id] = neighborhood;
+                }
+                return acc;
+            }, {});
+        }
+
+        const ratingsDistribution = (ratingsData || []).reduce(
+            (acc, curr) => {
+                const r = curr.rating as 'GOOD' | 'REGULAR' | 'BAD';
+                acc[r] = (acc[r] || 0) + 1;
+                acc.total++;
+                return acc;
+            },
+            { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 } as RatingBucket
+        );
+
+        const calculateScore = (dist: RatingBucket) => {
+            if (dist.total === 0) return 0;
+            return Math.round(((dist.GOOD * 100) + (dist.REGULAR * 50)) / dist.total);
+        };
+
+        const overallScore = ratingsDistribution.total >= MIN_SAMPLE
+            ? calculateScore(ratingsDistribution)
+            : null;
+
+        // Group by Line
+        const lineMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: any) => {
+            const lineCode = curr.lines?.code || 'N/A';
+            if (!acc[lineCode]) acc[lineCode] = { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 };
+            const r = curr.rating as 'GOOD' | 'REGULAR' | 'BAD';
+            acc[lineCode][r]++;
+            acc[lineCode].total++;
+            return acc;
+        }, {});
+
+        const topLines = Object.entries(lineMetrics)
+            .filter(([_, dist]) => dist.total >= MIN_BUCKET)
+            .map(([code, dist]) => ({
+                line_code: code,
+                score: calculateScore(dist),
+                count: dist.total
+            }))
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 5);
+
+        // Group by Neighborhood
+        const neighborhoodMetrics = (ratingsData || []).reduce((acc: Record<string, RatingBucket>, curr: any) => {
+            const neighborhood = neighborhoodMap[curr.client_event_id] || 'N/A';
+            if (neighborhood === 'N/A') return acc;
+            if (!acc[neighborhood]) acc[neighborhood] = { GOOD: 0, REGULAR: 0, BAD: 0, total: 0 };
+            const r = curr.rating as 'GOOD' | 'REGULAR' | 'BAD';
+            acc[neighborhood][r]++;
+            acc[neighborhood].total++;
+            return acc;
+        }, {});
+
+        const topNeighborhoods = Object.entries(neighborhoodMetrics)
+            .filter(([_, dist]) => dist.total >= MIN_BUCKET)
+            .map(([name, dist]) => ({
+                neighborhood: name,
+                score: calculateScore(dist),
+                count: dist.total
+            }))
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 5);
 
         return NextResponse.json({
             ok: true,
@@ -127,6 +217,17 @@ export async function GET(req: Request) {
             worstStops: worstStops || [],
             worstLines: worstLines || [],
             worstNeighborhoods: worstNeighborhoods || [],
+            serviceQuality: {
+                overallScore,
+                totalRatings: ratingsDistribution.total,
+                distribution: {
+                    GOOD: ratingsDistribution.GOOD,
+                    REGULAR: ratingsDistribution.REGULAR,
+                    BAD: ratingsDistribution.BAD,
+                },
+                topLines,
+                topNeighborhoods
+            },
             notes,
         });
     } catch (err: unknown) {

@@ -32,6 +32,13 @@ I've consolidated the service rating system, offline queue improvements, and `/a
 - Events and ratings are queued in IndexedDB if the user is offline.
 - Automatic sync occurs when connectivity is restored, with deduplication/idempotency handled by the server.
 
+### 4. Bulletin: Service Quality Section
+- **Aggregated Analytics**: Added a new section to the weekly bulletin that summarizes user feedback.
+- **Privacy Enforcement**:
+    - **MIN_SAMPLE=5**: Section only displays if there are at least 5 ratings in the period.
+    - **MIN_BUCKET=10**: Line/Neighborhood rankings only display items with at least 10 ratings.
+- **Visuals**: Modern satisfaction meter and distribution bar (Good/Regular/Bad) in the bulletin UI.
+
 ---
 
 ## ⚡ Supabase Sync (No Secrets)

@@ -37,6 +37,13 @@ interface BulletinData {
     worstStops: { stop_id: string; stop_name: string; p50_wait_min: number }[];
     worstLines: { line_id: string; p50_headway_min: number }[];
     worstNeighborhoods: { neighborhood: string; avg_delta_min: number; stops_count: number; samples_total: number }[];
+    serviceQuality?: {
+        overallScore: number | null;
+        totalRatings: number;
+        distribution: { GOOD: number; REGULAR: number; BAD: number };
+        topLines: { line_code: string; score: number; count: number }[];
+        topNeighborhoods: { neighborhood: string; score: number; count: number }[];
+    };
     notes: string[];
 }
 
@@ -288,6 +295,95 @@ export default function BoletimPage() {
                                     </Button>
                                 </div>
                             </div>
+
+                            {/* Service Quality Section */}
+                            {data?.serviceQuality && data.serviceQuality.overallScore !== null && (
+                                <SectionCard
+                                    title="Qualidade do Serviço"
+                                    subtitle="Satisfação geral baseada em avaliações"
+                                >
+                                    <div className="space-y-6">
+                                        {/* Score Meter */}
+                                        <div className="bg-zinc-900/40 p-6 rounded-3xl border border-white/5 text-center">
+                                            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-4">Média de Satisfação</div>
+                                            <div className="flex items-center justify-center gap-4 mb-4">
+                                                <div className="text-5xl font-industrial italic text-brand leading-none">
+                                                    {data.serviceQuality.overallScore}%
+                                                </div>
+                                                <div className="text-left">
+                                                    <div className="text-[10px] font-black uppercase tracking-tight text-white/80">
+                                                        {data.serviceQuality.overallScore >= 70 ? 'Satisfatório' :
+                                                            data.serviceQuality.overallScore >= 40 ? 'Regular' : 'Inaceitável'}
+                                                    </div>
+                                                    <div className="text-[8px] font-medium text-muted">
+                                                        {data.serviceQuality.totalRatings} avaliações
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Distribution Bar */}
+                                            <div className="h-1.5 w-full bg-zinc-800 rounded-full flex overflow-hidden">
+                                                <div
+                                                    className="bg-brand transition-all duration-1000"
+                                                    style={{ width: `${(data.serviceQuality.distribution.GOOD / data.serviceQuality.totalRatings) * 100}%` }}
+                                                />
+                                                <div
+                                                    className="bg-zinc-500 transition-all duration-1000"
+                                                    style={{ width: `${(data.serviceQuality.distribution.REGULAR / data.serviceQuality.totalRatings) * 100}%` }}
+                                                />
+                                                <div
+                                                    className="bg-danger/80 transition-all duration-1000"
+                                                    style={{ width: `${(data.serviceQuality.distribution.BAD / data.serviceQuality.totalRatings) * 100}%` }}
+                                                />
+                                            </div>
+                                            <div className="flex justify-between mt-2 text-[7px] font-black uppercase tracking-widest text-muted/60">
+                                                <span>Bom</span>
+                                                <span>Regular</span>
+                                                <span>Ruim</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Top Performing Buckets */}
+                                        {(data.serviceQuality.topLines.length > 0 || data.serviceQuality.topNeighborhoods.length > 0) && (
+                                            <div className="space-y-4">
+                                                <div className="text-[9px] font-black uppercase tracking-widest text-brand/60 px-1 border-l-2 border-brand ml-1">
+                                                    Melhores por Categoria (Min. 10 relatos)
+                                                </div>
+                                                <div className="space-y-2">
+                                                    {data.serviceQuality.topLines.map(line => (
+                                                        <ListItem
+                                                            key={line.line_code}
+                                                            leftIcon={<Bus size={14} className="opacity-50" />}
+                                                            title={`Linha ${line.line_code}`}
+                                                            tone="brand"
+                                                            rightElement={
+                                                                <div className="text-right">
+                                                                    <div className="text-sm font-industrial italic text-brand">{line.score}%</div>
+                                                                    <div className="text-[7px] font-medium opacity-40">{line.count} vts</div>
+                                                                </div>
+                                                            }
+                                                        />
+                                                    ))}
+                                                    {data.serviceQuality.topNeighborhoods.map(nb => (
+                                                        <ListItem
+                                                            key={nb.neighborhood}
+                                                            leftIcon={<MapPin size={14} className="opacity-50" />}
+                                                            title={nb.neighborhood}
+                                                            tone="brand"
+                                                            rightElement={
+                                                                <div className="text-right">
+                                                                    <div className="text-sm font-industrial italic text-brand">{nb.score}%</div>
+                                                                    <div className="text-[7px] font-medium opacity-40">{nb.count} vts</div>
+                                                                </div>
+                                                            }
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </SectionCard>
+                            )}
 
                             <SectionCard title="Piores Pontos" subtitle="Ranking de espera crítica">
                                 <div className="space-y-3">
