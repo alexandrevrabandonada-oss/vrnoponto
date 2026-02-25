@@ -5,15 +5,19 @@
 
 const DB_NAME = 'VRNP_OfflineQueue';
 const STORE_NAME = 'events';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
+
+export type OfflineEventKind = 'event_record' | 'event_rating';
 
 export interface OfflineEvent {
     id: string; // client_event_id (uuid)
+    kind?: OfflineEventKind;
     payload: Record<string, unknown>;
     status: 'PENDING' | 'SENT' | 'FAILED';
     created_at: number;
     retry_count: number;
     last_error?: string;
+    dedupe_key?: string;
 }
 
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -30,10 +34,17 @@ function getDB(): Promise<IDBDatabase> {
 
             request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
                 const db = (event.target as IDBOpenDBRequest).result;
+                let store: IDBObjectStore;
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
                     store.createIndex('status', 'status', { unique: false });
                     store.createIndex('created_at', 'created_at', { unique: false });
+                } else {
+                    store = request.transaction!.objectStore(STORE_NAME);
+                }
+
+                if (!store.indexNames.contains('dedupe_key')) {
+                    store.createIndex('dedupe_key', 'dedupe_key', { unique: false });
                 }
             };
         });
@@ -41,15 +52,60 @@ function getDB(): Promise<IDBDatabase> {
     return dbPromise;
 }
 
+function computeDedupeKey(event: OfflineEvent): string | undefined {
+    const kind = event.kind || 'event_record';
+    if (kind !== 'event_rating') return undefined;
+
+    const deviceId = typeof event.payload.deviceId === 'string' ? event.payload.deviceId.trim() : '';
+    const clientEventId = typeof event.payload.clientEventId === 'string' ? event.payload.clientEventId.trim() : '';
+    if (!deviceId || !clientEventId) return undefined;
+
+    return `event_rating:${deviceId}:${clientEventId}`;
+}
+
 export async function enqueueEvent(event: OfflineEvent): Promise<void> {
     const db = await getDB();
     return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, 'readwrite');
         const store = tx.objectStore(STORE_NAME);
-        const req = store.put(event);
+        const dedupeKey = computeDedupeKey(event);
+        const normalizedEvent: OfflineEvent = {
+            ...event,
+            kind: event.kind || 'event_record',
+            dedupe_key: dedupeKey
+        };
 
-        req.onsuccess = () => resolve();
-        req.onerror = () => reject(req.error);
+        if (!dedupeKey) {
+            const req = store.put(normalizedEvent);
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
+            return;
+        }
+
+        const byDedupe = store.index('dedupe_key').getAll(dedupeKey, 1);
+        byDedupe.onsuccess = () => {
+            const existing = (byDedupe.result as OfflineEvent[])[0];
+            if (existing?.id) {
+                const req = store.put({
+                    ...existing,
+                    payload: normalizedEvent.payload,
+                    status: 'PENDING',
+                    retry_count: 0,
+                    last_error: undefined,
+                    // keep original created_at for FIFO consistency
+                    kind: normalizedEvent.kind,
+                    dedupe_key: dedupeKey
+                } as OfflineEvent);
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error);
+                return;
+            }
+
+            const req = store.put(normalizedEvent);
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
+        };
+        byDedupe.onerror = () => reject(byDedupe.error);
     });
 }
 

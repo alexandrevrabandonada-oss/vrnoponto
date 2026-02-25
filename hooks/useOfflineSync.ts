@@ -47,15 +47,25 @@ export function useOfflineSync() {
 
             for (const item of pending) {
                 try {
-                    const res = await fetch('/api/events/record', {
+                    const kind = item.kind || 'event_record';
+                    const isRating = kind === 'event_rating';
+                    const endpoint = isRating ? '/api/events/service-rating' : '/api/events/record';
+                    const requestBody = isRating
+                        ? item.payload
+                        : { ...item.payload, clientEventId: item.id };
+
+                    const res = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ...item.payload, clientEventId: item.id })
+                        body: JSON.stringify(requestBody)
                     });
 
                     const data = await res.json();
 
-                    if (res.ok || res.status === 429 /* Rate limit -> consider it handled to avoid infinite retries */ || (res.status >= 400 && res.status < 500 && res.status !== 408 && res.status !== 429)) {
+                    const handledBusinessError = isRating && res.ok && data && data.ok === false;
+                    const handledRateLimit = !isRating && res.status === 429; // Event record rule only
+
+                    if (res.ok || handledBusinessError || handledRateLimit || (res.status >= 400 && res.status < 500 && res.status !== 408 && res.status !== 429)) {
                         // Success or client error (bad request) -> Delete from queue
                         await removeEvent(item.id);
                         syncedCount++;

@@ -60,7 +60,11 @@ export default function MeuAuditoriaPage() {
             // 1. Fetch Remote Events
             let remoteEvents: AuditEvent[] = [];
             if (isOnline) {
-                const res = await fetch(`/api/events/mine?deviceId=${deviceId}`);
+                const res = await fetch('/api/events/mine', {
+                    headers: {
+                        'x-device-id': deviceId
+                    }
+                });
                 if (res.ok) {
                     const data = await res.json();
                     remoteEvents = data.events || [];

@@ -1,13 +1,39 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+function jsonNoStore(body: unknown, status = 200) {
+    return NextResponse.json(body, {
+        status,
+        headers: {
+            'Cache-Control': 'no-store'
+        }
+    });
+}
+
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
-        const deviceId = searchParams.get('deviceId');
+        const queryDeviceId = searchParams.get('deviceId');
+
+        if (queryDeviceId !== null) {
+            return jsonNoStore(
+                { error: 'Formato atualizado: use cookie vrnp_device_id ou header x-device-id.' },
+                400
+            );
+        }
+
+        const cookieDeviceId = req.cookies.get('vrnp_device_id')?.value?.trim() || '';
+        const headerDeviceId = req.headers.get('x-device-id')?.trim() || '';
+        const deviceId = cookieDeviceId || headerDeviceId;
 
         if (!deviceId) {
-            return NextResponse.json({ error: 'Missing deviceId' }, { status: 400 });
+            return jsonNoStore(
+                { error: 'Não foi possível identificar este aparelho. Reabra o app e tente novamente.' },
+                400
+            );
         }
 
         const supabase = await createClient();
@@ -91,11 +117,11 @@ export async function GET(req: NextRequest) {
             };
         });
 
-        return NextResponse.json({ events });
+        return jsonNoStore({ events });
 
     } catch (error: unknown) {
         console.error('API /mine error:', error);
         const errMessage = error instanceof Error ? error.message : 'Internal error';
-        return NextResponse.json({ error: errMessage }, { status: 500 });
+        return jsonNoStore({ error: errMessage }, 500);
     }
 }
