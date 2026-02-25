@@ -15,6 +15,11 @@ export const FUNNEL_EVENTS = {
     EVENT_RECORDED: 'event_recorded',
     SHARE_CLICKED: 'share_clicked',
     FOLLOW_OPTIN: 'follow_optin',
+    QR_SCAN_OPEN: 'qr_scan_open',
+    QR_SCAN_SUCCESS: 'qr_scan_success',
+    QR_SCAN_FAIL: 'qr_scan_fail',
+    DRAFT_BULK_APPROVE: 'operator_draft_bulk_approved',
+    DRAFT_BULK_REJECT: 'operator_draft_bulk_rejected',
 } as const;
 
 export type FunnelEvent = typeof FUNNEL_EVENTS[keyof typeof FUNNEL_EVENTS];

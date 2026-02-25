@@ -10,6 +10,7 @@ import {
 } from '@/components/ui';
 import { AdminStopQuickAddCard } from '@/components/admin/AdminStopQuickAddCard';
 import { AdminOperatorManager } from '@/components/admin/AdminOperatorManager';
+import { AdminStopMergeCard } from '@/components/admin/AdminStopMergeCard';
 
 export default async function AdminPontos({
     searchParams
@@ -22,7 +23,8 @@ export default async function AdminPontos({
 
     const { data: stops } = await supabase
         .from('stops')
-        .select('id, code, name, is_active')
+        .select('id, code, name, is_active, merged_into_id')
+        .is('merged_into_id', null)
         .order('name');
 
     async function createStop(formData: FormData) {
@@ -78,6 +80,7 @@ export default async function AdminPontos({
             {currentTab === 'pontos' ? (
                 <div className="space-y-8">
                     <AdminOperatorManager />
+                    <AdminStopMergeCard />
                     <AdminStopQuickAddCard />
 
                     <SectionCard title="Cadastrar Novo Ponto (Manual)" subtitle="Adicione uma parada preenchendo as coordenadas">

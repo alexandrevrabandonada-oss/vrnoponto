@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { MapPin, Navigation, CheckCircle2, AlertCircle, Loader2, Save, MousePointer2 } from 'lucide-react';
 import { SectionCard, PrimaryCTA, Button, Field, InlineAlert } from '@/components/ui';
+import { formatStopName } from '@/lib/utils';
 
 interface AdminStopQuickAddCardProps {
     onSuccess?: () => void;
@@ -71,7 +72,15 @@ export function AdminStopQuickAddCard({ onSuccess }: AdminStopQuickAddCardProps)
 
     const handleSave = async (e?: React.FormEvent) => {
         e?.preventDefault();
-        if (!name || lat === null || lng === null || isSubmitting) return;
+
+        const formattedName = formatStopName(name);
+
+        if (!formattedName || formattedName.length < 6) {
+            setMessage({ type: 'error', text: 'Nome muito curto ou inválido. Use pelo menos 6 letras (Ex: Em frente ao Hospital X).' });
+            return;
+        }
+
+        if (lat === null || lng === null || isSubmitting) return;
 
         setIsSubmitting(true);
         setMessage(null);
@@ -80,7 +89,7 @@ export function AdminStopQuickAddCard({ onSuccess }: AdminStopQuickAddCardProps)
             const res = await fetch('/api/admin/stops/quick-add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, lat, lng })
+                body: JSON.stringify({ name: formattedName, lat, lng })
             });
 
             const data = await res.json();
@@ -168,10 +177,13 @@ export function AdminStopQuickAddCard({ onSuccess }: AdminStopQuickAddCardProps)
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Ex: Em frente ao Hospital X ou Padaria da Esquina"
+                            placeholder="Ex: Em frente ao Hospital X ou Próximo à Padaria Y"
                             className={inputBase}
                             required
                         />
+                        <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest ml-1">
+                            Use referências claras: "Em frente ao...", "Próximo à..."
+                        </p>
                     </div>
 
                     {/* Fallback Manual if GPS fails */}

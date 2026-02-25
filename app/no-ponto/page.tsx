@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useDeviceId } from '@/hooks/useDeviceId';
-import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2, HelpCircle, Camera, LocateFixed, Search, X, Share } from 'lucide-react';
+import { MapPin, Navigation, Bus, AlertCircle, ArrowRight, PlusCircle, CheckCircle2, HelpCircle, Camera, LocateFixed, Search, X, Share, QrCode } from 'lucide-react';
 import { StopSuggestionModal } from '@/components/StopSuggestionModal';
 import { TrustMixBadge } from '@/components/TrustMixBadge';
 import { useRouter } from 'next/navigation';
@@ -283,13 +283,23 @@ export default function NoPonto() {
                                         {location ? "Posição Capturada" : gpsStatus}
                                     </p>
                                     {!location && gpsFallbackReady && (
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowSearch(true)}
-                                            className="mt-2 min-h-11 inline-flex items-center rounded-xl border border-white/15 bg-white/[0.03] px-3 text-[10px] font-black uppercase tracking-widest text-white/80 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60"
-                                        >
-                                            Buscar ponto pelo nome
-                                        </button>
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowSearch(true)}
+                                                className="min-h-11 inline-flex items-center rounded-xl border border-white/15 bg-white/[0.03] px-3 text-[10px] font-black uppercase tracking-widest text-white/80 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60"
+                                            >
+                                                <Search size={14} className="mr-2 text-brand" />
+                                                Buscar pelo nome
+                                            </button>
+                                            <Link
+                                                href="/scan"
+                                                className="min-h-11 inline-flex items-center rounded-xl border border-white/15 bg-white/[0.03] px-3 text-[10px] font-black uppercase tracking-widest text-white/80 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60"
+                                            >
+                                                <QrCode size={14} className="mr-2 text-brand" />
+                                                Escaneie o QR
+                                            </Link>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -320,9 +330,9 @@ export default function NoPonto() {
                                     ? "Buscando pontos próximos..."
                                     : !location && gpsFallbackReady
                                         ? "GPS está lento ou indisponível. Você pode buscar o ponto pelo nome agora."
-                                    : autoNearestStop
-                                        ? "Modo Uber: conectado automaticamente ao ponto mais próximo."
-                                        : "Modo manual: selecione o ponto da lista."}
+                                        : autoNearestStop
+                                            ? "Modo Uber: conectado automaticamente ao ponto mais próximo."
+                                            : "Modo manual: selecione o ponto da lista."}
                                 className="min-h-[64px]"
                             >
                                 {isLoadingStops ? (

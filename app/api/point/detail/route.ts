@@ -20,7 +20,8 @@ export async function GET(req: Request) {
             .select(`
                 id, 
                 name, 
-                is_active
+                is_active,
+                merged_into_id
             `)
             .eq('id', stopId)
             .single();

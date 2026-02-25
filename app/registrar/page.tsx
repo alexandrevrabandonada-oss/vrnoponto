@@ -246,13 +246,15 @@ export default function Registrar() {
                             <div className="pt-4 space-y-4">
                                 <Divider label="MEIOS DE PROVA" />
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    <SecondaryCTA
-                                        onClick={() => setIsScannerOpen(true)}
-                                        icon={<QrCode size={18} aria-hidden="true" />}
-                                        aria-label="Escanear QR Code no ponto parceiro"
-                                    >
-                                        QR CODE
-                                    </SecondaryCTA>
+                                    <Link href="/scan" className="contents">
+                                        <SecondaryCTA
+                                            onClick={() => { }}
+                                            icon={<QrCode size={18} aria-hidden="true" />}
+                                            aria-label="Escanear QR Code no ponto parceiro"
+                                        >
+                                            QR CODE
+                                        </SecondaryCTA>
+                                    </Link>
                                     <SecondaryCTA
                                         onClick={() => setIsBusPhotoModalOpen(true)}
                                         icon={<Camera size={18} aria-hidden="true" />}

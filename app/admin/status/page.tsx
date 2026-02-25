@@ -72,32 +72,60 @@ export default function StatusDashboard() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [token, setToken] = useState('');
+    const [authError, setAuthError] = useState('');
     const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
     const [cleanupResult, setCleanupResult] = useState<{ deleted: number; failed: number } | null>(null);
     const [cleanupError, setCleanupError] = useState('');
 
     const fetchStatus = async (adminToken: string) => {
         setLoading(true);
+        setAuthError('');
         try {
             const res = await fetch(`/api/admin/system-status?t=${adminToken}`);
-            if (res.ok) setStatusData(await res.json());
+            if (res.ok) {
+                setStatusData(await res.json());
+                setLoading(false);
+                return;
+            }
+            if (res.status === 401) {
+                setAuthError('Token admin inválido ou ausente.');
+            } else {
+                setAuthError('Falha ao carregar diagnóstico do sistema.');
+            }
+            setStatusData(null);
         } catch (err) {
             console.error(err);
+            setAuthError('Falha de rede ao carregar diagnóstico do sistema.');
+            setStatusData(null);
         }
         setLoading(false);
     };
 
+    const persistToken = (rawToken: string) => {
+        const clean = rawToken.trim();
+        if (!clean) return;
+        setToken(clean);
+        localStorage.setItem('vrnp_admin_token', clean);
+        localStorage.setItem('admin_token', clean);
+        document.cookie = `admin_token=${encodeURIComponent(clean)}; path=/; max-age=2592000; samesite=lax`;
+    };
+
     useEffect(() => {
         let isMounted = true;
-        const stored = document.cookie.split('; ').find(row => row.startsWith('admin_token='));
+        const storedCookie = document.cookie.split('; ').find(row => row.startsWith('admin_token='));
 
         async function init() {
-            if (stored) {
-                const val = stored.split('=')[1];
+            const localToken = localStorage.getItem('vrnp_admin_token') || localStorage.getItem('admin_token') || '';
+            if (storedCookie || localToken) {
+                const val = storedCookie ? decodeURIComponent(storedCookie.split('=')[1]) : localToken;
                 setToken(val);
+                if (!storedCookie && localToken) {
+                    document.cookie = `admin_token=${encodeURIComponent(localToken)}; path=/; max-age=2592000; samesite=lax`;
+                }
                 await fetchStatus(val);
             } else if (isMounted) {
                 setLoading(false);
+                setAuthError('Faça login admin para ver o diagnóstico.');
             }
         }
 
@@ -140,7 +168,50 @@ export default function StatusDashboard() {
     }
 
     if (!statusData) {
-        return <div className="p-8 text-center text-red-500 font-bold">Não foi possível carregar o status. Verifique seu login.</div>;
+        return (
+            <div className="max-w-xl mx-auto mt-10 p-6 rounded-2xl border border-white/10 bg-[#10141b] text-white space-y-4">
+                <h1 className="text-xl font-industrial italic uppercase tracking-wide">Diagnóstico Admin</h1>
+                <p className="text-sm text-white/70">
+                    {authError || 'Não foi possível carregar o status do sistema.'}
+                </p>
+                <div className="space-y-2">
+                    <label htmlFor="admin-token-input" className="text-[10px] font-black uppercase tracking-widest text-white/50">
+                        Token admin
+                    </label>
+                    <input
+                        id="admin-token-input"
+                        value={token}
+                        onChange={(e) => setToken(e.target.value)}
+                        placeholder="Cole o token de admin"
+                        className="w-full h-11 px-3 rounded-xl bg-black/40 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-brand/50"
+                    />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            persistToken(token);
+                            fetchStatus(token);
+                        }}
+                        className="min-h-11 px-4 rounded-xl bg-brand text-black font-black text-[10px] uppercase tracking-widest hover:brightness-105"
+                    >
+                        Salvar token e carregar
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const prompted = window.prompt('Digite o token de admin:');
+                            if (!prompted) return;
+                            persistToken(prompted);
+                            fetchStatus(prompted);
+                        }}
+                        className="min-h-11 px-4 rounded-xl bg-white/10 border border-white/15 text-white font-black text-[10px] uppercase tracking-widest hover:bg-white/15"
+                    >
+                        Inserir token
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     const { health, jobs, dataFreshness, migrations } = statusData;
@@ -200,7 +271,7 @@ export default function StatusDashboard() {
                 <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
                     <div className="flex items-center gap-3 text-brand border-b border-zinc-800 pb-3">
                         <Activity size={20} />
-                        <h2 className="font-bold text-white">Saúde do Deploy</h2>
+                        <h2 className="font-bold text-gray-900">Saúde do Deploy</h2>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm">
@@ -218,7 +289,7 @@ export default function StatusDashboard() {
                 <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
                     <div className="flex items-center gap-3 text-brand border-b border-zinc-800 pb-3">
                         <Database size={20} />
-                        <h2 className="font-bold text-white">Dados & Alertas</h2>
+                        <h2 className="font-bold text-gray-900">Dados & Alertas</h2>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm">
@@ -240,7 +311,7 @@ export default function StatusDashboard() {
                 <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
                     <div className="flex items-center gap-3 text-brand border-b border-zinc-800 pb-3">
                         <Server size={20} />
-                        <h2 className="font-bold text-white">Banco de Dados</h2>
+                        <h2 className="font-bold text-gray-900">Banco de Dados</h2>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm">
@@ -258,7 +329,7 @@ export default function StatusDashboard() {
                 <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
                     <div className="flex items-center gap-3 text-brand border-b border-zinc-800 pb-3">
                         <MessageSquare size={20} />
-                        <h2 className="font-bold text-white">Notificações Telegram</h2>
+                        <h2 className="font-bold text-gray-900">Notificações Telegram</h2>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm">
@@ -304,7 +375,7 @@ export default function StatusDashboard() {
                 <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
                     <div className="flex items-center gap-3 text-brand border-b border-zinc-800 pb-3">
                         <Camera size={20} />
-                        <h2 className="font-bold text-white">Fotos de Prova (7d)</h2>
+                        <h2 className="font-bold text-gray-900">Fotos de Prova (7d)</h2>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm">
@@ -342,7 +413,7 @@ export default function StatusDashboard() {
                     <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                         <div className="flex items-center gap-3 text-brand">
                             <Send size={20} />
-                            <h2 className="font-bold text-white">Browser Web Push</h2>
+                            <h2 className="font-bold text-gray-900">Browser Web Push</h2>
                         </div>
                         <StatusBadge status={statusData.webpush.vapid_ok ? 'OK' : 'FAIL'} />
                     </div>
@@ -395,7 +466,7 @@ export default function StatusDashboard() {
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-zinc-800 flex items-center gap-3 text-brand">
                     <Clock size={20} />
-                    <h2 className="font-bold text-white">Cronjobs (GitHub Actions)</h2>
+                    <h2 className="font-bold text-gray-900">Cronjobs (GitHub Actions)</h2>
                 </div>
                 <div className="divide-y divide-gray-100">
                     {[
@@ -497,7 +568,7 @@ function NeighborhoodAuditCard({ token }: { token: string }) {
             <div className="p-5 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-3 text-brand">
                     <Database size={20} />
-                    <h2 className="font-bold text-white">Bairros: Qualidade do Match</h2>
+                    <h2 className="font-bold text-gray-900">Bairros: Qualidade do Match</h2>
                 </div>
                 <button onClick={refreshAudit} disabled={loading} className="text-sm text-gray-500 hover:text-gray-700">
                     <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />

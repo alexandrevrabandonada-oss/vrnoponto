@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, MapPin, Send, CheckCircle } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
+import { formatStopName } from '@/lib/utils';
 
 interface StopSuggestionModalProps {
     lat: number;
@@ -39,7 +40,13 @@ export function StopSuggestionModal({ lat, lng, deviceId, onClose }: StopSuggest
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim()) return;
+
+        const formattedName = formatStopName(name);
+
+        if (!formattedName || formattedName.length < 6) {
+            setError('Nome do ponto muito curto. Use pelo menos 6 letras (Ex: Próximo à Padaria Y).');
+            return;
+        }
 
         setIsSubmitting(true);
         setError('');
@@ -49,7 +56,7 @@ export function StopSuggestionModal({ lat, lng, deviceId, onClose }: StopSuggest
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: name.trim(),
+                    name: formattedName,
                     notes: notes.trim() || undefined,
                     lat,
                     lng,
@@ -142,10 +149,13 @@ export function StopSuggestionModal({ lat, lng, deviceId, onClose }: StopSuggest
                                     required
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="Ex: Rua 33, esquina com Av. Brasil"
-                                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/30 transition-all"
+                                    placeholder="Ex: Em frente ao Hospital X ou Próximo à Padaria Y"
+                                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-brand/50 focus:ring-1 focus:ring-brand/30 transition-all font-bold"
                                     maxLength={200}
                                 />
+                                <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-1 ml-1">
+                                    Use referências: "Em frente ao...", "Próximo à..."
+                                </p>
                             </div>
 
                             {/* Notes (optional) */}

@@ -5,6 +5,7 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import { X, Camera } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { InlineAlert } from '@/components/ui';
+import { parseQrContent } from '@/lib/qrUtils';
 
 export function QRScanner({ onClose }: { onClose: () => void }) {
     const router = useRouter();
@@ -26,10 +27,9 @@ export function QRScanner({ onClose }: { onClose: () => void }) {
         scanner.render((decodedText) => {
             // handle success
             scanner.clear().then(() => {
-                // If it's a internal link, extract token
-                if (decodedText.includes('/qr/')) {
-                    const token = decodedText.split('/qr/')[1];
-                    router.push(`/qr/${token}`);
+                const target = parseQrContent(decodedText);
+                if (target) {
+                    router.push(target);
                 } else {
                     setError("QR inválido ou não suportado (" + decodedText + ")");
                     setTimeout(() => setError(null), 4000);

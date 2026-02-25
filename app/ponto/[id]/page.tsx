@@ -63,7 +63,17 @@ export default function PontoDetailPage() {
                     fetch(`/api/alerts?days=30`)
                 ]);
 
-                if (detailRes.ok) setData(await detailRes.json());
+                if (detailRes.ok) {
+                    const detailData = await detailRes.json();
+
+                    // Redirect if stop is merged
+                    if (detailData.stop?.merged_into_id) {
+                        router.replace(`/ponto/${detailData.stop.merged_into_id}`);
+                        return;
+                    }
+
+                    setData(detailData);
+                }
                 if (weeklyRes.ok) setWeekly(await weeklyRes.json());
                 if (alertsRes.ok) {
                     const allAlerts = await alertsRes.json();

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { MapPin, Navigation, CheckCircle2, AlertCircle, Loader2, Send } from 'lucide-react';
 import { AppShell, Card, PageHeader, Button, PrimaryCTA } from '@/components/ui';
+import { formatStopName } from '@/lib/utils';
 
 function OperadorContent() {
     const searchParams = useSearchParams();
@@ -43,7 +44,15 @@ function OperadorContent() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name || !location || !token || isSubmitting) return;
+
+        const formattedName = formatStopName(name);
+
+        if (!formattedName || formattedName.length < 6) {
+            setMessage({ type: 'error', text: 'Nome muito curto. Use pelo menos 6 letras (Ex: Em frente ao Hospital X).' });
+            return;
+        }
+
+        if (!location || !token || isSubmitting) return;
 
         setIsSubmitting(true);
         setMessage(null);
@@ -53,7 +62,7 @@ function OperadorContent() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name,
+                    name: formattedName,
                     lat: location.lat,
                     lon: location.lng,
                     token
@@ -129,9 +138,12 @@ function OperadorContent() {
                             required
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Ex: Em frente ao Hospital X"
+                            placeholder="Ex: Em frente ao Hospital X ou Próximo à Padaria Y"
                             className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white placeholder:text-white/20 focus:outline-none focus:border-brand/50 transition-all font-bold h-14"
                         />
+                        <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest ml-1">
+                            Use referências claras: "Em frente ao...", "Próximo à..."
+                        </p>
                     </div>
 
                     {message && (

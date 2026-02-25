@@ -5,41 +5,13 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { Download, Printer, QrCode, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui';
 
-export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, partnerId?: string, stopName: string }) {
-    const [qrUrl, setQrUrl] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+export function QRGenerator({ stopId, stopName }: { stopId: string, stopName: string }) {
     const [showModal, setShowModal] = useState(false);
     const qrRef = useRef<HTMLDivElement>(null);
 
-    async function generateQR() {
-        setLoading(true);
-        try {
-            const res = await fetch('/api/admin/qr/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    stop_id: stopId,
-                    partner_id: partnerId
-                })
-            });
-            const data = await res.json();
-            if (data.qr_url) {
-                setQrUrl(data.qr_url);
-                setShowModal(true);
-
-                // Log telemetry on successful kit generation
-                fetch('/api/telemetry', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ event: 'partner_kit_generated' }),
-                }).catch(() => { });
-            }
-        } catch (err) {
-            console.error('Failed to generate QR', err);
-        } finally {
-            setLoading(false);
-        }
-    }
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const qrUrl = `${baseUrl}/registrar?stopId=${stopId}`;
+    const shortCode = `vrnp:stop:${stopId.split('-')[0]}`; // Using first part of UUID as short code for display
 
     const downloadPNG = () => {
         const canvas = document.querySelector('canvas');
@@ -59,21 +31,41 @@ export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, 
         printWindow.document.write(`
             <html>
                 <head>
-                    <title>Imprimir QR Code - ${stopName}</title>
+                    <title>Imprimir QR - ${stopName}</title>
                     <style>
-                        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-                        .container { text-align: center; border: 2px solid #eee; padding: 40px; border-radius: 20px; }
-                        h1 { font-size: 24px; margin-bottom: 8px; }
-                        h2 { font-size: 18px; color: #666; margin-bottom: 40px; }
-                        .footer { margin-top: 40px; font-weight: bold; color: #ef4444; }
+                        body { 
+                            font-family: 'Inter', sans-serif; 
+                            display: flex; 
+                            flex-direction: column; 
+                            align-items: center; 
+                            justify-content: center; 
+                            height: 100vh; 
+                            margin: 0; 
+                            background: white;
+                            color: black;
+                        }
+                        .container { 
+                            text-align: center; 
+                            border: 4px solid black; 
+                            padding: 60px; 
+                            border-radius: 40px; 
+                            max-width: 500px;
+                        }
+                        .brand { font-size: 14px; font-weight: 900; letter-spacing: 0.2em; margin-bottom: 20px; }
+                        h1 { font-size: 32px; font-weight: 900; margin: 10px 0; text-transform: uppercase; line-height: 1; }
+                        .cta { font-size: 20px; font-weight: 900; background: black; color: white; padding: 8px 20px; border-radius: 10px; margin: 20px 0; display: inline-block; }
+                        .shortcode { font-size: 12px; font-family: monospace; color: #666; margin-top: 20px; }
+                        .footer { margin-top: 20px; font-size: 10px; font-weight: bold; opacity: 0.5; }
                     </style>
                 </head>
                 <body>
                     <div class="container">
-                        <h1>VR NO PONTO</h1>
-                        <h2>${stopName}</h2>
-                        ${content}
-                        <div class="footer">AUDITORIA POPULAR - ESCANEIE PARA VALIDAR</div>
+                        <div class="brand">VR NO PONTO</div>
+                        <h1>${stopName}</h1>
+                        <div class="cta">ESCANEIE E REGISTRE EM 10s</div>
+                        <div style="margin: 20px 0;">${content}</div>
+                        <div class="shortcode">ID: ${shortCode}</div>
+                        <div class="footer">PROJETO DE AUDITORIA POPULAR</div>
                     </div>
                     <script>window.onload = () => { window.print(); window.close(); }</script>
                 </body>
@@ -85,19 +77,16 @@ export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, 
     return (
         <>
             <button
-                onClick={generateQR}
-                disabled={loading}
-                className="inline-flex items-center gap-2 bg-brand/10 text-brand px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand/20 transition disabled:opacity-50 border border-brand/20"
+                onClick={() => setShowModal(true)}
+                className="inline-flex items-center gap-2 bg-brand/10 text-brand px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand/20 transition border border-brand/20"
             >
-                {loading ? <Loader2 className="animate-spin" size={14} /> : <QrCode size={14} />}
+                <QrCode size={14} />
                 Gerar QR
             </button>
 
-            {showModal && qrUrl && (
+            {showModal && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
                     <div className="bg-[#0c0f14] rounded-3xl border border-white/10 shadow-2xl max-w-md w-full p-8 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand/5 blur-3xl -mr-16 -mt-16" />
-
                         <button
                             onClick={() => setShowModal(false)}
                             className="absolute top-5 right-5 text-white/20 hover:text-white transition-colors"
@@ -108,23 +97,28 @@ export function QRGenerator({ stopId, partnerId, stopName }: { stopId?: string, 
                         <div className="text-center space-y-6 relative">
                             <div>
                                 <h3 className="text-xl font-industrial italic uppercase tracking-wide text-white leading-tight">
-                                    QR Code de Auditoria
+                                    QR Code do Ponto
                                 </h3>
-                                <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mt-2">{stopName}</p>
+                                <p className="text-brand text-[10px] font-black uppercase tracking-widest mt-2">{stopName}</p>
                             </div>
 
-                            <div ref={qrRef} className="flex justify-center p-6 bg-white rounded-2xl">
+                            <div ref={qrRef} className="flex justify-center p-6 bg-white rounded-2xl mx-auto w-fit">
                                 <QRCodeCanvas
                                     value={qrUrl}
-                                    size={256}
+                                    size={200}
                                     level="H"
-                                    includeMargin={true}
+                                    includeMargin={false}
                                 />
                             </div>
 
-                            <p className="text-[11px] text-white/30 leading-relaxed px-4">
-                                Posicione este QR Code em local visível no ponto para que os usuários possam validar sua presença.
-                            </p>
+                            <div className="space-y-2">
+                                <p className="text-[14px] font-black text-white uppercase italic tracking-tight">
+                                    "Escaneie e registre em 10s"
+                                </p>
+                                <p className="text-[10px] text-white/30 font-mono">
+                                    Código: {shortCode}
+                                </p>
+                            </div>
 
                             <div className="grid grid-cols-2 gap-4 pt-2">
                                 <Button
