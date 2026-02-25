@@ -4,32 +4,14 @@ import { createClient } from '@supabase/supabase-js';
 export const dynamic = 'force-dynamic';
 
 const ALLOWED_EVENTS = new Set([
-    'cta_click',
-    'pageview_como_usar',
-    'pageview_no_ponto',
-    'pageview_registrar',
-    'page_view_partners',
-    'page_view_partner_apply',
-    'click_partner_apply_submit',
-    'partner_kit_generated',
-    'offline_queue_enqueued',
-    'offline_queue_synced',
-    'offline_queue_failed',
-    'invite_impression_A',
-    'invite_impression_B',
-    'invite_click_A',
-    'invite_click_B',
-    'partner_request_created_A',
-    'partner_request_created_B',
-    'follow_bairro_click',
-    'follow_linha_click',
-    'push_optin_success',
-    'push_optin_denied',
-    'bus_photo_open',
-    'bus_photo_uploaded',
-    'bus_photo_ai_suggested',
-    'bus_photo_confirmed',
-    'bus_photo_fallback_manual'
+    'home_start',
+    'gps_ok',
+    'stop_selected',
+    'checkin_confirmed',
+    'registrar_open',
+    'event_recorded',
+    'share_clicked',
+    'follow_optin'
 ]);
 
 export async function POST(req: Request) {

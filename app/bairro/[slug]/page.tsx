@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
-    Bus, History as HistoryIcon, AlertCircle, BarChart3
+    Bus, History as HistoryIcon, AlertCircle, BarChart3, Timer, AlertTriangle, ShieldCheck, ChevronDown, ChevronUp
 } from 'lucide-react';
 import {
     AppShell, PageHeader, Button, Card,
@@ -29,6 +29,7 @@ export default function BairroDetailPage() {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<{ summary: Summary; topStops: StopRow[]; topLines: LineRow[] } | null>(null);
     const [history, setHistory] = useState<MonthlyHistoryItem[]>([]);
+    const [showDetails, setShowDetails] = useState(false);
 
     useEffect(() => {
         if (!slug) return;
@@ -115,6 +116,11 @@ export default function BairroDetailPage() {
                                 id={summary.neighborhood.toLowerCase().trim()}
                                 label={summary.neighborhood}
                             />
+                            {/* Human Indicator for Official Comparison */}
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-brand/[0.08] border border-brand/20 rounded-full animate-pulse-subtle">
+                                <ShieldCheck className="text-brand" size={12} />
+                                <span className="text-[9px] font-black tracking-tighter text-brand uppercase">Comparado com Oficial</span>
+                            </div>
                             <ShareButton
                                 title={`Ranking: ${summary.neighborhood}`}
                                 text={`Veja o ranking de mobilidade do bairro ${summary.neighborhood} em Volta Redonda.`}
@@ -129,135 +135,168 @@ export default function BairroDetailPage() {
 
                 <div className="space-y-8">
                     {/* KPI Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {/* Human KPI Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <MetricCard
-                            label="Atraso Médio"
+                            label="Tempo Típico"
                             value={summary.avg_delta_min !== null ? `+${summary.avg_delta_min}m` : '--'}
-                            trend="Real vs Oficial"
-                            hintTitle="Tempo típico"
-                            hintContent="Mostra o atraso comum que as pessoas enfrentam no bairro."
+                            trend="Atraso comum"
+                            term="tempo_tipico"
+                            icon={<Timer className="text-brand/50" size={16} />}
                         />
                         <MetricCard
-                            label="Pontos"
-                            value={summary.stops_count}
-                            hintTitle="Amostra mínima"
-                            hintContent="Mais pontos com relatos deixam o retrato do bairro mais estável."
+                            label="Cenário Crítico"
+                            value={topStops.length > 0 ? `+${topStops[0].worst_delta_min}m` : '--'}
+                            trendColor="danger"
+                            trend="Pior ponto"
+                            term="cenario_critico"
+                            icon={<AlertTriangle className="text-danger/50" size={16} />}
                         />
                         <MetricCard
-                            label="Auditado"
-                            value={summary.samples_total}
-                            hintTitle="Amostra mínima"
-                            hintContent="Com mais relatos, o resultado fica mais confiável."
-                        />
-                        <MetricCard
-                            label="Confiança"
+                            label="Confiabilidade"
                             value={`${summary.pct_verified_avg}%`}
-                            trendColor="success"
-                            trend="Dados Coesos"
-                            hintTitle="Confiabilidade"
-                            hintContent="Indica quanto dos relatos foi confirmado por cruzamento."
+                            trend={summary.samples_total > 50 ? 'Alta' : 'Em análise'}
+                            term="confiabilidade"
+                            icon={<ShieldCheck className="text-emerald-500/50" size={16} />}
                         />
                     </div>
 
-                    {/* Monthly Performance */}
-                    <Card className="!p-0 overflow-hidden border-white/5">
-                        <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
-                            <div className="flex items-center gap-2">
-                                <HistoryIcon size={18} className="text-brand opacity-60" />
-                                <h2 className="font-industrial text-sm uppercase tracking-widest text-white">Performance Histórica</h2>
+                    <div className="flex justify-center pt-2">
+                        <button
+                            onClick={() => setShowDetails(!showDetails)}
+                            className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-white/60"
+                        >
+                            {showDetails ? (
+                                <>
+                                    <ChevronUp size={16} />
+                                    Ocultar detalhes técnicos
+                                </>
+                            ) : (
+                                <>
+                                    <ChevronDown size={16} />
+                                    Ver detalhes técnicos
+                                </>
+                            )}
+                        </button>
+                    </div>
+
+                    {showDetails && (
+                        <div className="space-y-8 animate-in slide-in-from-top-4 duration-500">
+                            {/* Technical Metrics Header */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <MetricCard
+                                    label="Pontos"
+                                    value={summary.stops_count}
+                                    term="amostra_minima"
+                                />
+                                <MetricCard
+                                    label="Auditado"
+                                    value={summary.samples_total}
+                                    term="amostra_minima"
+                                />
                             </div>
-                            {sparkData.length > 1 && (
-                                <div className="hidden sm:block">
-                                    <Sparkline data={sparkData} width={100} height={24} color="#FFCC00" showPoints={false} />
+
+                            {/* Monthly Performance */}
+                            <Card className="!p-0 overflow-hidden border-white/5">
+                                <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+                                    <div className="flex items-center gap-2">
+                                        <HistoryIcon size={18} className="text-brand opacity-60" />
+                                        <h2 className="font-industrial text-sm uppercase tracking-widest text-white">Performance Histórica</h2>
+                                    </div>
+                                    {sparkData.length > 1 && (
+                                        <div className="hidden sm:block">
+                                            <Sparkline data={sparkData} width={100} height={24} color="#FFCC00" showPoints={false} />
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-                        <div className="divide-y divide-white/5">
-                            {history.length === 0 ? (
-                                <EmptyState
-                                    icon={HistoryIcon}
-                                    title="Sem Histórico"
-                                    description="Não há dados consolidados suficientes para este bairro."
-                                    className="!py-12"
-                                />
-                            ) : (
-                                history.slice(-6).reverse().map((h: MonthlyHistoryItem, i: number) => {
-                                    const prev = history[history.length - (history.length > 6 ? 6 - i : history.length - i) - 1];
-                                    const diff = prev ? h.avg_delta_min - prev.avg_delta_min : null;
-                                    const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(new Date(h.month_start + 'T12:00:00Z'));
-
-                                    return (
-                                        <MetricRow
-                                            key={h.month_start}
-                                            label={`${monthName} / ${new Date(h.month_start).getFullYear()}`}
-                                            value={`+${h.avg_delta_min}`}
-                                            sublabel="min"
-                                            delta={diff && diff < 0 ? 'positive' : diff && diff > 0 ? 'negative' : 'neutral'}
-                                            deltaLabel={diff ? `${Math.abs(diff).toFixed(1)}m` : 'estável'}
+                                <div className="divide-y divide-white/5">
+                                    {history.length === 0 ? (
+                                        <EmptyState
+                                            icon={HistoryIcon}
+                                            title="Sem Histórico"
+                                            description="Não há dados consolidados suficientes para este bairro."
+                                            className="!py-12"
                                         />
-                                    );
-                                })
-                            )}
-                        </div>
-                    </Card>
+                                    ) : (
+                                        history.slice(-6).reverse().map((h: MonthlyHistoryItem, i: number) => {
+                                            const prev = history[history.length - (history.length > 6 ? 6 - i : history.length - i) - 1];
+                                            const diff = prev ? h.avg_delta_min - prev.avg_delta_min : null;
+                                            const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(new Date(h.month_start + 'T12:00:00Z'));
 
-                    {/* Top Critical Stops */}
-                    <SectionCard title="Pontos Mais Críticos" subtitle="Onde o atraso é mais frequente">
-                        <div className="space-y-3">
-                            {topStops.length === 0 ? (
-                                <EmptyState
-                                    icon={BarChart3}
-                                    title="Nada Crítico"
-                                    description="Não há pontos com atrasos significativos reportados recentemente neste bairro."
-                                />
-                            ) : (
-                                topStops.slice(0, 5).map((s, i) => (
-                                    <ListItem
-                                        key={s.stop_id}
-                                        leftIcon={<span className="font-industrial text-[10px] opacity-40">#{i + 1}</span>}
-                                        title={s.stop_name}
-                                        description={`${s.samples_total} ${t('samples.total')}`}
-                                        tone="danger"
-                                        rightElement={
-                                            <div className="text-right">
-                                                <div className="text-lg font-industrial italic leading-none text-danger">+{s.worst_delta_min}m</div>
-                                                <div className="text-[8px] font-black uppercase tracking-tight opacity-40">{t('metric.worst')}</div>
-                                            </div>
-                                        }
-                                        href={`/ponto/${s.stop_id}`}
-                                    />
-                                ))
-                            )}
-                        </div>
-                    </SectionCard>
+                                            return (
+                                                <MetricRow
+                                                    key={h.month_start}
+                                                    label={`${monthName} / ${new Date(h.month_start).getFullYear()}`}
+                                                    value={`+${h.avg_delta_min}`}
+                                                    sublabel="min"
+                                                    delta={diff && diff < 0 ? 'positive' : diff && diff > 0 ? 'negative' : 'neutral'}
+                                                    deltaLabel={diff ? `${Math.abs(diff).toFixed(1)}m` : 'estável'}
+                                                />
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </Card>
 
-                    {/* Top Lines */}
-                    <SectionCard title="Linhas Problemáticas" subtitle="Atraso médio por itinerário">
-                        <div className="space-y-3">
-                            {topLines.length === 0 ? (
-                                <EmptyState
-                                    icon={Bus}
-                                    title="Operação Normal"
-                                    description="As linhas que cruzam este bairro apresentam performance dentro da média."
-                                />
-                            ) : (
-                                topLines.map((l) => (
-                                    <ListItem
-                                        key={l.line_id}
-                                        leftIcon={<span className="font-industrial text-[10px] opacity-40">L{l.line_code}</span>}
-                                        title={l.line_name}
-                                        description={`Média de +${l.avg_delta_min}m de atraso`}
-                                        rightElement={
-                                            <div className="text-[10px] font-black text-white bg-white/5 px-2 py-1 rounded-lg border border-white/10 uppercase">
-                                                {l.samples_total} {t('samples.total')}
-                                            </div>
-                                        }
-                                        href={`/linha/${l.line_id}`}
-                                    />
-                                ))
-                            )}
+                            {/* Top Critical Stops */}
+                            <SectionCard title="Pontos Mais Críticos" subtitle="Onde o atraso é mais frequente">
+                                <div className="space-y-3">
+                                    {topStops.length === 0 ? (
+                                        <EmptyState
+                                            icon={BarChart3}
+                                            title="Nada Crítico"
+                                            description="Não há pontos com atrasos significativos reportados recentemente neste bairro."
+                                        />
+                                    ) : (
+                                        topStops.slice(0, 5).map((s, i) => (
+                                            <ListItem
+                                                key={s.stop_id}
+                                                leftIcon={<span className="font-industrial text-[10px] opacity-40">#{i + 1}</span>}
+                                                title={s.stop_name}
+                                                description={`${s.samples_total} ${t('samples.total')}`}
+                                                tone="danger"
+                                                rightElement={
+                                                    <div className="text-right">
+                                                        <div className="text-lg font-industrial italic leading-none text-danger">+{s.worst_delta_min}m</div>
+                                                        <div className="text-[8px] font-black uppercase tracking-tight opacity-40">{t('metric.worst')}</div>
+                                                    </div>
+                                                }
+                                                href={`/ponto/${s.stop_id}`}
+                                            />
+                                        ))
+                                    )}
+                                </div>
+                            </SectionCard>
+
+                            {/* Top Lines */}
+                            <SectionCard title="Linhas Problemáticas" subtitle="Atraso médio por itinerário">
+                                <div className="space-y-3">
+                                    {topLines.length === 0 ? (
+                                        <EmptyState
+                                            icon={Bus}
+                                            title="Operação Normal"
+                                            description="As linhas que cruzam este bairro apresentam performance dentro da média."
+                                        />
+                                    ) : (
+                                        topLines.map((l) => (
+                                            <ListItem
+                                                key={l.line_id}
+                                                leftIcon={<span className="font-industrial text-[10px] opacity-40">L{l.line_code}</span>}
+                                                title={l.line_name}
+                                                description={`Média de +${l.avg_delta_min}m de atraso`}
+                                                rightElement={
+                                                    <div className="text-[10px] font-black text-white bg-white/5 px-2 py-1 rounded-lg border border-white/10 uppercase">
+                                                        {l.samples_total} {t('samples.total')}
+                                                    </div>
+                                                }
+                                                href={`/linha/${l.line_id}`}
+                                            />
+                                        ))
+                                    )}
+                                </div>
+                            </SectionCard>
                         </div>
-                    </SectionCard>
+                    )}
 
                     <NextStepBlock title="Ação do Cidadão">
                         <Link href="/no-ponto" className="block">

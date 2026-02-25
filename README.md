@@ -34,3 +34,11 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Privacidade e Telemetria
+
+Para melhorar a experiência de uso (especialmente para idosos e situações de rede instável), coletamos telemetria anônima limitada a 8 eventos de funil (ex: abertura, sucesso de registro, uso de GPS).
+
+- **Não coletamos PII** (dados de identificação pessoal).
+- Os dados são usados apenas para identificar onde os usuários desistem do fluxo.
+- Identificadores de dispositivo são anônimos e não cruzados com perfis externos.

@@ -8,6 +8,8 @@ import { MapPin, UploadCloud, Plus, AlertTriangle } from 'lucide-react';
 import {
     PageHeader, SectionCard, Button
 } from '@/components/ui';
+import { AdminStopQuickAddCard } from '@/components/admin/AdminStopQuickAddCard';
+import { AdminOperatorManager } from '@/components/admin/AdminOperatorManager';
 
 export default async function AdminPontos({
     searchParams
@@ -75,7 +77,10 @@ export default async function AdminPontos({
 
             {currentTab === 'pontos' ? (
                 <div className="space-y-8">
-                    <SectionCard title="Cadastrar Novo Ponto" subtitle="Adicione uma parada manual ao mapa">
+                    <AdminOperatorManager />
+                    <AdminStopQuickAddCard />
+
+                    <SectionCard title="Cadastrar Novo Ponto (Manual)" subtitle="Adicione uma parada preenchendo as coordenadas">
                         <form action={createStop} className="flex flex-col lg:flex-row gap-6 items-end">
                             <div className="w-full lg:w-32">
                                 <label className={labelBase}>Cód. (Opc)</label>
@@ -114,23 +119,26 @@ export default async function AdminPontos({
                                 </thead>
                                 <tbody className="divide-y divide-white/[0.02]">
                                     {stops?.map(stop => (
-                                        <tr key={stop.id} className="group hover:bg-white/[0.02] transition-colors">
-                                            <td className="px-6 py-4 text-sm font-mono text-white/40">{stop.code || '—'}</td>
-                                            <td className="px-6 py-4 font-bold text-white group-hover:text-brand transition-colors">{stop.name}</td>
-                                            <td className="px-6 py-4">
+                                        <tr key={stop.id} className="group hover:bg-white/[0.02] transition-colors focus-within:bg-white/[0.04] outline-none">
+                                            <td className="px-6 py-5 text-sm font-mono text-white/40">{stop.code || '—'}</td>
+                                            <td className="px-6 py-5 font-bold text-white group-hover:text-brand transition-colors">{stop.name}</td>
+                                            <td className="px-6 py-5">
                                                 <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${stop.is_active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
                                                     {stop.is_active ? 'Ativo' : 'Inativo'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <QRGenerator stopId={stop.id} stopName={stop.name} />
+                                            <td className="px-6 py-5 text-right">
+                                                <div className="flex justify-end">
+                                                    <QRGenerator stopId={stop.id} stopName={stop.name} />
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
                                     {(!stops || stops.length === 0) && (
                                         <tr>
-                                            <td colSpan={4} className="px-6 py-12 text-center text-white/20 font-black uppercase tracking-widest italic">
-                                                Nenhum ponto cadastrado no sistema.
+                                            <td colSpan={4} className="px-6 py-16 text-center text-white/20 font-black uppercase tracking-widest italic leading-loose">
+                                                Nenhum ponto cadastrado ainda.<br />
+                                                <span className="text-[10px] opacity-50 not-italic">Dica: Use 'Seed VR' para importar ou 'Cadastro Rápido' acima.</span>
                                             </td>
                                         </tr>
                                     )}

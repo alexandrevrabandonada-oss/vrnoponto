@@ -357,6 +357,15 @@ export default function AdminDataQualityPage() {
                     <div className="flex items-center gap-3 mb-6">
                         <Rocket size={24} className="text-brand" />
                         <h2 className="text-xl font-bold text-gray-800">Pronto pra lançar?</h2>
+                        <a
+                            href="https://github.com/alexandrevrabandonada-oss/vrnoponto/blob/main/docs/GO_LIVE.md"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-auto text-[10px] font-black uppercase tracking-widest text-brand hover:underline"
+                        >
+                            GO_LIVE.md
+                        </a>
+
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">

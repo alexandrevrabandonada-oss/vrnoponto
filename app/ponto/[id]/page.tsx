@@ -144,6 +144,11 @@ export default function PontoDetailPage() {
                             <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ${stop.is_active ? 'bg-brand/20 text-brand' : 'bg-red-500/20 text-red-400'}`}>
                                 {stop.is_active ? 'MONITORADO' : 'INATIVO'}
                             </span>
+                            {/* Human Indicator for Official Comparison */}
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-brand/[0.08] border border-brand/20 rounded-full animate-pulse-subtle">
+                                <ShieldCheck className="text-brand" size={12} />
+                                <span className="text-[9px] font-black tracking-tighter text-brand uppercase">Comparado com Oficial</span>
+                            </div>
                             <ShareButton
                                 title={`Monitoramento: ${stop.name}`}
                                 text={`Veja como está a situação da espera no ponto ${stop.name} (${stop.neighborhood}) hoje.`}

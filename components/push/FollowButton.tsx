@@ -5,6 +5,7 @@ import { Button } from '@/components/ui';
 import { Bell, BellRing, Loader2, Check } from 'lucide-react';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { PushOptInModal } from './PushOptInModal';
+import { trackFunnel, FUNNEL_EVENTS } from '@/lib/telemetry';
 
 interface FollowButtonProps {
     type: 'neighborhood' | 'line';
@@ -47,6 +48,7 @@ export function FollowButton({ type, id, label }: FollowButtonProps) {
         try {
             if (type === 'neighborhood') {
                 await followNeighborhood(id);
+                trackFunnel(FUNNEL_EVENTS.FOLLOW_OPTIN);
             } else {
                 await followLine(id);
             }
