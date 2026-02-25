@@ -221,9 +221,9 @@ export default function MeuAuditoriaPage() {
                             title="Sem registros locais"
                             description="Seus relatos recentes aparecerão aqui após o primeiro uso."
                             actionLabel="Estou no ponto"
-                            onAction={() => window.location.href = '/no-ponto'}
+                            actionHref="/no-ponto"
                             secondaryActionLabel="Como usar"
-                            onSecondaryAction={() => window.location.href = '/como-usar'}
+                            secondaryActionHref="/como-usar"
                         />
                     ) : (
                         <div className="space-y-2">

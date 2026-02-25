@@ -141,7 +141,7 @@ export default function BoletimPage() {
                         title="Boletim Vazio"
                         description={error || 'Não há relatos suficientes para consolidar o boletim deste período.'}
                         actionLabel="Gerar primeiros dados agora"
-                        onAction={() => window.location.href = '/no-ponto'}
+                        actionHref="/no-ponto"
                         secondaryActionLabel="Tentar Novamente"
                         onSecondaryAction={() => window.location.reload()}
                         samplesMissing={data ? Math.max(0, 3 - (data.summary?.samplesTotal || 0)) : undefined}
@@ -217,9 +217,9 @@ export default function BoletimPage() {
                             title="Ainda sem amostra suficiente"
                             description="Não há dados de auditoria suficientes para gerar o boletim neste período. Colabore com pelo menos 3 registros hoje!"
                             actionLabel="Auditar Ponto"
-                            onAction={() => window.location.href = '/no-ponto'}
+                            actionHref="/no-ponto"
                             secondaryActionLabel="Como Funciona"
-                            onSecondaryAction={() => window.location.href = '/como-usar'}
+                            secondaryActionHref="/como-usar"
                             term="amostra_minima"
                         />
                     ) : (

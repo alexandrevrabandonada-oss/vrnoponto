@@ -120,9 +120,9 @@ export default function PontoDetailPage() {
                         title="Sem dados suficientes"
                         description="Este ponto ainda não possui relatos validados para gerar estatísticas confiáveis."
                         actionLabel="Gerar primeiros dados agora"
-                        onAction={() => window.location.href = '/no-ponto'}
+                        actionHref="/no-ponto"
                         secondaryActionLabel="Ver Bairros"
-                        onSecondaryAction={() => window.location.href = '/bairros'}
+                        secondaryActionHref="/bairros"
                         samplesMissing={undefined}
                     >
                         <MetricCard
@@ -246,9 +246,9 @@ export default function PontoDetailPage() {
                                             title="Histórico Vazio"
                                             description="Ainda não recebemos relatos suficientes para gerar o gráfico de tendência deste ponto. Colabore hoje!"
                                             actionLabel="Auditar Ponto"
-                                            onAction={() => window.location.href = '/no-ponto'}
+                                            actionHref="/no-ponto"
                                             secondaryActionLabel="Como Funciona"
-                                            onSecondaryAction={() => window.location.href = '/como-usar'}
+                                            secondaryActionHref="/como-usar"
                                             className="!py-12"
                                         />
                                     ) : (

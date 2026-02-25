@@ -12,8 +12,10 @@ interface EmptyStateProps {
     title: string;
     description: string;
     actionLabel?: string;
+    actionHref?: string;
     onAction?: () => void;
     secondaryActionLabel?: string;
+    secondaryActionHref?: string;
     onSecondaryAction?: () => void;
     samplesMissing?: number;
     className?: string;
@@ -28,8 +30,10 @@ export const EmptyState = ({
     title,
     description,
     actionLabel,
+    actionHref,
     onAction,
     secondaryActionLabel,
+    secondaryActionHref,
     onSecondaryAction,
     samplesMissing,
     className = '',
@@ -79,6 +83,7 @@ export const EmptyState = ({
                 {actionLabel && (
                     <Button
                         variant="primary"
+                        href={actionHref}
                         onClick={onAction}
                         className="w-full !h-12 !text-[11px] font-black uppercase tracking-widest"
                         icon={<MapPin size={14} />}
@@ -89,6 +94,7 @@ export const EmptyState = ({
                 {secondaryActionLabel && (
                     <Button
                         variant="secondary"
+                        href={secondaryActionHref}
                         onClick={onSecondaryAction}
                         className="w-full !h-12 !text-[11px] font-black uppercase tracking-widest"
                         icon={<Search size={14} />}

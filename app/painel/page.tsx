@@ -178,9 +178,9 @@ function PainelContent() {
                             title="Operação Estável"
                             description="Nenhum ponto de ônibus apresenta desvios críticos para os filtros selecionados. Continue auditando para manter o mapa atualizado."
                             actionLabel="Auditar Ponto"
-                            onAction={() => window.location.href = '/no-ponto'}
+                            actionHref="/no-ponto"
                             secondaryActionLabel="Ver Ranking"
-                            onSecondaryAction={() => window.location.href = '/bairros'}
+                            secondaryActionHref="/bairros"
                         />
                     ) : (
                         <Card className="!p-0 overflow-hidden border-white/5">

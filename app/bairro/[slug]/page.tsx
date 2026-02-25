@@ -90,7 +90,7 @@ export default function BairroDetailPage() {
                         title="Bairro não encontrado"
                         description="Não conseguimos localizar os dados para este bairro no sistema."
                         actionLabel="Voltar ao Ranking"
-                        onAction={() => window.location.href = '/bairros'}
+                        actionHref="/bairros"
                     />
                 </div>
             </AppShell>

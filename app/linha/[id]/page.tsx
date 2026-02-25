@@ -114,9 +114,9 @@ export default function LinhaDetails() {
                         title="Sem Dados de Frequência"
                         description="Esta linha ainda não possui auditorias suficientes para o cálculo de frequência real."
                         actionLabel="Gerar primeiros dados agora"
-                        onAction={() => window.location.href = '/no-ponto'}
+                        actionHref="/no-ponto"
                         secondaryActionLabel="Ver Ranking"
-                        onSecondaryAction={() => window.location.href = '/bairros'}
+                        secondaryActionHref="/bairros"
                         samplesMissing={undefined}
                     >
                         <MetricCard

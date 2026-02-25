@@ -119,9 +119,9 @@ export default function BairrosPage() {
                                     title="Sem Dados de Ranking"
                                     description="Não há auditores suficientes hoje. Que tal registrar em pelo menos 3 pontos agora para reverter este cenário?"
                                     actionLabel="Auditar Ponto"
-                                    onAction={() => window.location.href = '/no-ponto'}
+                                    actionHref="/no-ponto"
                                     secondaryActionLabel="Como Funciona"
-                                    onSecondaryAction={() => window.location.href = '/como-usar'}
+                                    secondaryActionHref="/como-usar"
                                     hintTitle="Amostra mínima"
                                     hintContent="Número de registros necessários pra que o cálculo faça sentido e seja real."
                                 />

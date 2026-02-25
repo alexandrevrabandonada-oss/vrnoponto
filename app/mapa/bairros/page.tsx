@@ -140,9 +140,9 @@ export default async function MapaBairrosPage(props: { searchParams: Promise<{ m
                         title="Sem dados do mapa"
                         description="Ainda não há amostra suficiente para desenhar o mapa. Faça os primeiros registros para ativar esta visualização."
                         actionLabel="Estou no ponto"
-                        onAction={() => { window.location.href = '/no-ponto'; }}
+                        actionHref="/no-ponto"
                         secondaryActionLabel="Ver ranking"
-                        onSecondaryAction={() => { window.location.href = '/bairros'; }}
+                        secondaryActionHref="/bairros"
                         term="amostra_minima"
                     />
                 ) : (
